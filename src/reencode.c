@@ -1,7 +1,7 @@
 /* reencode.c
  * - runtime reencoding of vorbis audio (usually to lower bitrates).
  *
- * $Id: reencode.c,v 1.9 2003/03/22 02:27:55 karl Exp $
+ * $Id: reencode.c,v 1.10 2003/12/22 14:01:09 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -155,7 +155,7 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
                     s->encoder = encode_initialise(s->out_channels, 
                             s->out_samplerate, s->managed, 
                             s->out_min_br, s->out_nom_br, s->out_max_br,
-                            s->quality, s->current_serial, &s->vc);
+                            s->quality, &s->vc);
 
                     if(!s->encoder) {
                         LOG_ERROR0("Failed to configure encoder for reencoding");

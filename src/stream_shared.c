@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.16 2003/04/04 16:32:16 karl Exp $
+ * $Id: stream_shared.c,v 1.17 2003/12/22 14:01:09 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -172,7 +172,7 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
                     sdsc->stream->samplerate, sdsc->stream->managed, 
                     sdsc->stream->min_br, sdsc->stream->nom_br, 
                     sdsc->stream->max_br, sdsc->stream->quality,
-                    sdsc->stream->serial++, &sdsc->vc);
+                    &sdsc->vc);
             if(!sdsc->enc) {
                 LOG_ERROR0("Failed to initialise encoder");
                 return -2;

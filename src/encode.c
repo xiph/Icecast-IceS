@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.18 2003/12/22 01:53:20 karl Exp $
+ * $Id: encode.c,v 1.19 2003/12/22 14:01:09 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -29,6 +29,23 @@
 #define MODULE "encode/"
 #include "logging.h"
 
+static mutex_t _serial_lock;
+
+static long _get_serial()
+{
+    static long prev_serial = 0;
+    long serial;
+
+    thread_mutex_lock (&_serial_lock);
+    serial = prev_serial;
+    while (serial == prev_serial)
+        serial = rand();
+    prev_serial = serial;
+    thread_mutex_unlock (&_serial_lock);
+
+    return serial;
+}
+
 void encode_clear(encoder_state *s)
 {
     if(s)
@@ -42,9 +59,9 @@ void encode_clear(encoder_state *s)
     }
 }
 
+
 encoder_state *encode_initialise(int channels, int rate, int managed,
-        int min_br, int nom_br, int max_br, float quality,
-        int serial, vorbis_comment *vc)
+        int min_br, int nom_br, int max_br, float quality, vorbis_comment *vc)
 {
     encoder_state *s = calloc(1, sizeof(encoder_state));
     ogg_packet h1,h2,h3;
@@ -112,7 +129,7 @@ encoder_state *encode_initialise(int channels, int rate, int managed,
         vorbis_analysis_init(&s->vd, &s->vi);
         vorbis_block_init(&s->vd, &s->vb);
 
-        ogg_stream_init(&s->os, serial);
+        ogg_stream_init(&s->os, _get_serial());
 
         vorbis_analysis_headerout(&s->vd, vc, &h1,&h2,&h3);
         ogg_stream_packetin(&s->os, &h1);
@@ -275,5 +292,12 @@ int encode_flush(encoder_state *s, ogg_page *og)
         return 1;
 }
 
+void encode_init()
+{
+    thread_mutex_create (&_serial_lock);
+}
 
-
+void encode_close()
+{
+    thread_mutex_destroy (&_serial_lock);
+}

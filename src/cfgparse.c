@@ -1,7 +1,7 @@
 /* cfgparse.c
  * - cfgparse file reading code, plus default settings.
  *
- * $Id: cfgparse.c,v 1.8 2003/12/22 01:53:20 karl Exp $
+ * $Id: cfgparse.c,v 1.9 2003/12/22 14:01:09 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -142,7 +142,6 @@ static void _set_instance_defaults(instance_t *instance)
 
     instance->queue = calloc(1, sizeof(buffer_queue));
     thread_mutex_create(&instance->queue->lock);
-    instance->serial = rand();
 
     instance->next = NULL;
 }

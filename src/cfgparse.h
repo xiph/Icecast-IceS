@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: cfgparse.h,v 1.5 2003/12/21 03:38:53 karl Exp $
+ * $Id: cfgparse.h,v 1.6 2003/12/22 14:01:09 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -59,7 +59,6 @@ typedef struct _instance_tag
     
     /* private */
     FILE *savefile;
-    int serial;
     int buffer_failures;
     int died;
     int kill;

@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.13 2003/12/21 03:38:53 karl Exp $
+ * $Id: ices.c,v 1.14 2003/12/22 14:01:09 karl Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -50,6 +50,7 @@ int main(int argc, char **argv)
     thread_initialize();
     config_initialize();
     shout_init();
+    encode_init();
 
     signals_setup();
 
@@ -100,6 +101,7 @@ int main(int argc, char **argv)
     log_close(log);
 
  fail:
+    encode_close();
     shout_shutdown();
     config_shutdown();
     thread_shutdown();
