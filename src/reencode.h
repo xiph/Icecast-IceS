@@ -1,7 +1,7 @@
 /* reencode.h
  * - reencoding functions
  *
- * $Id: reencode.h,v 1.6 2003/03/22 01:14:35 karl Exp $
+ * $Id: reencode.h,v 1.7 2004/01/13 16:35:27 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -35,7 +35,7 @@ typedef struct {
     int in_samplerate;
     int in_channels;
 
-    long current_serial;
+    int current_serial;
     int need_headers;
 
     ogg_stream_state os;

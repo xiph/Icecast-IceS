@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.15 2003/12/28 21:49:22 karl Exp $
+ * $Id: ices.c,v 1.16 2004/01/13 16:35:27 karl Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 
     ices_config->log_id = log;
 
-    LOG_INFO0("ices started...");
+    LOG_INFO0(PACKAGE_STRING " started...");
     if (ices_config->pidfile != NULL)
     {
         FILE *f = fopen (ices_config->pidfile, "w");
