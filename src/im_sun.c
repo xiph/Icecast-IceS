@@ -1,7 +1,7 @@
 /* im_sun.c
  * - Raw PCM input from Solaris audio devices
  *
- * $Id: im_sun.c,v 1.10 2003/03/22 02:27:55 karl Exp $
+ * $Id: im_sun.c,v 1.11 2003/07/01 23:53:06 karl Exp $
  *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
@@ -29,8 +29,6 @@
 #include <stropts.h>
 #include <fcntl.h>
 
-
-#include "thread.h"
 #include "cfgparse.h"
 #include "stream.h"
 #include "inputmodule.h"

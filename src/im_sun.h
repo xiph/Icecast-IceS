@@ -1,7 +1,7 @@
 /* im_sun.h
  * - read pcm data from sun devices
  *
- * $Id: im_sun.h,v 1.3 2003/03/16 14:21:48 msmith Exp $
+ * $Id: im_sun.h,v 1.4 2003/07/01 23:53:06 karl Exp $
  *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
@@ -18,7 +18,7 @@
 
 #include <sys/audioio.h>
 #include "inputmodule.h"
-#include "thread.h"
+#include "thread/thread.h"
 #include <ogg/ogg.h>
 
 typedef struct
