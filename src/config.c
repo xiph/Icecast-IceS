@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.9 2002/07/20 12:52:06 msmith Exp $
+ * $Id: config.c,v 1.10 2002/08/03 08:14:54 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -46,6 +46,7 @@
 #define DEFAULT_QUALITY 3
 #define DEFAULT_REENCODE 0
 #define DEFAULT_DOWNMIX 0
+#define DEFAULT_RESAMPLE 0
 #define DEFAULT_RECONN_DELAY 2
 #define DEFAULT_RECONN_ATTEMPTS 10
 #define DEFAULT_MAXQUEUELENGTH 100 /* Make it _BIG_ by default */
@@ -126,6 +127,8 @@ static void _set_instance_defaults(instance_t *instance)
     instance->quality = DEFAULT_QUALITY;
 	instance->encode = DEFAULT_REENCODE;
     instance->downmix = DEFAULT_DOWNMIX;
+    instance->resampleinrate = DEFAULT_RESAMPLE;
+    instance->resampleoutrate = DEFAULT_RESAMPLE;
 	instance->reconnect_delay = DEFAULT_RECONN_DELAY;
 	instance->reconnect_attempts = DEFAULT_RECONN_ATTEMPTS;
 	instance->max_queue_length = DEFAULT_MAXQUEUELENGTH;
@@ -136,6 +139,19 @@ static void _set_instance_defaults(instance_t *instance)
 	instance->serial = rand();
 
 	instance->next = NULL;
+}
+
+static void _parse_resample(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
+{
+	do {
+		if (node == NULL) break;
+		if (xmlIsBlankNode(node)) continue;
+
+        if(strcmp(node->name, "in-rate") == 0)
+            SET_INT(instance->resampleinrate);
+        else if(strcmp(node->name, "out-rate") == 0)
+            SET_INT(instance->resampleoutrate);
+    } while((node = node->next));
 }
 
 static void _parse_encode(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
@@ -194,6 +210,8 @@ static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 			SET_INT(instance->max_queue_length);
         else if(strcmp(node->name, "downmix") == 0)
             SET_INT(instance->downmix);
+        else if(strcmp(node->name, "resample") == 0)
+            _parse_resample(instance, doc, node->xmlChildrenNode);
 		else if (strcmp(node->name, "encode") == 0)
 			_parse_encode(instance, doc, node->xmlChildrenNode);
 	} while ((node = node->next));

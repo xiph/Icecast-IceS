@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.11 2002/07/20 12:52:06 msmith Exp $
+ * $Id: config.h,v 1.12 2002/08/03 08:14:54 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -38,6 +38,8 @@ typedef struct _instance_tag
 	int reconnect_attempts;
 	int encode;
     int downmix;
+    int resampleinrate;
+    int resampleoutrate;
 	int max_queue_length;
 	char *savefilename;
 

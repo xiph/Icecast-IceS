@@ -3,6 +3,8 @@
 - stream rewriting for serial number increment, etc.
 - DOCUMENTATION!
 - resampling.
+- graceful shutdown is broken (at least for resampling/live input, possibly
+  others)
 
 
 

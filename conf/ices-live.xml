@@ -5,7 +5,7 @@
 	<logpath>/tmp</logpath> <!-- where logs, etc go. -->
 	<logfile>ices.log</logfile>
 	<loglevel>4</loglevel> <!-- 1=error,2=warn,3=info,4=debug -->
-    <consolelog>0</consolelog> <!-- logfile is ignored if this is set to 1 -->
+    <consolelog>1</consolelog> <!-- logfile is ignored if this is set to 1 -->
 
 	<stream>
 		<!-- metadata used for stream listing (not currently used) -->
@@ -22,7 +22,7 @@
 		-->
 		<input>
 			<module>oss</module>
-			<param name="rate">22050</param> <!-- samplerate -->
+			<param name="rate">44100</param> <!-- samplerate -->
 			<param name="channels">2</param> <!-- number of channels -->
 			<param name="device">/dev/dsp</param> <!-- audio device -->
 			<param name="metadata">1</param> <!-- Read metadata (from stdin by default, or filename defined below (if the latter, only on SIGUSR1) -->
@@ -58,13 +58,21 @@
 
 			-->
 			<encode>  
-				<quality>3</quality>
+				<quality>0</quality>
 				<samplerate>22050</samplerate>
-				<channels>2</channels>
+				<channels>1</channels>
 			</encode>
 
             <!-- stereo->mono downmixing, enabled by setting this to 1 -->
-            <downmix>0</downmix>
+            <downmix>1</downmix>
+
+            <!-- resampling. Set to the frequency (in Hz) you wish to resample
+                 to, or 0 to disable -->
+             
+            <resample>
+                <in-rate>44100</in-rate>
+                <out-rate>22050</out-rate>
+            </resample>
 		</instance>
 
 	</stream>

@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.8 2002/07/20 12:52:06 msmith Exp $
+ * $Id: stream_shared.c,v 1.9 2002/08/03 08:14:54 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -23,7 +23,7 @@
 #include "stream.h"
 #include "reencode.h"
 #include "encode.h"
-#include "downmix.h"
+#include "audio.h"
 
 #define MODULE "stream-shared/"
 #include "logging.h"
@@ -31,6 +31,8 @@
 int stream_send_data(stream_description *s, unsigned char *buf, 
         unsigned long len)
 {
+    int ret;
+
     if(s->stream->savefile)
     {
         int ret = fwrite(buf, 1, len, s->stream->savefile);
@@ -38,7 +40,11 @@ int stream_send_data(stream_description *s, unsigned char *buf,
             LOG_ERROR1("Failed to write %d bytes to savefile", len);
     }
 
-    return shout_send_raw(s->shout, buf, len);
+    ret = shout_send_raw(s->shout, buf, len);
+    if(ret < 0)
+        return 0; /* Force server-reconnect */
+    else
+        return ret;
 }
 
 void stream_release_buffer(ref_buffer *buf)
@@ -132,6 +138,11 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 		/* We use critical as a flag to say 'start a new stream' */
 		if(buffer->critical)
 		{
+            if(sdsc->resamp) {
+                resample_finish(sdsc->resamp);
+                encode_data_float(sdsc->enc, sdsc->resamp->buffers,
+                        sdsc->resamp->buffill);
+            }
 			encode_finish(sdsc->enc);
 			while(encode_flush(sdsc->enc, &og) != 0)
 			{
@@ -157,11 +168,26 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 
         if(sdsc->downmix) {
             downmix_buffer(sdsc->downmix, buffer->buf, buffer->len, be);
-            encode_data_float(sdsc->enc, &sdsc->downmix->buffer, buffer->len/4);
+            if(sdsc->resamp) {
+                resample_buffer_float(sdsc->resamp, &sdsc->downmix->buffer, 
+                        buffer->len/4);
+                encode_data_float(sdsc->enc, sdsc->resamp->buffers, 
+                        sdsc->resamp->buffill);
+            }
+            else
+                encode_data_float(sdsc->enc, &sdsc->downmix->buffer,
+                       buffer->len/4);
         }
-        else
+        else if(sdsc->resamp) {
+                resample_buffer(sdsc->resamp, (signed char *)buffer->buf, 
+                        buffer->len, be);
+                encode_data_float(sdsc->enc, sdsc->resamp->buffers,
+                        sdsc->resamp->buffill);
+        }
+        else {
 		    encode_data(sdsc->enc, (signed char *)(buffer->buf), 
                     buffer->len, be);
+        }
 
 		while(encode_dataout(sdsc->enc, &og) > 0)
 		{

@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.12 2002/07/20 12:52:06 msmith Exp $
+ * $Id: stream.c,v 1.13 2002/08/03 08:14:54 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -28,7 +28,7 @@
 #include "thread/thread.h"
 #include "reencode.h"
 #include "encode.h"
-#include "downmix.h"
+#include "audio.h"
 #include "inputmodule.h"
 #include "stream_shared.h"
 #include "stream.h"
@@ -125,6 +125,11 @@ void *ices_instance_stream(void *arg)
         sdsc->downmix = downmix_initialise();
     }
 
+    if(stream->resampleinrate && stream->resampleoutrate && encoding) {
+        sdsc->resamp = resample_initialise(stream->channels, 
+                stream->resampleinrate, stream->resampleoutrate);
+    }
+
 	if(encoding)
 	{
 		if(inmod->metadata_update)
@@ -208,7 +213,7 @@ void *ices_instance_stream(void *arg)
 			{
 				LOG_ERROR1("Send error: %s", 
                         shout_get_error(sdsc->shout));
-				if(shouterr == SHOUTERR_SOCKET)
+				if(shout_get_errno(sdsc->shout) == SHOUTERR_SOCKET)
 				{
 					int i=0;
 
@@ -275,6 +280,7 @@ void *ices_instance_stream(void *arg)
 	encode_clear(sdsc->enc);
 	reencode_clear(sdsc->reenc);
     downmix_clear(sdsc->downmix);
+    resample_clear(sdsc->resamp);
 	vorbis_comment_clear(&sdsc->vc);
 
 	stream->died = 1;

@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.8 2002/07/05 07:55:02 msmith Exp $
+ * $Id: encode.c,v 1.9 2002/08/03 08:14:54 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -184,8 +184,8 @@ int encode_dataout(encoder_state *s, ogg_page *og)
          */
         if(s->samples_in_current_page > s->samplerate * 2)
         {
-            LOG_DEBUG1("Forcing flush: Too many samples in current page (%d)", 
-                    s->samples_in_current_page);
+            /*LOG_DEBUG1("Forcing flush: Too many samples in current page (%d)",
+                    s->samples_in_current_page); */
             result = ogg_stream_flush(&s->os, og);
         }
         else

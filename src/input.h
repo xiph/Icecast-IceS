@@ -1,7 +1,7 @@
 /* input.h
  * - Input functions
  *
- * $Id: input.h,v 1.5 2002/07/20 12:52:06 msmith Exp $
+ * $Id: input.h,v 1.6 2002/08/03 08:14:54 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -22,7 +22,7 @@
 #include "stream.h"
 #include "reencode.h"
 #include "encode.h"
-#include "downmix.h"
+#include "audio.h"
 
 typedef struct {
 	instance_t *stream;
@@ -30,6 +30,7 @@ typedef struct {
     reencode_state *reenc;
     encoder_state *enc;
     downmix_state *downmix;
+    resample_state *resamp;
     shout_t *shout;
     vorbis_comment vc;
 } stream_description;
