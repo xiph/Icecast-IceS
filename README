@@ -1,21 +1,19 @@
 This is ices 2.0
 
-It's the primary source client for icecast 2.0.
+This is a beta release of ices 2.0.  It's the primary source client
+for icecast 2.0.  It has proven to stable and well featured.
 
-This is the first beta release of ices 2.0. It's fairly stable and well-
-featured, but some configurations may cause problems.
-
-Documentation is not yet done, so you'll have to rely on the example config
-files for help for now.
+Documentation is in the doc subdirectory, and some sample configuration
+files exist in the conf subdirectory.
 
 To build and install, run
     ./configure
     make
     make install
 
-You WILL need to edit the config file you choose to use before running this.
+You WILL need to edit the config file you choose to use before running
+this application.
 
 For help, email us at icecast@xiph.org, icecast-dev@xiph.org, or find us
-on IRC at irc.freenode.net, in #icecast or #vorbis.
-
+on IRC at irc.freenode.net, in #icecast.
 
