@@ -25,7 +25,9 @@ ices_SOURCES = input.c config.c stream.c ices.c signals.c im_playlist.c reencode
 
 ices_LDADD = net/libicenet.la thread/libicethread.la log/libicelog.la\
 	avl/libiceavl.la timing/libicetiming.la
-LIBS = -lpthread $(SUN_LIBS)
+
+LIBS = -lpthread @SOCKET_LIBS@ @XML_LIBS@ @OGG_LIBS@ @VORBIS_LIBS@\
+       @VORBISENC_LIBS@ @SHOUT_LIBS@
 
 INCLUDES = -Inet -Ithread -Iavl -Ilog -Itiming $(OSS_CFLAGS) $(SUN_CFLAGS)
 
