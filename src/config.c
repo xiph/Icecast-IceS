@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.8 2002/07/05 07:55:02 msmith Exp $
+ * $Id: config.c,v 1.9 2002/07/20 12:52:06 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -45,6 +45,7 @@
 #define DEFAULT_MAX_BITRATE -1
 #define DEFAULT_QUALITY 3
 #define DEFAULT_REENCODE 0
+#define DEFAULT_DOWNMIX 0
 #define DEFAULT_RECONN_DELAY 2
 #define DEFAULT_RECONN_ATTEMPTS 10
 #define DEFAULT_MAXQUEUELENGTH 100 /* Make it _BIG_ by default */
@@ -124,6 +125,7 @@ static void _set_instance_defaults(instance_t *instance)
 	instance->max_br = DEFAULT_MAX_BITRATE;
     instance->quality = DEFAULT_QUALITY;
 	instance->encode = DEFAULT_REENCODE;
+    instance->downmix = DEFAULT_DOWNMIX;
 	instance->reconnect_delay = DEFAULT_RECONN_DELAY;
 	instance->reconnect_attempts = DEFAULT_RECONN_ATTEMPTS;
 	instance->max_queue_length = DEFAULT_MAXQUEUELENGTH;
@@ -190,6 +192,8 @@ static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 			SET_INT(instance->reconnect_attempts);
 		else if(strcmp(node->name, "maxqueuelength") == 0)
 			SET_INT(instance->max_queue_length);
+        else if(strcmp(node->name, "downmix") == 0)
+            SET_INT(instance->downmix);
 		else if (strcmp(node->name, "encode") == 0)
 			_parse_encode(instance, doc, node->xmlChildrenNode);
 	} while ((node = node->next));

@@ -1,7 +1,7 @@
 /* metadata.c
  * - Metadata manipulation
  *
- * $Id: metadata.c,v 1.5 2001/09/25 12:04:22 msmith Exp $
+ * $Id: metadata.c,v 1.6 2002/07/20 12:52:06 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -76,8 +76,9 @@ void *metadata_thread_signal(void *arg)
 		int comments = 0;
         FILE *file;
 
-        while(metadata_update_signalled == 0)
+        while(metadata_update_signalled == 0){
             thread_cond_wait(&ices_config->event_pending_cond);
+        }
 
         metadata_update_signalled = 0;
 

@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.7 2002/01/28 12:52:59 msmith Exp $
+ * $Id: stream_shared.c,v 1.8 2002/07/20 12:52:06 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -23,6 +23,7 @@
 #include "stream.h"
 #include "reencode.h"
 #include "encode.h"
+#include "downmix.h"
 
 #define MODULE "stream-shared/"
 #include "logging.h"
@@ -154,7 +155,13 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
                     sdsc->stream->serial++, &sdsc->vc);
 		}
 
-		encode_data(sdsc->enc, (signed char *)(buffer->buf), buffer->len, be);
+        if(sdsc->downmix) {
+            downmix_buffer(sdsc->downmix, buffer->buf, buffer->len, be);
+            encode_data_float(sdsc->enc, &sdsc->downmix->buffer, buffer->len/4);
+        }
+        else
+		    encode_data(sdsc->enc, (signed char *)(buffer->buf), 
+                    buffer->len, be);
 
 		while(encode_dataout(sdsc->enc, &og) > 0)
 		{

@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.11 2002/01/28 00:19:15 msmith Exp $
+ * $Id: stream.c,v 1.12 2002/07/20 12:52:06 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -28,6 +28,7 @@
 #include "thread/thread.h"
 #include "reencode.h"
 #include "encode.h"
+#include "downmix.h"
 #include "inputmodule.h"
 #include "stream_shared.h"
 #include "stream.h"
@@ -117,6 +118,12 @@ void *ices_instance_stream(void *arg)
 			stream->died = 1;
 			return NULL;
 		}
+
+    /* FIXME: For now, only on encoding, not reencoding */
+    if(stream->downmix && encoding && stream->channels == 2) {
+        stream->channels = 1;
+        sdsc->downmix = downmix_initialise();
+    }
 
 	if(encoding)
 	{
@@ -267,6 +274,7 @@ void *ices_instance_stream(void *arg)
     	shout_free(sdsc->shout);
 	encode_clear(sdsc->enc);
 	reencode_clear(sdsc->reenc);
+    downmix_clear(sdsc->downmix);
 	vorbis_comment_clear(&sdsc->vc);
 
 	stream->died = 1;
