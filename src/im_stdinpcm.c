@@ -1,7 +1,7 @@
 /* im_stdinpcm.c
  * - Raw PCM input from stdin
  *
- * $Id: im_stdinpcm.c,v 1.9 2003/07/06 06:20:34 brendan Exp $
+ * $Id: im_stdinpcm.c,v 1.10 2004/01/17 04:24:10 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -180,10 +180,11 @@ input_module_t *stdin_open_module(module_param_t *params)
     }
     if(use_metadata)
     {
-        if(ices_config->metadata_filename) {
+        if (ices_config->metadata_filename)
+        {
+            LOG_INFO0("Starting metadata update thread");
             thread_create("im_stdinpcm-metadata", metadata_thread_signal, mod, 1);
-	    LOG_INFO0("Started metadata update thread");
-	}
+        }
     }
 
     return mod;

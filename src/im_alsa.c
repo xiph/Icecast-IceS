@@ -1,7 +1,7 @@
 /* im_alsa.c
  * - Raw PCM input from ALSA devices
  *
- * $Id: im_alsa.c,v 1.6 2004/01/11 03:11:05 karl Exp $
+ * $Id: im_alsa.c,v 1.7 2004/01/17 04:24:10 karl Exp $
  *
  * by Jason Chu <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -257,11 +257,11 @@ input_module_t *alsa_open_module(module_param_t *params)
 
     if(use_metadata)
     {
+        LOG_INFO0("Starting metadata update thread");
         if(ices_config->metadata_filename)
             thread_create("im_alsa-metadata", metadata_thread_signal, mod, 1);
         else
             thread_create("im_alsa-metadata", metadata_thread_stdin, mod, 1);
-        LOG_INFO0("Started metadata update thread");
     }
 
     return mod;

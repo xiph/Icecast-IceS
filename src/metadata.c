@@ -1,7 +1,7 @@
 /* metadata.c
  * - Metadata manipulation
  *
- * $Id: metadata.c,v 1.11 2003/03/22 02:27:55 karl Exp $
+ * $Id: metadata.c,v 1.12 2004/01/17 04:24:10 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -36,11 +36,49 @@ void *metadata_thread_stdin(void *arg)
     char buf[1024];
     input_module_t *mod = arg;
 
+    if (ices_config->background)
+    {
+        LOG_INFO0("Metadata thread shutting down, tried to use "
+                "stdin from background");
+        return NULL;
+    }
     while(1)
     {
         char **md = NULL;
         int comments = 0;
+        int wait_for_data = 1;
 
+        /* wait for data */
+        while (wait_for_data)
+        {
+            struct timeval t;
+            fd_set fds;
+            FD_ZERO (&fds);
+            FD_SET (0, &fds);
+            t.tv_sec = 0;
+            t.tv_usec = 150;
+            
+            switch (select (1, &fds, NULL, NULL, &t))
+            {
+            case 1:
+                wait_for_data = 0;
+            case 0:
+                break;
+            default:
+                if (errno != EAGAIN)
+                {
+                    LOG_INFO1 ("shutting down thread (%d)", errno);
+                    return NULL; /* problem get out quick */
+                }
+                break;
+            }
+
+            if (ices_config->shutdown)
+            {
+                LOG_INFO0 ("metadata thread shutting down");
+                return NULL;
+            }
+        }
         while(fgets(buf, 1024, stdin))
         {
             if(buf[0] == '\n')
@@ -80,15 +118,21 @@ void *metadata_thread_signal(void *arg)
         int comments = 0;
         FILE *file;
 
-        while(metadata_update_signalled == 0){
+        while(metadata_update_signalled == 0)
+        {
             thread_cond_wait(&ices_config->event_pending_cond);
+            if (ices_config->shutdown)
+            {
+                LOG_INFO0 ("metadata thread shutting down");
+                return NULL;
+            }
         }
 
         metadata_update_signalled = 0;
 
         file = fopen(ices_config->metadata_filename, "r");
         if(!file) {
-            LOG_WARN2("Failed to open file %s for metadata update: %s", 
+            LOG_WARN2("Failed to open file \"%s\" for metadata update: %s", 
                     ices_config->metadata_filename, strerror(errno));
             continue;
         }

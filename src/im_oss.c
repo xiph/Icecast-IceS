@@ -1,7 +1,7 @@
 /* im_oss.c
  * - Raw PCM input from OSS devices
  *
- * $Id: im_oss.c,v 1.13 2003/03/28 01:07:37 karl Exp $
+ * $Id: im_oss.c,v 1.14 2004/01/17 04:24:10 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -256,11 +256,11 @@ input_module_t *oss_open_module(module_param_t *params)
 
     if(use_metadata)
     {
+        LOG_INFO0("Starting metadata update thread");
         if(ices_config->metadata_filename)
             thread_create("im_oss-metadata", metadata_thread_signal, mod, 1);
         else
             thread_create("im_oss-metadata", metadata_thread_stdin, mod, 1);
-        LOG_INFO0("Started metadata update thread");
     }
 
     return mod;

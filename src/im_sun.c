@@ -1,7 +1,7 @@
 /* im_sun.c
  * - Raw PCM input from Solaris audio devices
  *
- * $Id: im_sun.c,v 1.12 2003/12/24 15:52:09 karl Exp $
+ * $Id: im_sun.c,v 1.13 2004/01/17 04:24:10 karl Exp $
  *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
@@ -250,11 +250,11 @@ input_module_t *sun_open_module(module_param_t *params)
 
     if(use_metadata)
     {
+        LOG_INFO0("Starting metadata update thread");
         if(ices_config->metadata_filename)
             thread_create("im_sun-metadata", metadata_thread_signal, mod, 1);
         else
             thread_create("im_sun-metadata", metadata_thread_stdin, mod, 1);
-        LOG_INFO0("Started metadata update thread");
     }
 
     return mod;
