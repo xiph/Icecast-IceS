@@ -1,7 +1,7 @@
 /* im_sun.c
  * - Raw PCM input from Solaris audio devices
  *
- * $Id: im_sun.c,v 1.9 2003/03/22 01:14:35 karl Exp $
+ * $Id: im_sun.c,v 1.10 2003/03/22 02:27:55 karl Exp $
  *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
@@ -12,6 +12,10 @@
  * it under the terms of this license. A copy should be included
  * with this source.
  */
+
+#ifdef HAVE_CONFIG_H
+ #include <config.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -2,7 +2,7 @@
  * - Gets a filename to play back based on output from a program/shell script
  *   run each time.
  *
- * $Id: playlist_script.c,v 1.5 2003/03/22 01:14:35 karl Exp $
+ * $Id: playlist_script.c,v 1.6 2003/03/22 02:27:55 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -11,6 +11,10 @@
  * it under the terms of this license. A copy should be included
  * with this source.
  */
+
+#ifdef HAVE_CONFIG_H
+ #include <config.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

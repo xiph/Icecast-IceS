@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.26 2003/03/22 01:14:35 karl Exp $
+ * $Id: input.c,v 1.27 2003/03/22 02:27:55 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -11,6 +11,10 @@
  * it under the terms of this license. A copy should be included
  * with this source.
  */
+
+#ifdef HAVE_CONFIG_H
+ #include <config.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

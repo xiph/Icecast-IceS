@@ -1,7 +1,7 @@
 /* im_alsa.c
  * - Raw PCM input from ALSA devices
  *
- * $Id: im_alsa.c,v 1.3 2003/03/22 01:14:35 karl Exp $
+ * $Id: im_alsa.c,v 1.4 2003/03/22 02:27:55 karl Exp $
  *
  * by Jason Chu <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -12,6 +12,10 @@
  * it under the terms of this license. A copy should be included
  * with this source.
  */
+
+#ifdef HAVE_CONFIG_H
+ #include <config.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

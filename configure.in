@@ -1,36 +1,36 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(src/ices.c)
+AC_INIT([IceS], 2.0-Beta2, [icecast@xiph.org])
 AC_PREREQ(2.52)
+AC_CONFIG_SRCDIR(src/ices.c)
 
-AM_INIT_AUTOMAKE(ices,2.0)
+AM_INIT_AUTOMAKE(dist-bzip2)
+AM_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
 AM_PROG_LIBTOOL
 
 dnl Set some options based on environment
 
-SOCKET_LIBS=
-
 AC_DEFINE(_XOPEN_SOURCE, 500, [Define if you have POSIX and XPG specifications])
-if test -z "$GCC"; then
-        case $host in 
-        *-*-irix*)
-                DEBUG="-g -signed -D_REENTRANT" 
-                XIPH_CFLAGS="-O2 -w -signed -D_REENTRANT"
-                PROFILE="-p -g3 -O2 -signed -D_REENTRANT"
-		;;
-        *-*-solaris*)
-                DEBUG="-v -g -D_REENTRANT"
-                XIPH_CFLAGS="-xO4 -fast -w -fsimple -native -xcg92 -D_REENTRANT"
-                PROFILE="-v -xpg -g -xO4 -fast -native -fsimple -xcg92 -Dsuncc -D_REENTRANT"
-		;;
-        *)
-                DEBUG="-g -D_REENTRANT"
-                XIPH_CFLAGS="-O -D_REENTRANT"
-                PROFILE="-g -p -D_REENTRANT" 
-		;;
-        esac
-else
+case $host in 
+*-*-irix*)
+        DEBUG="-g -signed -D_REENTRANT" 
+        XIPH_CFLAGS="-O2 -w -signed -D_REENTRANT"
+        PROFILE="-p -g3 -O2 -signed -D_REENTRANT"
+;;
+*-*-solaris*)
+        AC_DEFINE(__EXTENSIONS__, 1, [define to 1 for IPv6 functions on solaris])
+        DEBUG="-v -g -D_REENTRANT"
+        XIPH_CFLAGS="-xO4 -fast -w -fsimple -native -xcg92 -D_REENTRANT"
+        PROFILE="-v -xpg -g -xO4 -fast -native -fsimple -xcg92 -Dsuncc -D_REENTRANT"
+;;
+*)
+        DEBUG="-g -D_REENTRANT"
+        XIPH_CFLAGS="-O -D_REENTRANT"
+        PROFILE="-g -p -D_REENTRANT" 
+;;
+esac
+if test -n "$GCC"; then
         AC_DEFINE(_GNU_SOURCE, ,[Define if you have POSIX and GNU specifications])
         XIPH_CFLAGS="-ffast-math -fsigned-char"
         DEBUG="-g"
@@ -44,17 +44,13 @@ dnl Checks for libraries.
 dnl Checks for header files.
 AC_HEADER_STDC
 
-AC_CHECK_HEADER(stdint.h, AC_DEFINE(HAVE_STDINT_H, 1),,)
-
 dnl Check for OSS
 
 AC_CHECK_HEADER(sys/soundcard.h, have_oss=yes, have_oss=no)
 AC_CHECK_HEADER(machine/soundcard.h, have_oss=yes, )
 AM_CONDITIONAL(HAVE_OSS,test "$have_oss" = yes)
-
-
 if test "$have_oss" = yes; then
-   OSS_CFLAGS="-DHAVE_OSS"
+    AC_DEFINE(HAVE_OSS,,[Define to enable OSS input module])
 fi
 
 dnl Check for Sun audio
@@ -63,7 +59,7 @@ AC_CHECK_HEADER(sys/audioio.h, have_sun_audio=yes, have_sun_audio=no)
 AM_CONDITIONAL(HAVE_SUN_AUDIO,test "$have_sun_audio" = yes)
 
 if test "$have_sun_audio" = yes; then
-   SUN_CFLAGS="-DHAVE_SUN_AUDIO"
+    AC_DEFINE(HAVE_SUN_AUDIO,,[Define to enable sun audio input module])
 fi
 
 dnl Check for ALSA audio
@@ -72,19 +68,40 @@ AC_CHECK_HEADER(alsa/asoundlib.h, have_alsa=yes, have_alsa=no)
 AM_CONDITIONAL(HAVE_ALSA,test "$have_alsa" = yes)
 
 if test "$have_alsa" = yes; then
-   ALSA_CFLAGS="-DHAVE_ALSA"
    ALSA_LIBS="-lasound"
+   AC_DEFINE(HAVE_ALSA, ,[Define to enable ALSA input module])
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+AC_CHECK_TYPES([socklen_t],,,[
+#include <sys/types.h>
+#include <sys/socket.h>
+])
+AH_BOTTOM([
+#ifndef HAVE_SOCKLEN_T
+      typedef int socklen_t
+#endif
+])
+
+dnl needs to be checked early on, so that additional libraries
+dnl don't trick the check
+ACX_PTHREAD([
+     LIBS="$PTHREAD_LIBS $LIBS"
+     XIPH_CFLAGS="$XIPH_CFLAGS $PTHREAD_CFLAGS"
+     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+     CC="$PTHREAD_CC"
+])
 
 dnl Check for types
+AC_CHECK_TYPES([uint64_t],,AC_ERROR([could not find a uint64_t type]))
 
 dnl Checks for library functions.
 
 AC_CHECK_LIB(nsl, gethostbyname, LIBS="-lnsl $LIBS",)
 AC_CHECK_LIB(socket, socket, LIBS="-lsocket $LIBS",)
+AC_CHECK_LIB(rt, nanosleep, LIBS="-lrt $LIBS",)
+AC_CHECK_LIB(resolv, res_query, LIBS="-lresolv $LIBS",)
 
 dnl -- configure options --
 
@@ -104,7 +121,7 @@ if test -n "$XMLCONFIG"
 then
   XML_LIBS="`$XMLCONFIG --libs`"
   XML_CFLAGS="`$XMLCONFIG --cflags`"
-  LIBS="$LIBS $XML_LIBS"
+  LIBS="$XML_LIBS $LIBS"
   XIPH_CFLAGS="$XIPH_CFLAGS $XML_CFLAGS"
   AC_CHECK_FUNC(xmlParseFile,, [AC_MSG_ERROR([There was a problem linking with libxml])])
 else
@@ -112,30 +129,21 @@ else
 fi
 
 AM_PATH_OGG(, AC_MSG_ERROR(must have Ogg installed!))
-LIBS="$LIBS $OGG_LIBS"
+LIBS="$OGG_LIBS $LIBS"
 XIPH_CFLAGS="$XIPH_CFLAGS $OGG_CFLAGS"
 
 AM_PATH_VORBIS(, AC_MSG_ERROR(must have Vorbis installed!))
-LIBS="$LIBS $VORBIS_LIBS $VORBISENC_LIBS"
+LIBS="$VORBIS_LIBS $VORBISENC_LIBS $LIBS"
 XIPH_CFLAGS="$XIPH_CFLAGS $VORBIS_CFLAGS $VORBISENC_CFLAGS"
 
-ACX_PTHREAD([
-     LIBS="$LIBS $PTHREAD_LIBS"
-     XIPH_CFLAGS="$XIPH_CFLAGS $PTHREAD_CFLAGS"
-     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-     CC="$PTHREAD_CC"
-])
 AM_PATH_SHOUT(, AC_MSG_ERROR(must have libshout installed!))
-LIBS="$LIBS $SHOUT_LIBS"
+LIBS="$SHOUT_LIBS $LIBS"
 XIPH_CFLAGS="$XIPH_CFLAGS $SHOUT_CFLAGS"
 
 dnl Make substitutions
 
-AC_SUBST(OSS_CFLAGS)
-AC_SUBST(SUN_CFLAGS)
-AC_SUBST(ALSA_CFLAGS)
+AC_SUBST(ICES_EXTRA_OBJS)
 AC_SUBST(ALSA_LIBS)
-AC_SUBST(SOCKET_LIBS)
 AC_SUBST(XML_LIBS)
 AC_SUBST(SHOUT_LIBS)
 AC_SUBST(OGG_CFLAGS)
@@ -146,8 +154,8 @@ AC_SUBST(LIBTOOL_DEPS)
 AC_SUBST(OPT)
 AC_SUBST(LIBS)
 AC_SUBST(DEBUG)
-dnl AC_SUBST(CFLAGS)
 AC_SUBST(PROFILE)
 AC_SUBST(XIPH_CFLAGS)
+AC_SUBST(PTHREAD_CFLAGS)
 
 AC_OUTPUT(Makefile conf/Makefile src/Makefile src/avl/Makefile src/thread/Makefile src/net/Makefile src/log/Makefile src/timing/Makefile)
