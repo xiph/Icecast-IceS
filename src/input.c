@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.15 2002/08/09 13:59:02 msmith Exp $
+ * $Id: input.c,v 1.16 2002/08/10 04:50:00 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -140,6 +140,11 @@ static int _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
 		vorbis_info_clear(&vi);
 		ogg_stream_clear(&os);
 	}
+
+    if(ogg_page_granulepos(&og) == -1) {
+        LOG_ERROR0("Timing control: corrupt timing information in vorbis file, cannot stream.");
+        return -1;
+    }
 
 	control->samples = ogg_page_granulepos(&og) - control->oldsamples;
 	control->oldsamples = ogg_page_granulepos(&og);
@@ -372,8 +377,13 @@ void input_loop(void)
 				break;
 		}
 
-        if(ret < 0)
+        if(ret < 0) {
+            /* Tell the input module to go to the next track, hopefully allowing
+             * resync. */
+	        ices_config->inmod->handle_event(ices_config->inmod,
+                    EVENT_NEXTTRACK,NULL);
             valid_stream = 0;
+        }
 
         inc_count = 0;
 

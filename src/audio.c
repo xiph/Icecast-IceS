@@ -2,7 +2,7 @@
  * stereo->mono downmixing
  * resampling
  *
- * $Id: audio.c,v 1.2 2002/08/03 14:41:10 msmith Exp $
+ * $Id: audio.c,v 1.3 2002/08/10 04:50:00 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -156,6 +156,10 @@ void resample_buffer_float(resample_state *s, float **buf, int buflen)
     int res;
 
     s->buffill = res_push_check(&s->resampler, buflen);
+    if(s->buffill <= 0) {
+        LOG_ERROR1("Fatal reencoding error: res_push_check returned %d", 
+                s->buffill);
+    }
 
     if(s->bufsize < s->buffill) {
         s->bufsize = s->buffill;
