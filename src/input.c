@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.19 2002/12/29 10:28:30 msmith Exp $
+ * $Id: input.c,v 1.20 2002/12/29 11:28:19 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -96,10 +96,10 @@ static void _sleep(timing_control *control)
 	sleep = ((double)control->senttime / 1000) - 
 		(timing_get_time() - control->starttime);
 
-    if(sleep > 1000) {
-        LOG_WARN1("Extended sleep requested (%ld ms), sleeping for one second",
+    if(sleep > 5000) {
+        LOG_WARN1("Extended sleep requested (%ld ms), sleeping for 5 seconds",
                 sleep);
-        timing_sleep(1000);
+        timing_sleep(5000);
     }
     else if(sleep > 0) 
         timing_sleep((uint64_t)sleep);
