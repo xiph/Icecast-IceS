@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.15 2003/03/22 02:27:55 karl Exp $
+ * $Id: stream_shared.c,v 1.16 2003/04/04 16:32:16 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -146,6 +146,9 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
                 resample_finish(sdsc->resamp);
                 encode_data_float(sdsc->enc, sdsc->resamp->buffers,
                         sdsc->resamp->buffill);
+                resample_clear(sdsc->resamp);
+                sdsc->resamp = resample_initialise (sdsc->stream->channels,
+                        sdsc->stream->resampleinrate, sdsc->stream->resampleoutrate);
             }
             encode_finish(sdsc->enc);
             while(encode_flush(sdsc->enc, &og) != 0)
