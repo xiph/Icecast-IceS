@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.23 2003/03/07 04:20:55 karl Exp $
+ * $Id: input.c,v 1.24 2003/03/13 18:08:06 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -481,9 +481,6 @@ void input_loop(void)
 	thread_cond_destroy(&ices_config->event_pending_cond);
 	thread_mutex_destroy(&ices_config->flush_lock);
 	thread_mutex_destroy(&ices_config->refcount_lock);
-
-	free(control);
-
 
 	inmod->handle_event(inmod, EVENT_SHUTDOWN, NULL);
 
