@@ -262,8 +262,8 @@ int main ()
        :
      else
        echo "*** Could not run Shout test program, checking why..."
-       CFLAGS="$CFLAGS $SHOUT_CFLAGS"
-       LIBS="$LIBS $SHOUT_LIBS"
+       CFLAGS="$CFLAGS $SHOUT_CFLAGS $OGG_CFLAGS $VORBIS_CFLAGS"
+       LIBS="$LIBS $SHOUT_LIBS $OGG_LIBS $VORBIS_LIBS"
        AC_TRY_LINK([
 #include <stdio.h>
 #include <shout/shout.h>
