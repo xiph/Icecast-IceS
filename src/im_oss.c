@@ -1,7 +1,7 @@
 /* im_oss.c
  * - Raw PCM input from OSS devices
  *
- * $Id: im_oss.c,v 1.7 2002/08/09 13:52:56 msmith Exp $
+ * $Id: im_oss.c,v 1.8 2002/12/29 10:55:46 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -35,6 +35,13 @@
 #include "logging.h"
 
 #define BUFSIZE 8192
+
+/* Some platforms (freebsd) don't define this, so just define it to something
+ * that should be treated the same
+ */
+#ifndef ERESTART
+#define ERESTART EINTR
+#endif
 
 static void close_module(input_module_t *mod)
 {
