@@ -1,6 +1,8 @@
 /* im_sun.c
  * - Raw PCM input from Solaris audio devices
  *
+ * $Id: im_sun.c,v 1.3 2001/09/25 12:04:21 msmith Exp $
+ *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>

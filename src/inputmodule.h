@@ -1,6 +1,8 @@
 /* inputmodule.h
  * - the interface for input modules to implement.
  *
+ * $Id: inputmodule.h,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
  * This program is distributed under the terms of the GNU General

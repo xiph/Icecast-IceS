@@ -1,6 +1,8 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
+ * $Id: stream_shared.c,v 1.4 2001/09/25 12:04:22 msmith Exp $
+ *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
  * This program is distributed under the terms of the GNU General
@@ -75,7 +77,7 @@ ref_buffer *stream_wait_for_data(instance_t *stream)
 
 	stream->queue->head = stream->queue->head->next;
 	if(!stream->queue->head)
-	stream->queue->tail = NULL;
+	    stream->queue->tail = NULL;
 
 	free(old);
 	stream->queue->length--;
@@ -112,7 +114,7 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 			free(buf);
             return ret;
 		}
-		else if(ret==0)
+		else if(ret==0) /* No data produced by reencode */
             return -1;
 		else
 		{

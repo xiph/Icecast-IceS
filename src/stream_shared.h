@@ -1,6 +1,8 @@
 /* stream.h
  * - Core streaming functions/main loop.
  *
+ * $Id: stream_shared.h,v 1.3 2001/09/25 12:04:22 msmith Exp $
+ *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
  * This program is distributed under the terms of the GNU General

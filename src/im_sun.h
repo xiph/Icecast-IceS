@@ -1,6 +1,8 @@
 /* im_sun.h
  * - read pcm data from sun devices
  *
+ * $Id: im_sun.h,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
