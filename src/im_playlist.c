@@ -1,7 +1,7 @@
 /* playlist.c
  * - Basic playlist functionality
  *
- * $Id: im_playlist.c,v 1.3 2001/10/21 10:21:59 msmith Exp $
+ * $Id: im_playlist.c,v 1.4 2002/06/29 15:19:18 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -41,6 +41,7 @@ typedef struct _module
 
 static module modules[] = {
 	{ "basic", playlist_basic_initialise},
+	{ "script", playlist_script_initialise},
 	{NULL,NULL}
 };
 

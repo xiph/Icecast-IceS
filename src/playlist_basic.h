@@ -1,7 +1,7 @@
 /* playlist_basic.h
  * - Simple unscripted playlist
  *
- * $Id: playlist_basic.h,v 1.3 2001/09/28 10:16:54 msmith Exp $
+ * $Id: playlist_basic.h,v 1.4 2002/06/29 15:19:18 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -30,6 +30,7 @@ typedef struct
 void playlist_basic_clear(void *data);
 char *playlist_basic_get_next_filename(void *data);
 int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl);
+int playlist_script_initialise(module_param_t *params, playlist_state_t *pl);
 
 
 #endif  /* __PLAYLIST_BASIC_H__ */
