@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.7 2001/10/20 22:42:47 jack Exp $
+ * $Id: stream.c,v 1.8 2001/11/07 13:30:03 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -135,15 +135,12 @@ void *ices_instance_stream(void *arg)
 
             ret = process_and_send_buffer(sdsc, buffer);
 
-            /* No data produced */
+            /* No data produced, do nothing */
             if(ret == -1)
-                continue;
+                ;
             /* Fatal error */
             else if(ret == -2)
-            {
                 stream->buffer_failures = MAX_ERRORS+1;
-                continue;
-            }
             /* Non-fatal shout error */
             else if(ret == 0)
 			{
