@@ -14,30 +14,36 @@ dnl Set some options based on environment
 
 dnl BSD headers break when _XOPEN_SOURCE is defined but without it seems
 dnl to be fine
-case "$host" in 
-*-*-irix*)
-        DEBUG="-g -signed -D_REENTRANT" 
-        XIPH_CPPFLAGS="-O2 -w -signed -D_REENTRANT"
-        PROFILE="-p -g3 -O2 -signed -D_REENTRANT"
-;;
-*-*-solaris*)
-        AC_DEFINE(__EXTENSIONS__, 1, [define to 1 to get resolve header problem on solaris])
-        DEBUG="-v -g -D_REENTRANT"
-        XIPH_CPPFLAGS="-xO4 -fast -w -fsimple -native -xcg92 -D_REENTRANT"
-        PROFILE="-v -xpg -g -xO4 -fast -native -fsimple -xcg92 -Dsuncc -D_REENTRANT"
-;;
-*)
-        DEBUG="-g -D_REENTRANT"
-        XIPH_CPPFLAGS="-O -D_REENTRANT"
-        PROFILE="-g -p -D_REENTRANT" 
-;;
+case "$host" in
+    *bsd*|*irix*)
+    ;;
+    *) AC_DEFINE(_XOPEN_SOURCE, 600, [Define if you have POSIX and XPG specifications])
+    ;;
 esac
 if test -n "$GCC"; then
-        AC_DEFINE(_XOPEN_SOURCE, 600, [Define if you have POSIX and XPG specifications])
-        AC_DEFINE(_GNU_SOURCE, ,[Define if you have POSIX and GNU specifications])
-        XIPH_CPPFLAGS="-ffast-math -fsigned-char"
-        DEBUG="-g"
-        PROFILE="-g -pg"
+    AC_DEFINE(_GNU_SOURCE, ,[Define if you have POSIX and GNU specifications])
+    XIPH_VAR_APPEND([XIPH_CPPFLAGS], [-ffast-math -fsigned-char])
+    XIPH_VAR_APPEND([DEBUG],[-g])
+    XIPH_VAR_APPEND([PROFILE],[-g -pg])
+else
+    case "$host" in 
+        *-*-irix*)
+            XIPH_VAR_APPEND([DEBUG], [-g -signed -D_REENTRANT])
+            XIPH_VAR_APPEND([XIPH_CPPFLAGS],[-O2 -w -signed -D_REENTRANT])
+            XIPH_VAR_APPEND([PROFILE],[-p -g3 -O2 -signed -D_REENTRANT])
+            ;;
+        *-*-solaris*)
+            AC_DEFINE(__EXTENSIONS__, 1, [define to 1 to resolve header problem on solaris])
+            XIPH_VAR_APPEND([DEBUG],[-v -g -D_REENTRANT])
+            XIPH_VAR_APPEND([XIPH_CPPFLAGS],[-xO4 -fast -w -fsimple -native -xcg92 -D_REENTRANT])
+            XIPH_VAR_APPEND([PROFILE],[-v -xpg -g -xO4 -fast -native -fsimple -xcg92 -Dsuncc -D_REENTRANT])
+            ;;
+        *)
+            DEBUG="-g -D_REENTRANT"
+            XIPH_CPPFLAGS="-O -D_REENTRANT"
+            PROFILE="-g -p -D_REENTRANT" 
+            ;;
+    esac
 fi
 
 dnl Checks for programs.
@@ -107,7 +113,7 @@ XIPH_VAR_APPEND([XIPH_CPPFLAGS], [$SHOUT_CPPFLAGS])
 XIPH_VAR_APPEND([XIPH_CFLAGS], [$SHOUT_CFLAGS])
 XIPH_VAR_PREPEND([XIPH_LIBS], [$SHOUT_LIBS])
 
-XIPH_PATH_VORBIS(, AC_MSG_ERROR([must have Ogg Vorbis v1.0 installed!]))
+XIPH_PATH_VORBIS(, AC_MSG_ERROR([must have Ogg Vorbis v1.0 or above installed!]))
 XIPH_VAR_APPEND([XIPH_CPPFLAGS], [$VORBIS_CFLAGS $VORBISENC_CFLAGS])
 XIPH_VAR_PREPEND([XIPH_LIBS], [$VORBISENC_LIBS $VORBIS_LIBS])
 
