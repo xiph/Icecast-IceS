@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = foreign dist-zip dist-bzip2
+AUTOMAKE_OPTIONS = foreign 1.6 dist-zip dist-bzip2
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = src conf

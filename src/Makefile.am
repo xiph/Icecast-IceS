@@ -1,6 +1,6 @@
 ## Process this with automake to create Makefile.in
 
-AUTOMAKE_OPTIONS = foreign
+AUTOMAKE_OPTIONS = foreign 1.6
 
 SUBDIRS = log timing
 EXTRA_DIST = thread/thread.h
