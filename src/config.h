@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.12 2002/08/03 08:14:54 msmith Exp $
+ * $Id: config.h,v 1.13 2002/08/11 13:09:59 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -42,6 +42,11 @@ typedef struct _instance_tag
     int resampleoutrate;
 	int max_queue_length;
 	char *savefilename;
+
+    /* local metadata */
+	char *stream_name;
+	char *stream_genre;
+	char *stream_description;
 
 	/* Parameters for re-encoding */
     int managed;

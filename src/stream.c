@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.18 2002/08/11 09:45:34 msmith Exp $
+ * $Id: stream.c,v 1.19 2002/08/11 13:09:59 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -55,6 +55,7 @@ void *ices_instance_stream(void *arg)
 	input_module_t *inmod = sdsc->input;
 	int reencoding = (inmod->type == ICES_INPUT_VORBIS) && stream->encode;
 	int encoding = (inmod->type == ICES_INPUT_PCM) && stream->encode;
+    char *stream_name = NULL, *stream_genre = NULL, *stream_description = NULL;
 	
 	vorbis_comment_init(&sdsc->vc);
 
@@ -97,22 +98,37 @@ void *ices_instance_stream(void *arg)
 	}
 
 	/* set the metadata for the stream */
-	if (ices_config->stream_name)
-		if (!(shout_set_name(sdsc->shout, ices_config->stream_name)) == SHOUTERR_SUCCESS) {
+    if(stream->stream_name)
+        stream_name = stream->stream_name;
+    else if (ices_config->stream_name)
+        stream_name = ices_config->stream_name;
+
+    if(stream->stream_description)
+        stream_description = stream->stream_description;
+    else if (ices_config->stream_description)
+        stream_description = ices_config->stream_description;
+
+    if(stream->stream_genre)
+        stream_genre = stream->stream_genre;
+    else if (ices_config->stream_genre)
+        stream_genre = ices_config->stream_genre;
+
+    if(stream_name)
+		if (!(shout_set_name(sdsc->shout, stream_name)) == SHOUTERR_SUCCESS) {
 			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
 			free(connip);
 			stream->died = 1;
 			return NULL;
 		}
-	if (ices_config->stream_genre)
-		if (!(shout_set_genre(sdsc->shout, ices_config->stream_genre)) == SHOUTERR_SUCCESS) {
+	if (stream_genre)
+		if (!(shout_set_genre(sdsc->shout, stream_genre)) == SHOUTERR_SUCCESS) {
 			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
 			free(connip);
 			stream->died = 1;
 			return NULL;
 		}
-	if (ices_config->stream_description)
-		if (!(shout_set_description(sdsc->shout, ices_config->stream_description)) == SHOUTERR_SUCCESS) {
+	if (stream_description)
+		if (!(shout_set_description(sdsc->shout, stream_description)) == SHOUTERR_SUCCESS) {
 			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
 			free(connip);
 			stream->died = 1;

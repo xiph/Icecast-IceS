@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.11 2002/08/10 03:31:27 msmith Exp $
+ * $Id: config.c,v 1.12 2002/08/11 13:09:59 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -179,6 +179,34 @@ static void _parse_encode(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
 
 }
 
+static void _parse_metadata(instance_t *instance, config_t *config, 
+        xmlDocPtr doc, xmlNodePtr node)
+{
+	do 
+	{
+		if (node == NULL) break;
+		if (xmlIsBlankNode(node)) continue;
+
+		if (strcmp(node->name, "name") == 0) {
+            if(instance)
+    			SET_STRING(instance->stream_name);
+            else
+    			SET_STRING(config->stream_name);
+        }
+		else if (strcmp(node->name, "genre") == 0) {
+            if(instance)
+    			SET_STRING(instance->stream_genre);
+            else
+    			SET_STRING(config->stream_genre);
+        }
+		else if (strcmp(node->name, "description") == 0) {
+            if(instance)
+			    SET_STRING(instance->stream_description);
+            else
+			    SET_STRING(config->stream_description);
+        }
+	} while ((node = node->next));
+}
 
 static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 {
@@ -214,6 +242,8 @@ static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
             _parse_resample(instance, doc, node->xmlChildrenNode);
 		else if (strcmp(node->name, "encode") == 0)
 			_parse_encode(instance, doc, node->xmlChildrenNode);
+        else if (strcmp(node->name, "metadata") == 0)
+			_parse_metadata(instance, config, doc, node->xmlChildrenNode);
 	} while ((node = node->next));
 
 	instance->next = NULL;
@@ -268,22 +298,6 @@ static void _parse_input(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 	} while ((node = node->next));
 }
 
-static void _parse_metadata(config_t *config, xmlDocPtr doc, xmlNodePtr node)
-{
-	do 
-	{
-		if (node == NULL) break;
-		if (xmlIsBlankNode(node)) continue;
-
-		if (strcmp(node->name, "name") == 0)
-			SET_STRING(config->stream_name);
-		else if (strcmp(node->name, "genre") == 0)
-			SET_STRING(config->stream_genre);
-		else if (strcmp(node->name, "description") == 0)
-			SET_STRING(config->stream_description);
-	} while ((node = node->next));
-}
-
 static void _parse_stream(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 {
 	do 
@@ -292,7 +306,7 @@ static void _parse_stream(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 		if (xmlIsBlankNode(node)) continue;
 
 		if (strcmp(node->name, "metadata") == 0)
-			_parse_metadata(config, doc, node->xmlChildrenNode);
+			_parse_metadata(NULL, config, doc, node->xmlChildrenNode);
 		else if (strcmp(node->name, "input") == 0)
 			_parse_input(config, doc, node->xmlChildrenNode);
 		else if (strcmp(node->name, "instance") == 0)
