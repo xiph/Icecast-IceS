@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.9 2003/03/28 00:45:54 karl Exp $
+ * $Id: ices.c,v 1.10 2003/04/01 14:30:42 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -39,7 +39,10 @@ int main(int argc, char **argv)
     if (argc != 2) 
     {
         fprintf(stderr, PACKAGE_STRING "\n"
-                "  (c) Copyright 2001-2002 Michael Smith <msmith@icecast.org>\n"
+                "  (c) Copyright 2001-2003 The IceS Development Team <team@icecast.org>\n"
+                "        Michael Smith <msmith@icecast.org>\n"
+                "        Karl Heyes    <karl@pts.tele2.co.uk>\n"
+                "        and others\n"
                 "\n"
                 "Usage: \"ices config.xml\"\n");
         return 1;
