@@ -24,6 +24,7 @@ typedef struct {
     vorbis_info vi;
 
     int samples_in_current_page;
+    int max_samples_ppage;
     int samplerate;
     ogg_int64_t prevgranulepos;
     int in_header;

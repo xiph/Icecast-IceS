@@ -62,7 +62,7 @@
 */
 #define SET_STRING(x) \
     do {\
-        if (x) free(x);\
+        if (x) xmlFree(x);\
         (x) = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
     } while (0) 
 
@@ -70,19 +70,19 @@
     do {\
         char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
         (x) = atoi(tmp);\
-        if (tmp) free(tmp);\
+        if (tmp) xmlFree(tmp);\
     } while (0)
 
 #define SET_FLOAT(x) \
     do {\
         char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
         (x) = atof(tmp);\
-        if (tmp) free(tmp);\
+        if (tmp) xmlFree(tmp);\
     } while (0)
 
 #define SET_PARM_STRING(p,x) \
         do {\
-                if (x) free(x);\
+                if (x) xmlFree(x);\
                 (x) = (char *)xmlGetProp(node, p);\
     } while (0)
 
@@ -181,8 +181,13 @@ static void _parse_encode(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
             SET_INT(instance->channels);
         else if (strcmp(node->name, "managed") == 0)
             SET_INT(instance->managed);
+        else if (strcmp(node->name, "flush-samples") == 0)
+            SET_INT(instance->max_samples_ppage);
     } while ((node = node->next));
-
+    if (instance->max_samples_ppage == 0)
+        instance->max_samples_ppage = instance->samplerate;
+    if (instance->max_samples_ppage < instance->samplerate/100)
+        instance->max_samples_ppage = instance->samplerate/100;
 }
 
 static void _parse_metadata(instance_t *instance, config_t *config, 

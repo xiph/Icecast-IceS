@@ -43,6 +43,7 @@ typedef struct {
     vorbis_comment vc;
     vorbis_dsp_state vd;
     vorbis_block vb;
+    int max_samples_ppage;
 
     encoder_state *encoder;
     downmix_state *downmix;

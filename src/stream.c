@@ -195,8 +195,11 @@ void *ices_instance_stream(void *arg)
         if(!sdsc->enc) {
             LOG_ERROR0("Failed to configure encoder");
             stream->died = 1;
+            shout_free (sdsc->shout);
+            sdsc->shout = NULL;
             return NULL; /* FIXME: probably leaking some memory here */
         }
+        sdsc->enc->max_samples_ppage = sdsc->stream->max_samples_ppage;
     }
     else if(reencoding)
         sdsc->reenc = reencode_init(stream);

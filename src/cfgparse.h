@@ -56,7 +56,8 @@ typedef struct _instance_tag
     float quality;
     int samplerate;
     int channels;
-    
+    int max_samples_ppage;
+
     /* private */
     FILE *savefile;
     int buffer_failures;

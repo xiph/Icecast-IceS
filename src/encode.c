@@ -140,6 +140,7 @@ encoder_state *encode_initialise(int channels, int rate, int managed,
         s->samplerate = rate;
         s->samples_in_current_page = 0;
         s->prevgranulepos = 0;
+        s->max_samples_ppage = rate*2;
 
         return s;
     } while (0);
@@ -246,7 +247,7 @@ int encode_dataout(encoder_state *s, ogg_page *og)
          * badly when doing things live. 
          * So, we flush the stream if we have too many samples buffered
          */
-        if(s->samples_in_current_page > s->samplerate * 2)
+        if(s->samples_in_current_page > s->max_samples_ppage)
         {
             /*LOG_DEBUG1("Forcing flush: Too many samples in current page (%d)",
                     s->samples_in_current_page); */

@@ -45,6 +45,7 @@ reencode_state *reencode_init(instance_t *stream)
     new->out_channels = stream->channels;
     new->current_serial = -1; /* FIXME: that's a valid serial */
     new->need_headers = 0;
+    new->max_samples_ppage = stream->max_samples_ppage;
 
     return new;
 }
@@ -161,6 +162,7 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
                         LOG_ERROR0("Failed to configure encoder for reencoding");
                         return -1;
                     }
+                    s->encoder->max_samples_ppage = s->max_samples_ppage;
                     if(s->vi.rate != s->out_samplerate) {
                         s->resamp = resample_initialise(s->out_channels,
                                 s->vi.rate, s->out_samplerate);

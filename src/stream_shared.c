@@ -177,7 +177,7 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
                 LOG_ERROR0("Failed to initialise encoder");
                 return -2;
             }
-
+            sdsc->enc->max_samples_ppage = sdsc->stream->max_samples_ppage;
         }
 
         if(sdsc->downmix) {
