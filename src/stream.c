@@ -149,8 +149,9 @@ void *ices_instance_stream(void *arg)
 					input_flush_queue(stream->queue, 1);
 					thread_mutex_unlock(&ices_config->flush_lock);
 					
-					while((i < stream->reconnect_attempts 
-							|| i==-1) && !ices_config->shutdown)
+					while((i < stream->reconnect_attempts ||
+							stream->reconnect_attempts==-1) && 
+                            !ices_config->shutdown)
 					{
 						i++;
 						LOG_WARN0("Trying reconnect after server socket error");
