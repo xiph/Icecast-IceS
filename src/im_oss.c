@@ -178,6 +178,8 @@ input_module_t *oss_open_module(module_param_t *params)
 			device = current->value;
 		else if(!strcmp(current->name, "metadata"))
 			use_metadata = atoi(current->value);
+		else if(!strcmp(current->name, "metadatafilename"))
+			ices_config->metadata_filename = current->value;
 		else
 			LOG_WARN1("Unknown parameter %s for stdinpcm module", current->name);
 
@@ -239,7 +241,10 @@ input_module_t *oss_open_module(module_param_t *params)
 
 	if(use_metadata)
 	{
-		thread_create("im_oss-metadata", metadata_thread, mod, 1);
+        if(ices_config->metadata_filename)
+            thread_create("im_oss-metadata", metadata_thread_signal, mod, 1);
+        else
+		    thread_create("im_oss-metadata", metadata_thread_stdin, mod, 1);
 		LOG_INFO0("Started metadata update thread");
 	}
 

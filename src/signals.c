@@ -24,6 +24,16 @@
 #define MODULE "signals/"
 #include "logging.h"
 
+extern volatile int metadata_update_signalled;
+
+void signal_usr1_handler(int signum)
+{
+	LOG_INFO0("Metadata update requested");
+    metadata_update_signalled = 1;
+
+	signal(SIGUSR1, signal_usr1_handler);
+}
+
 void signal_hup_handler(int signum)
 {
 	LOG_INFO0("Flushing logs");
@@ -55,6 +65,7 @@ void signals_setup(void)
 {
 	signal(SIGHUP, signal_hup_handler);
 	signal(SIGINT, signal_int_handler);
+	signal(SIGUSR1, signal_usr1_handler);
 	signal(SIGPIPE, SIG_IGN);
 }
 

@@ -12,7 +12,8 @@
 #ifndef __METADATA_H__
 #define __METADATA_H__
 
-void *metadata_thread(void *arg);
+void *metadata_thread_stdin(void *arg);
+void *metadata_thread_signal(void *arg);
 
 #endif /* __METADATA_H__ */
 

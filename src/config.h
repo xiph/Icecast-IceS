@@ -81,6 +81,7 @@ typedef struct _config_tag
 	/* private */
 	int log_id;
 	int shutdown;
+    char *metadata_filename;
 	cond_t queue_cond;
 	mutex_t refcount_lock;
 	mutex_t flush_lock;
