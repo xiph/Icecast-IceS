@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.20 2002/12/29 11:28:19 msmith Exp $
+ * $Id: input.c,v 1.21 2003/03/02 19:14:46 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -240,6 +240,11 @@ void input_loop(void)
     int inc_count;
     int not_waiting_for_critical;
 
+	thread_cond_create(&ices_config->queue_cond);
+	thread_cond_create(&ices_config->event_pending_cond);
+	thread_mutex_create(&ices_config->refcount_lock);
+	thread_mutex_create(&ices_config->flush_lock);
+
 	while(ices_config->playlist_module && modules[current_module].open)
 	{
 		if(!strcmp(ices_config->playlist_module, modules[current_module].name))
@@ -258,11 +263,6 @@ void input_loop(void)
 	}
 
 	ices_config->inmod = inmod;
-
-	thread_cond_create(&ices_config->queue_cond);
-	thread_cond_create(&ices_config->event_pending_cond);
-	thread_mutex_create(&ices_config->refcount_lock);
-	thread_mutex_create(&ices_config->flush_lock);
 
 
 	/* ok, basic config stuff done. Now, we want to start all our listening
