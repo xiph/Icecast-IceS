@@ -2,7 +2,7 @@
  * stereo->mono downmixing
  * resampling
  *
- * $Id: audio.c,v 1.3 2002/08/10 04:50:00 msmith Exp $
+ * $Id: audio.c,v 1.4 2002/08/11 21:47:03 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -113,6 +113,7 @@ void resample_clear(resample_state *s)
                 free(s->convbuf[c]);
             free(s->convbuf);
         }
+        res_clear(&s->resampler);
         free(s);
     }
 }
