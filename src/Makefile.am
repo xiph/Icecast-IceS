@@ -28,7 +28,7 @@ ices_SOURCES = input.c cfgparse.c stream.c ices.c signals.c im_playlist.c reenco
 
 ices_LDADD = log/libicelog.la @ALSA_LIBS@
 
-INCLUDES = -Inet -Ithread -Iavl -Ilog -Itiming
+INCLUDES = -I$(srcdir)/net -I$(srcdir)/thread -I$(srcdir)/avl -I$(srcdir)/log -I$(srcdir)/timing
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
