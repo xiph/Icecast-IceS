@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ices>
+
+	<background>0</background>
+	<logpath>/tmp</logpath>
+	<logfile>ices.log</logfile>
+	<loglevel>1</loglevel>
+
+	<stream>
+		<metadata>
+			<name>Radio X</name>
+			<genre>Nothing</genre>
+			<description>Blah</description>
+		</metadata>
+		<input>
+			<module>@MODULE@</module>
+			<param name="rate">@SAMPLERATE@</param>
+			<param name="channels">@CHANNELS@</param>
+			<param name="device">/dev/audio</param>
+			<param name="metadata">0</param>
+		</input>
+		<instance>
+			<hostname>@SERVER@</hostname>
+			<port>@PORT@</port>
+			<password>@PASSWORD@</password>
+			<mount>@MOUNT@</mount>
+			<encode>  
+				<bitrate>@BITRATE@</bitrate>
+				<samplerate>@SAMPLERATE@</samplerate>
+				<channels>@CHANNELS@</channels>
+			</encode>
+		</instance>
+	</stream>
+</ices>

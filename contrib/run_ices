@@ -1,0 +1,57 @@
+#!/bin/sh
+
+# script to help automate generation of config file and startup of ices2,
+# mostly useful for people trying to do things like run ices2 from cron.
+# use with template.xml.
+
+# contributed by Ciaran Anscomb <ciarana@rd.bbc.co.uk>
+# distributed under GPL, see LICENSE
+
+samplerate=44100
+channels=2
+bitrate=64000
+module=sun
+server=192.168.200.5
+port=8001
+password=changeme
+
+LD_LIBRARY_PATH=/usr/local/ogg/lib
+export LD_LIBRARY_PATH
+PATH=/usr/local/ogg/bin:/usr/ucb:/usr/bin:/usr/etc
+cd /usr/local/ogg/bin
+
+while [ "x$1" != "x" ]; do
+	opt=$1
+	shift
+	case $opt in
+	-o) outfile=$1; shift; ;;
+	-t) time=$1; shift; ;;
+	-sr) samplerate=$1; shift; ;;
+	-c) channels=$1; shift; ;;
+	-b) bitrate=$1; shift; ;;
+	-S) server=$1; shift; ;;
+	-P) port=$1; shift; ;;
+	-p) password=$1; shift; ;;
+	-m) module=$1; shift; ;;
+	*) mount=$opt; ;;
+	esac
+done
+
+sed "s#@MODULE@#$module#g;s#@SAMPLERATE@#$samplerate#g;s#@CHANNELS@#$channels#g;s#@SERVER@#$server#g;s#@PORT@#$port#g;s#@PASSWORD@#$password#g;s#@MOUNT@#$mount#g;s#@BITRATE@#$bitrate#g" < template.xml > live.xml
+
+ices live.xml &
+icespid=$!
+if [ "x$outfile" != "x" ]; then
+	sleep 1
+	wget -q http://$server:$port$mount -O $outfile &
+	wgetpid=$!
+fi
+if [ "x$time" != "x" ]; then
+	sleep $time
+	if [ "x$wgetpid" != "x" ]; then
+		kill -INT $wgetpid
+	fi
+	kill -INT $icespid
+else
+	wait $icespid
+fi
