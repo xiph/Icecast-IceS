@@ -1,7 +1,7 @@
 /* cfgparse.c
  * - cfgparse file reading code, plus default settings.
  *
- * $Id: cfgparse.c,v 1.4 2003/07/02 20:26:51 karl Exp $
+ * $Id: cfgparse.c,v 1.5 2003/07/02 23:30:46 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -168,7 +168,10 @@ static void _parse_encode(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
         if (xmlIsBlankNode(node)) continue;
 
         if (strcmp(node->name, "nominal-bitrate") == 0)
+        {
             SET_INT(instance->nom_br);
+            instance->managed = 1;
+        }
         else if (strcmp(node->name, "minimum-bitrate") == 0)
             SET_INT(instance->min_br);
         else if (strcmp(node->name, "maximum-bitrate") == 0)
