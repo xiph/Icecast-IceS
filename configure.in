@@ -124,9 +124,6 @@ XIPH_VAR_APPEND([XIPH_CFLAGS], [$XML_CFLAGS])
 XIPH_VAR_PREPEND([XIPH_LIBS], [$XML_LIBS])
 
 XIPH_PATH_SHOUT(, AC_MSG_ERROR([must have libshout installed!]))
-if test "$SHOUT_THREADED" = "no"; then
-    AC_MSG_ERROR([libshout found does not have thread support])
-fi
 XIPH_VAR_APPEND([XIPH_CPPFLAGS], [$SHOUT_CPPFLAGS])
 XIPH_VAR_APPEND([XIPH_CFLAGS], [$SHOUT_CFLAGS])
 XIPH_VAR_PREPEND([XIPH_LIBS], [$SHOUT_LIBS])
@@ -153,4 +150,5 @@ AC_OUTPUT(
   src/Makefile 
    src/log/Makefile 
    src/timing/Makefile
+   src/thread/Makefile
 )

@@ -2,8 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign 1.6
 
-SUBDIRS = log timing
-EXTRA_DIST = thread/thread.h
+SUBDIRS = log timing thread
 
 bin_PROGRAMS = ices
 AM_CPPFLAGS = @XIPH_CPPFLAGS@
@@ -27,7 +26,7 @@ dist_noinst_HEADERS = cfgparse.h input.h inputmodule.h im_playlist.h signals.h s
 
 ices_SOURCES = input.c cfgparse.c stream.c ices.c signals.c im_playlist.c reencode.c encode.c playlist_basic.c im_stdinpcm.c stream_shared.c metadata.c playlist_script.c audio.c resample.c $(oss) $(sun) $(alsa)
 
-ices_LDADD = log/libicelog.la timing/libicetiming.la @ALSA_LIBS@ @XIPH_LIBS@
+ices_LDADD = log/libicelog.la timing/libicetiming.la thread/libicethread.la @ALSA_LIBS@ @XIPH_LIBS@
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
