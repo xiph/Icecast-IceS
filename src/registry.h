@@ -1,7 +1,7 @@
 /* registry.h
  * - Registry of input/output/processing modules.
  *
- * $Id: registry.h,v 1.1 2002/02/07 09:11:12 msmith Exp $
+ * $Id: registry.h,v 1.2 2002/02/09 05:07:01 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -36,11 +36,15 @@ typedef struct _module
         open_func open;
 } module;
 
+/* Some others we don't have headers for */
+int savefile_open_module(process_chain_element *mod, module_param_t *params);
+
 static module registered_modules[] = {
     { "encode", encode_open_module},
     { "stream", stream_open_module},
     { "playlist", playlist_open_module},
     { "stdinpcm", stdin_open_module}, 
+    { "savestream", savefile_open_module},
 #ifdef HAVE_OSS
     { "oss", oss_open_module}, 
 #endif

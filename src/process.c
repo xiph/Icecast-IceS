@@ -2,7 +2,7 @@
  * - Processing chains - data sources, sinks, processing effects, reencoding,
  *   etc.
  *
- * $Id: process.c,v 1.2 2002/02/09 03:55:37 msmith Exp $
+ * $Id: process.c,v 1.3 2002/02/09 05:07:01 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -100,9 +100,9 @@ int process_chain(instance_t *instance, process_chain_element *chain,
             LOG_ERROR0("NULL input buffer where input required.");
             return -2;
         }
-
-        if(chain->input_type != MEDIA_NONE && in->type != chain->input_type) {
-            LOG_ERROR2("Chain input does not match expected input! (%d != %d",
+        else if(chain->input_type != MEDIA_NONE && chain->input_type != 
+                MEDIA_DATA && in->type != chain->input_type) {
+            LOG_ERROR2("Chain input does not match expected input! (%d != %d)",
                     in->type, chain->input_type);
             return -2;
         }
@@ -113,8 +113,8 @@ int process_chain(instance_t *instance, process_chain_element *chain,
             return ret;
         }
 
-        if(chain->output_type != MEDIA_NONE &&  
-                (*out)->type != chain->output_type) {
+        if(chain->output_type != MEDIA_NONE && chain->output_type != MEDIA_DATA
+                 && (*out)->type != chain->output_type) {
             LOG_ERROR0("Chain did not produce expected output type.");
             return -2;
         }
