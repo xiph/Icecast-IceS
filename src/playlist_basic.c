@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.5 2001/11/10 05:07:17 msmith Exp $
+ * $Id: playlist_basic.c,v 1.6 2002/07/07 11:07:55 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -161,12 +161,17 @@ char *playlist_basic_get_next_filename(void *data)
 		return NULL; /* Once-through mode, at end */
 }
 
+void playlist_basic_free_filename(void *data, char *fn)
+{
+}
+
 int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
 {
 	basic_playlist *data;
 
 	pl->get_filename = playlist_basic_get_next_filename;
 	pl->clear = playlist_basic_clear;
+    pl->free_filename = playlist_basic_free_filename;
 
 	pl->data = calloc(1, sizeof(basic_playlist));
 	data = (basic_playlist *)pl->data;

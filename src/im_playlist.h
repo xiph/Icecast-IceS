@@ -1,7 +1,7 @@
 /* im_playlist.h
  * - Basic playlist functionality
  *
- * $Id: im_playlist.h,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: im_playlist.h,v 1.3 2002/07/07 11:07:55 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -26,6 +26,8 @@ typedef struct _playlist_state_tag
 	ogg_sync_state oy;
 	
 	char *(*get_filename)(void *data); /* returns the next desired filename */
+    void (*free_filename)(void *data, char *fn); /* Called when im_playlist is
+                                                    done with this filename */
 	void (*clear)(void *data); /* module clears self here */
 
 	void *data; /* Internal data for this particular playlist module */

@@ -2,7 +2,7 @@
  * - Gets a filename to play back based on output from a program/shell script
  *   run each time.
  *
- * $Id: playlist_script.c,v 1.2 2002/06/29 15:34:50 msmith Exp $
+ * $Id: playlist_script.c,v 1.3 2002/07/07 11:07:55 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -26,7 +26,6 @@
 
 typedef struct {
     char *program;
-    char fn[1024];
 } script_playlist;
 
 void playlist_script_clear(void *data) {
@@ -38,10 +37,14 @@ char *playlist_script_get_filename(void *data) {
     script_playlist *pl = data;
     char *prog = pl->program;
     FILE *pipe;
-    char *buf = pl->fn;
-
+    char *buf = calloc(1,1024);
 
     pipe = popen(prog, "r");
+
+    if(!pipe) {
+        LOG_ERROR1("Couldn't open pipe to program \"%s\"", prog);
+        return NULL;
+    }
 
     if(fgets(buf, 1024, pipe) == NULL) {
         LOG_ERROR1("Couldn't read filename from pipe to program \"%s\"", prog);
@@ -64,12 +67,18 @@ char *playlist_script_get_filename(void *data) {
     return buf;
 }
 
+void playlist_script_free_filename(void *data, char *fn)
+{
+    free(fn);
+}
+
 int playlist_script_initialise(module_param_t *params, playlist_state_t *pl)
 {
     script_playlist *data;
 
     pl->get_filename = playlist_script_get_filename;
     pl->clear = playlist_script_clear;
+    pl->free_filename = playlist_script_free_filename;
 
     pl->data = calloc(1, sizeof(script_playlist));
 
