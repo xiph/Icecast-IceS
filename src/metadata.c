@@ -1,7 +1,7 @@
 /* metadata.c
  * - Metadata manipulation
  *
- * $Id: metadata.c,v 1.7 2002/11/22 13:01:34 msmith Exp $
+ * $Id: metadata.c,v 1.8 2003/03/02 21:18:28 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -102,6 +102,7 @@ void *metadata_thread_signal(void *arg)
 
 				memcpy(md[comments], buf, strlen(buf)+1);
 				comments++;
+                LOG_INFO2 ("tag %d is %s", comments, buf);
 			}
 		}
 
