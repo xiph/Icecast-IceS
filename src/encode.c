@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.7 2002/07/05 07:40:47 msmith Exp $
+ * $Id: encode.c,v 1.8 2002/07/05 07:55:02 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -55,10 +55,18 @@ encoder_state *encode_initialise(int channels, int rate, int managed,
 
 	vorbis_info_init(&s->vi);
 
-    if(managed)
-	    vorbis_encode_init(&s->vi, channels, rate, max_br, nom_br, min_br);
+    if(min_br < 0 && max_br < 0 && nom_br < 0)
+        vorbis_encode_setup_vbr(&s->vi, channels, rate, quality*0.1);
     else
-        vorbis_encode_init_vbr(&s->vi, channels, rate, quality*0.1);
+        vorbis_encode_setup_managed(&s->vi, channels, rate, max_br, nom_br, 
+                min_br);
+
+    if(managed && nom_br < 0)
+        vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_AVG, NULL);
+    else if(!managed)
+        vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, NULL);
+    
+    vorbis_encode_setup_init(&s->vi);
 
 	vorbis_analysis_init(&s->vd, &s->vi);
 	vorbis_block_init(&s->vd, &s->vb);
@@ -197,7 +205,6 @@ int encode_dataout(encoder_state *s, ogg_page *og)
 
 void encode_finish(encoder_state *s)
 {
-    int ret;
 	ogg_packet op;
 	vorbis_analysis_wrote(&s->vd, 0);
 

@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.7 2002/07/04 03:49:35 msmith Exp $
+ * $Id: config.c,v 1.8 2002/07/05 07:55:02 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -155,12 +155,10 @@ static void _parse_encode(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
 			SET_INT(instance->samplerate);
 		else if (strcmp(node->name, "channels") == 0)
 			SET_INT(instance->channels);
+        else if (strcmp(node->name, "managed") == 0)
+            SET_INT(instance->managed);
 	} while ((node = node->next));
 
-    if(instance->nom_br > 0 || instance->min_br > 0 || instance->max_br > 0)
-        instance->managed = 1;
-    else
-        instance->managed = 0;
 }
 
 
