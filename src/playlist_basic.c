@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.2 2001/09/25 12:04:22 msmith Exp $
+ * $Id: playlist_basic.c,v 1.3 2001/09/28 10:16:54 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -130,6 +130,8 @@ char *playlist_basic_get_next_filename(void *data)
 	{
 		LOG_INFO1("Reloading playlist after file \"%s\" changed", pl->file);
 		load_playlist(pl);
+        if(pl->restartafterreread)
+            pl->pos = 0;
 	}
 
 	if (pl->pos < pl->len) 
@@ -167,6 +169,8 @@ int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
 			data->random = atoi(params->value);
 		else if(!strcmp(params->name, "once"))
 			data->once = atoi(params->value);
+		else if(!strcmp(params->name, "restart-after-reread"))
+			data->restartafterreread = atoi(params->value);
 		else if(!strcmp(params->name, "type"))
 			; /* We recognise this, but don't want to do anything with it */
 		else 

@@ -1,7 +1,7 @@
 /* playlist_basic.h
  * - Simple unscripted playlist
  *
- * $Id: playlist_basic.h,v 1.2 2001/09/25 12:04:22 msmith Exp $
+ * $Id: playlist_basic.h,v 1.3 2001/09/28 10:16:54 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -23,6 +23,7 @@ typedef struct
 	time_t mtime;
 	int random;
 	int once;
+    int restartafterreread;
 
 } basic_playlist;
 
