@@ -14,33 +14,33 @@ dnl Set some options based on environment
 
 dnl openbsd headers break when _XOPEN_SOURCE is defined but without it seems
 dnl to be fine
-case "$ac_cv_host" in
+case "$host" in
    *openbsd*)
    ;;
-   *) AC_DEFINE(_XOPEN_SOURCE, 500, [Define if you have POSIX and XPG specifications])
+   *) AC_DEFINE(_XOPEN_SOURCE, 600, [Define if you have POSIX and XPG specifications])
    ;;
 esac
-case $host in 
+case "$host" in 
 *-*-irix*)
         DEBUG="-g -signed -D_REENTRANT" 
-        XIPH_CFLAGS="-O2 -w -signed -D_REENTRANT"
+        XIPH_CPPFLAGS="-O2 -w -signed -D_REENTRANT"
         PROFILE="-p -g3 -O2 -signed -D_REENTRANT"
 ;;
 *-*-solaris*)
-        AC_DEFINE(__EXTENSIONS__, 1, [define to 1 for IPv6 functions on solaris])
+        AC_DEFINE(__EXTENSIONS__, 1, [define to 1 to get resolve header problem on solaris])
         DEBUG="-v -g -D_REENTRANT"
-        XIPH_CFLAGS="-xO4 -fast -w -fsimple -native -xcg92 -D_REENTRANT"
+        XIPH_CPPFLAGS="-xO4 -fast -w -fsimple -native -xcg92 -D_REENTRANT"
         PROFILE="-v -xpg -g -xO4 -fast -native -fsimple -xcg92 -Dsuncc -D_REENTRANT"
 ;;
 *)
         DEBUG="-g -D_REENTRANT"
-        XIPH_CFLAGS="-O -D_REENTRANT"
+        XIPH_CPPFLAGS="-O -D_REENTRANT"
         PROFILE="-g -p -D_REENTRANT" 
 ;;
 esac
 if test -n "$GCC"; then
         AC_DEFINE(_GNU_SOURCE, ,[Define if you have POSIX and GNU specifications])
-        XIPH_CFLAGS="-ffast-math -fsigned-char"
+        XIPH_CPPFLAGS="-ffast-math -fsigned-char"
         DEBUG="-g"
         PROFILE="-g -pg"
 fi
@@ -90,47 +90,11 @@ fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
-AC_CHECK_TYPES([socklen_t],,,[
-#include <sys/types.h>
-#include <sys/socket.h>
-])
-AH_BOTTOM([
-#ifndef HAVE_SOCKLEN_T
-      typedef int socklen_t;
-#endif
-])
-
-AC_MSG_CHECKING([how to copy va_list])
-    AC_TRY_LINK([#include <stdarg.h>], [va_list ap1, ap2; va_copy(ap1, ap2);],
-            AC_MSG_RESULT([va_copy]),
-            [ AH_TEMPLATE([va_copy], [define if va_copy is not available])
-            AC_TRY_LINK([#include <stdarg.h>], [va_list ap1, ap2; __va_copy(ap1, ap2);],
-                [ AC_DEFINE([va_copy], [__va_copy])
-                AC_MSG_RESULT([__va_copy])],
-                [ AC_DEFINE([va_copy(dest,src)], [memcpy(&dest,&src,sizeof(va_list))])
-                AC_MSG_RESULT([memcpy])]
-                )
-            ])
-
-dnl needs to be checked early on, so that additional libraries
-dnl don't trick the check
-ACX_PTHREAD([
-     LIBS="$PTHREAD_LIBS $LIBS"
-     XIPH_CFLAGS="$XIPH_CFLAGS $PTHREAD_CFLAGS"
-     CC="$PTHREAD_CC"
-])
 
 dnl Check for types
 AC_CHECK_TYPES([uint64_t],,AC_ERROR([could not find a uint64_t type]))
 
 dnl Checks for library functions.
-
-AC_CHECK_LIB(nsl, gethostbyname, LIBS="-lnsl $LIBS",)
-AC_CHECK_LIB(socket, socket, LIBS="-lsocket $LIBS",)
-AC_CHECK_LIB(rt, nanosleep, LIBS="-lrt $LIBS",)
-AC_CHECK_LIB(resolv, res_query, LIBS="-lresolv $LIBS",)
-
-dnl -- configure options --
 
 dnl deal with xml-config
 AC_MSG_RESULT([checking for XML configuration])
@@ -149,25 +113,27 @@ if ! test -x "$XMLCONFIG"; then
 fi
 XML_LIBS="$($XMLCONFIG --libs)"
 XML_CFLAGS="$($XMLCONFIG --cflags)"
-LIBS="$XML_LIBS $LIBS"
-XIPH_CFLAGS="$XIPH_CFLAGS $XML_CFLAGS"
+ac_save_LIBS="$LIBS"
+ac_save_CFLAGS="$CFLAGS"
+LIBS="$XML_LIBS $XIPH_LIBS"
+CFLAGS="$XIPH_CFLAGS $XML_CFLAGS"
 AC_CHECK_FUNC(xmlParseFile,, [AC_MSG_ERROR([There was a problem linking with libxml])])
+CFLAGS="$ac_save_CFLAGS"
+LIBS="$ac_save_LIBS"
+XIPH_VAR_APPEND([XIPH_CFLAGS], [$XML_CFLAGS])
+XIPH_VAR_PREPEND([XIPH_LIBS], [$XML_LIBS])
 
-AM_PATH_OGG(, AC_MSG_ERROR([must have Ogg v1.0 installed!]))
-LIBS="$OGG_LIBS $LIBS"
-XIPH_CFLAGS="$XIPH_CFLAGS $OGG_CFLAGS"
+XIPH_PATH_SHOUT(, AC_MSG_ERROR([must have libshout installed!]))
+if test "$SHOUT_THREADED" = "no"; then
+    AC_MSG_ERROR([libshout found does not have thread support])
+fi
+XIPH_VAR_APPEND([XIPH_CPPFLAGS], [$SHOUT_CPPFLAGS])
+XIPH_VAR_APPEND([XIPH_CFLAGS], [$SHOUT_CFLAGS])
+XIPH_VAR_PREPEND([XIPH_LIBS], [$SHOUT_LIBS])
 
-AM_PATH_VORBIS(, AC_MSG_ERROR([must have Vorbis v1.0 installed!]))
-LIBS="$VORBIS_LIBS $VORBISENC_LIBS $LIBS"
-XIPH_CFLAGS="$XIPH_CFLAGS $VORBIS_CFLAGS $VORBISENC_CFLAGS"
-
-dnl we expect thread support in libshout
-save_CFLAGS=$CFLAGS
-CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-AM_PATH_SHOUT(, AC_MSG_ERROR([must have libshout installed!]))
-LIBS="$SHOUT_LIBS $LIBS"
-XIPH_CFLAGS="$XIPH_CFLAGS $SHOUT_CFLAGS"
-CFLAGS=$save_CFLAGS
+XIPH_PATH_VORBIS(, AC_MSG_ERROR([must have Ogg Vorbis v1.0 installed!]))
+XIPH_VAR_APPEND([XIPH_CPPFLAGS], [$VORBIS_CFLAGS $VORBISENC_CFLAGS])
+XIPH_VAR_PREPEND([XIPH_LIBS], [$VORBISENC_LIBS $VORBIS_LIBS])
 
 dnl Make substitutions
 
@@ -175,10 +141,10 @@ AC_SUBST(ALSA_LIBS)
 AC_SUBST(XML_LIBS)
 AC_SUBST(XML_CFLAGS)
 AC_SUBST(LIBTOOL_DEPS)
-AC_SUBST(LIBS)
 AC_SUBST(DEBUG)
 AC_SUBST(PROFILE)
 AC_SUBST(XIPH_CFLAGS)
-AC_SUBST(PTHREAD_CFLAGS)
+AC_SUBST(XIPH_CPPFLAGS)
+AC_SUBST(XIPH_LIBS)
 
-AC_OUTPUT(Makefile conf/Makefile src/Makefile src/avl/Makefile src/thread/Makefile src/net/Makefile src/log/Makefile src/timing/Makefile)
+AC_OUTPUT(Makefile conf/Makefile src/Makefile src/log/Makefile)

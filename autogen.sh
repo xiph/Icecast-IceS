@@ -48,8 +48,9 @@ fi
 
 echo "Generating configuration files for $package, please wait...."
 
+ACLOCAL_FLAGS="$ACLOCAL_FLAGS -I m4"
 echo "  aclocal $ACLOCAL_FLAGS"
-aclocal -I m4 $ACLOCAL_FLAGS
+aclocal $ACLOCAL_FLAGS
 echo "  autoheader"
 autoheader
 echo "  libtoolize --automake"
