@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.5 2001/09/25 12:13:37 msmith Exp $
+ * $Id: input.c,v 1.6 2001/10/14 15:03:38 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -196,7 +196,7 @@ void input_flush_queue(buffer_queue *queue, int keep_critical)
 
 void input_loop(void)
 {
-	input_module_t *inmod;
+	input_module_t *inmod=NULL;
 	timing_control *control = calloc(1, sizeof(timing_control));
 	instance_t *instance, *prev, *next;
 	queue_item *queued;
