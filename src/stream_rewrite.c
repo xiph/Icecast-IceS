@@ -5,7 +5,7 @@
  *
  * Heavily based on vcedit.c from vorbiscomment.
  *
- * $Id: stream_rewrite.c,v 1.1 2001/10/02 12:23:51 msmith Exp $
+ * $Id: stream_rewrite.c,v 1.2 2001/10/21 16:17:14 jack Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -235,7 +235,7 @@ int stream_get_page(stream_rewriter *s, ogg_page *page)
 
         ogg_stream_packetin(&s->stream_out, &packet);
 
-        if(flag = 1)
+        if(flag == 1)
             return 1;
     }
 
