@@ -227,8 +227,12 @@ input_module_t *sun_open_module(module_param_t *params)
 	LOG_INFO3("Opened audio device %s at %d channel(s), %d Hz", 
 			device, channels, sample_rate);
 
-	if(use_metadata) {
-		thread_create("im_sun-metadata", metadata_thread, mod, 1);
+	if(use_metadata)
+	{
+        if(ices_config->metadata_filename)
+            thread_create("im_sun-metadata", metadata_thread_signal, mod, 1);
+        else
+		    thread_create("im_sun-metadata", metadata_thread_stdin, mod, 1);
 		LOG_INFO0("Started metadata update thread");
 	}
 
