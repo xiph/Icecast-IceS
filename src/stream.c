@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.14 2002/08/03 12:11:57 msmith Exp $
+ * $Id: stream.c,v 1.15 2002/08/09 15:02:33 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -63,8 +63,6 @@ void *ices_instance_stream(void *arg)
 	/* we only support the ice protocol and vorbis streams currently */
 	shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
 	shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_ICE);
-
-	signal(SIGPIPE, signal_hup_handler);
 
 	connip = malloc(16);
 	if(!resolver_getip(stream->hostname, connip, 16))
