@@ -16,15 +16,18 @@
    <h4>Can ices play mp3 files</h4>
    <div class=indentedbox>
     <p>
-     No, there hasn't been much interest in handling mp3 with ices2. The
-     older version ices 0.3 maybe of interest in such cases.
+    No, there hasn't been much interest in handling MP3 with ices 2. The older version ices
+    0.x maybe of interest in such cases.  If you really want to encode the Vorbis stream from
+    non-vorbis files then you can play them with an external application, eg xmms, and use
+    ices 2 to capture from the soundcard, but be aware that any conversion from one lossy format
+    to another is bad so make sure the original material is high quality.
     </p>
    </div>
    <h4>How do I encode from Line-In</h4>
    <div class=indentedbox>
     <p>
      IceS will read from the DSP on the soundcard, but where that gets the
-     audio from depends on the mixer settings.  Use a utility like aumix to 
+     audio from depends on the mixer settings.  Use a utility like aumix/alsamixer to 
      see the settings and change the capture or recording device. Usually the
      default is the Mic
     <p>
@@ -35,6 +38,8 @@
     recording device (typically /dev/dsp) open. A good candidate is esd. What
     happens is that the driver only allows one application to have the device
     open at any one time, a second attempt will just block.
+    <p>Some OSS drivers allow multiple opens but on ALSA you can configure a virtual
+    device in asound.conf, type dsnoop/dmix, which allows access for multiple apps.</p>
    </div>
    <h4>Ices reports a message about failing to set samplerate on live input</h4>
    <div class=indentedbox>
@@ -50,6 +55,13 @@
     applications such as xmms by making ices read from the say the dsp (eg
     oss, alsa etc), that way anything that is played by that other application
     is encoded and sent to icecast.
+   </div>
+   <h4>My player connects but I don't hear anything</h4>
+   <div class=indentedbox>
+     If you are getting data through to the player and the settings show like the
+     samplerate and chnnels then it is probably the mixer settings which are set
+     incorrectly and ices can only read silence. A common example, ALSA may have
+     many levels in the mixer and by default they are all muted.
    </div>
    <h4>My player seems unable to play the stream</h4>
    <div class=indentedbox>

@@ -8,14 +8,14 @@ http://www.icecast.org/
 
 -----
 
-These are *brief* instructions on how to build this package from CVS.
+These are *brief* instructions on how to build this package from SVN.
 
-There are generally four steps necessary when building from CVS (i.e.,
+There are generally four steps necessary when building from SVN (i.e.,
 a developer's copy):
 
-1. cvs checkout of the sources, or cvs update.  RTFM from your
-   favorite flavor of CVS documentation; information on the xiph.org
-   CVS repository can be found at http://www.xiph.org/cvs.html.
+1. svn checkout of the sources, or cvs update.  RTFM from your
+   favorite flavor of SVN documentation; information on the xiph.org
+   SVN repository can be found at http://www.xiph.org/svn.html.
 
 2. [re-]generate files such as "configure" and "Makefile.in" with the
    GNU autoconf/automake tools.  Run the "autogen.sh" script to
@@ -39,6 +39,6 @@ to just do it.
 
 Note that the make allows for supplying compiler flags as well. eg
 make CFLAGS='-static' will try the build linking against any static
-libraries available. Also specific COU optimisations can be supplied
+libraries available. Also specific CPU optimisations can be supplied
 this way.
 

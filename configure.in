@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([IceS], [2.0.0], [icecast@xiph.org])
+AC_INIT([IceS], [2.0.1], [icecast@xiph.org])
 AC_PREREQ(2.54)
 AC_CONFIG_SRCDIR(src/ices.c)
 
@@ -14,12 +14,6 @@ dnl Set some options based on environment
 
 dnl BSD headers break when _XOPEN_SOURCE is defined but without it seems
 dnl to be fine
-case "$host" in
-   *bsd*)
-   ;;
-   *) AC_DEFINE(_XOPEN_SOURCE, 600, [Define if you have POSIX and XPG specifications])
-   ;;
-esac
 case "$host" in 
 *-*-irix*)
         DEBUG="-g -signed -D_REENTRANT" 
@@ -39,6 +33,7 @@ case "$host" in
 ;;
 esac
 if test -n "$GCC"; then
+        AC_DEFINE(_XOPEN_SOURCE, 600, [Define if you have POSIX and XPG specifications])
         AC_DEFINE(_GNU_SOURCE, ,[Define if you have POSIX and GNU specifications])
         XIPH_CPPFLAGS="-ffast-math -fsigned-char"
         DEBUG="-g"
