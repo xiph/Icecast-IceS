@@ -230,8 +230,8 @@ AC_ARG_ENABLE(shouttest, [  --disable-shouttest       Do not try to compile and 
   if test "x$enable_shouttest" = "xyes" ; then
     ac_save_CFLAGS="$CFLAGS"
     ac_save_LIBS="$LIBS"
-    CFLAGS="$CFLAGS $SHOUT_CFLAGS"
-    LIBS="$LIBS $SHOUT_LIBS"
+    CFLAGS="$CFLAGS $SHOUT_CFLAGS $OGG_CFLAGS $VORBIS_CFLAGS"
+    LIBS="$LIBS $SHOUT_LIBS $OGG_LIBS $VORBIS_LIBS"
 dnl
 dnl Now check if the installed Shout is sufficiently new.
 dnl
