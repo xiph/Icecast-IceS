@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.7 2001/10/14 15:12:53 msmith Exp $
+ * $Id: input.c,v 1.8 2001/10/20 21:55:54 jack Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -14,6 +14,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#ifdef HAVE_STDINT_H
+# include <stdint.h>
+#endif
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <string.h>
@@ -36,6 +40,11 @@
 #include "im_sun.h"
 #endif
 
+#ifdef _WIN32
+typedef __int64 int64_t
+typedef unsigned __int64 uint64_t
+#endif
+
 #define MODULE "input/"
 #include "logging.h"
 
@@ -43,8 +52,8 @@
 
 typedef struct _timing_control_tag 
 {
-	long long starttime;
-	long long senttime;
+	uint64_t starttime;
+	uint64_t senttime;
 	int samples;
 	int oldsamples;
 	int samplerate;
@@ -72,7 +81,7 @@ static module modules[] = {
 /* This is identical to shout_sleep(), really. */
 static void _sleep(timing_control *control)
 {
-	long long sleep;
+	uint64_t sleep;
 
 	/* no need to sleep if we haven't sent data */
 	if (control->senttime == 0) return;
