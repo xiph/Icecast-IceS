@@ -231,10 +231,11 @@ void input_loop(void)
 		stream_description *arg = calloc(1, sizeof(stream_description));
 		arg->stream = instance;
 		arg->input = inmod;
+        /*
 		if(instance->savefilename != NULL)
 			thread_create("savefile", savefile_stream, arg, 1);
-		else
-			thread_create("stream", ices_instance_stream, arg, 1);
+         */
+		thread_create("stream", ices_instance_stream, arg, 1);
 
 		instance = instance->next;
 	}

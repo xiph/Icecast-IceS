@@ -44,7 +44,6 @@
 void *ices_instance_stream(void *arg)
 {
 	int ret;
-	int errors=0;
 	ref_buffer *buffer;
 	stream_description *sdsc = arg;
 	instance_t *stream = sdsc->stream;
@@ -88,6 +87,16 @@ void *ices_instance_stream(void *arg)
 	else if(reencoding)
 		sdsc->reenc = reencode_init(stream);
 
+    if(stream->savefilename != NULL) 
+    {
+        stream->savefile = fopen(stream->savefilename, "wb");
+        if(!stream->savefile)
+            LOG_ERROR2("Failed to open stream save file %s: %s", 
+                    stream->savefilename, strerror(errno));
+        else
+            LOG_INFO1("Saving stream to file %s", stream->savefilename);
+    }
+
 	if(shout_connect(&sdsc->conn))
 	{
 		LOG_INFO3("Connected to server: %s:%d%s", 
@@ -95,7 +104,7 @@ void *ices_instance_stream(void *arg)
 
 		while(1)
 		{
-			if(errors > MAX_ERRORS)
+			if(stream->buffer_failures > MAX_ERRORS)
 			{
 				LOG_WARN0("Too many errors, shutting down");
 				break;
@@ -117,19 +126,22 @@ void *ices_instance_stream(void *arg)
 			if(!buffer->buf || !buffer->len)
 			{
 				LOG_WARN0("Bad buffer dequeued!");
-				errors++;
+				stream->buffer_failures++;
 				continue; 
 			}
 
             ret = process_and_send_buffer(sdsc, buffer);
 
+            /* No data produced */
             if(ret == -1)
                 continue;
+            /* Fatal error */
             else if(ret == -2)
             {
-                errors = MAX_ERRORS+1;
+                stream->buffer_failures = MAX_ERRORS+1;
                 continue;
             }
+            /* Non-fatal shout error */
             else if(ret == 0)
 			{
 				LOG_ERROR1("Send error: %s", 
@@ -172,7 +184,8 @@ void *ices_instance_stream(void *arg)
 							{
 								LOG_ERROR0("Reconnect failed too many times, "
 										  "giving up.");
-								errors = MAX_ERRORS+1; /* We want to die now */
+                                /* We want to die now */
+								stream->buffer_failures = MAX_ERRORS+1; 
 							}
 							else /* Don't try again too soon */
 								sleep(stream->reconnect_delay); 
@@ -180,13 +193,9 @@ void *ices_instance_stream(void *arg)
 					}
 					stream->skip = 0;
 				}
-				errors++;
+				stream->buffer_failures++;
 			}
-			else
-				errors=0;
-
 			stream_release_buffer(buffer);
-
 		}
 	}
 	else
@@ -197,6 +206,9 @@ void *ices_instance_stream(void *arg)
 	}
 	
 	shout_disconnect(&sdsc->conn);
+
+    if(stream->savefile != NULL) 
+        fclose(stream->savefile);
 
 	free(sdsc->conn.ip);
 	encode_clear(sdsc->enc);

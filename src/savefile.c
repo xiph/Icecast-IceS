@@ -7,6 +7,8 @@
  * Public License, version 2. You may use, modify, and redistribute
  * it under the terms of this license. A copy should be included
  * with this source.
+ *
+ * NOTE: Not currently actually used.
  */
 
 #include <stdio.h>

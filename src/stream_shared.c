@@ -25,6 +25,19 @@
 #define MODULE "stream-shared/"
 #include "logging.h"
 
+int stream_send_data(stream_description *s, unsigned char *buf, 
+        unsigned long len)
+{
+    if(s->stream->savefile)
+    {
+        int ret = fwrite(buf, 1, len, s->stream->savefile);
+        if(ret != len) 
+            LOG_ERROR1("Failed to write %d bytes to savefile", len);
+    }
+
+    return shout_send_data(&s->conn, buf, len);
+}
+
 void stream_release_buffer(ref_buffer *buf)
 {
 	thread_mutex_lock(&ices_config->refcount_lock);
@@ -95,7 +108,7 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 		ret = reencode_page(sdsc->reenc, buffer, &buf, &buflen);
 		if(ret > 0) 
 		{
-			ret = shout_send_data(&sdsc->conn, buf, buflen);
+			ret = stream_send_data(sdsc, buf, buflen);
 			free(buf);
             return ret;
 		}
@@ -119,8 +132,8 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 			encode_finish(sdsc->enc);
 			while(encode_flush(sdsc->enc, &og) != 0)
 			{
-				ret = shout_send_data(&sdsc->conn, og.header, og.header_len);
-				ret = shout_send_data(&sdsc->conn, og.body, og.body_len);
+				ret = stream_send_data(sdsc, og.header, og.header_len);
+				ret = stream_send_data(sdsc, og.body, og.body_len);
 			}
 			encode_clear(sdsc->enc);
 
@@ -141,13 +154,13 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 
 		while(encode_dataout(sdsc->enc, &og) > 0)
 		{
-			ret = shout_send_data(&sdsc->conn, og.header, og.header_len);
-			ret = shout_send_data(&sdsc->conn, og.body, og.body_len);
+			ret = stream_send_data(sdsc, og.header, og.header_len);
+			ret = stream_send_data(sdsc, og.body, og.body_len);
 		}
                         
         return ret;
 	}
 	else	
-		return shout_send_data(&sdsc->conn, buffer->buf, buffer->len);
+		return stream_send_data(sdsc, buffer->buf, buffer->len);
 }
 

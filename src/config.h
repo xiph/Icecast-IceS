@@ -44,7 +44,7 @@ typedef struct _instance_tag
 	int channels;
 	
 	/* private */
-
+    FILE *savefile;
 	int serial;
 	int buffer_failures;
 	int died;
