@@ -96,7 +96,7 @@ AC_CHECK_TYPES([socklen_t],,,[
 ])
 AH_BOTTOM([
 #ifndef HAVE_SOCKLEN_T
-      typedef int socklen_t
+      typedef int socklen_t;
 #endif
 ])
 
