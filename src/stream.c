@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.23 2002/11/22 13:01:34 msmith Exp $
+ * $Id: stream.c,v 1.24 2003/03/02 18:36:02 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -55,6 +55,7 @@ void *ices_instance_stream(void *arg)
 	int encoding = (inmod->type == ICES_INPUT_PCM) && stream->encode;
     char *stream_name = NULL, *stream_genre = NULL, *stream_description = NULL;
     char *user = NULL;
+    char audio_info[11];
 	
 	vorbis_comment_init(&sdsc->vc);
 
@@ -146,6 +147,22 @@ void *ices_instance_stream(void *arg)
         stream->samplerate = stream->resampleoutrate;
         sdsc->resamp = resample_initialise(stream->channels, 
                 stream->resampleinrate, stream->resampleoutrate);
+    }
+
+    /* max integer is 10 bytes + 1 for null term */
+    snprintf(audio_info, sizeof(audio_info), "%d", stream->samplerate);
+    shout_set_audio_info(sdsc->shout, SHOUT_AI_SAMPLERATE, audio_info);
+    snprintf(audio_info, sizeof(audio_info), "%d", stream->channels);
+    shout_set_audio_info(sdsc->shout, SHOUT_AI_CHANNELS, audio_info);
+    if (stream->managed)
+    {
+        snprintf(audio_info, sizeof(audio_info), "%d", stream->nom_br/1000);
+        shout_set_audio_info(sdsc->shout, SHOUT_AI_BITRATE, audio_info);
+    }
+    else
+    {
+        snprintf(audio_info, sizeof(audio_info), "%2.2f", stream->quality);
+        shout_set_audio_info(sdsc->shout, SHOUT_AI_QUALITY, audio_info);
     }
 
 	if(encoding)
