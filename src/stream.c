@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.5 2001/09/25 12:04:22 msmith Exp $
+ * $Id: stream.c,v 1.6 2001/10/20 22:07:16 jack Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -147,7 +147,7 @@ void *ices_instance_stream(void *arg)
             else if(ret == 0)
 			{
 				LOG_ERROR1("Send error: %s", 
-                        shout_strerror(&sdsc->conn, sdsc->conn.error));
+                        shout_strerror(sdsc->conn.error));
 				if(sdsc->conn.error == SHOUTERR_SOCKET)
 				{
 					int i=0;
@@ -181,7 +181,7 @@ void *ices_instance_stream(void *arg)
 						{
 							LOG_ERROR3("Failed to reconnect to %s:%d (%s)",
 								sdsc->conn.ip,sdsc->conn.port,
-								shout_strerror(&sdsc->conn,sdsc->conn.error));
+								shout_strerror(sdsc->conn.error));
 							if(i==stream->reconnect_attempts)
 							{
 								LOG_ERROR0("Reconnect failed too many times, "
@@ -204,7 +204,7 @@ void *ices_instance_stream(void *arg)
 	{
 		LOG_ERROR3("Failed initial connect to %s:%d (%s)", 
 				sdsc->conn.ip,sdsc->conn.port,
-                shout_strerror(&sdsc->conn,sdsc->conn.error));
+                shout_strerror(sdsc->conn.error));
 	}
 	
 	shout_disconnect(&sdsc->conn);

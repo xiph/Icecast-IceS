@@ -115,7 +115,7 @@ fi
 
 AM_PATH_OGG(LIBS="$LIBS $OGG_LIBS", AC_MSG_ERROR(must have Ogg installed!))
 AM_PATH_VORBIS(LIBS="$LIBS $VORBIS_LIBS $VORBISENC_LIBS", AC_MSG_ERROR(must have Vorbis installed!))
-AM_PATH_SHOUT(LIBS="$LIBS $SUN_LIBS $SHOUT_LIBS", AC_MSG_ERROR(must have libshout installed!))
+AM_PATH_SHOUT(LIBS="$LIBS $SHOUT_LIBS", AC_MSG_ERROR(must have libshout installed!))
 
 dnl Make substitutions
 
