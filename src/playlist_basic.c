@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.3 2001/09/28 10:16:54 msmith Exp $
+ * $Id: playlist_basic.c,v 1.4 2001/11/07 13:52:52 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -79,11 +79,15 @@ static int load_playlist(basic_playlist *data)
 	while (1) 
 	{
 		if(fgets(buf,1024, file) == NULL) break;
-		if(buf[0]==0 || buf[0]=='\n') break;
+		if(buf[0]==0) break;
+
+        if(buf[0]=='\n' || (buf[0]=='\r' && buf[1]=='\n'))
+            continue;
+
 		buf[strlen(buf)-1] = 0;
 
 		/* De-fuck windows files. */
-		if(buf[strlen(buf)-1] == '\r')
+		if(strlen(buf) > 0 && buf[strlen(buf)-1] == '\r')
 			buf[strlen(buf)-1] = 0;
 
 		if(buflen < data->len+1)
