@@ -180,7 +180,7 @@ input_module_t *alsa_open_module(module_param_t *params)
     s->rate = 44100; /* Defaults */
     s->channels = 2; 
     s->buffer_time = 500000;
-    s->periods = 2;
+    s->periods = -1;
 
     thread_mutex_create(&s->metadatalock);
 
@@ -254,10 +254,14 @@ input_module_t *alsa_open_module(module_param_t *params)
         LOG_ERROR2("Error setting buffer time %u: %s", s->buffer_time, snd_strerror(err));
         goto fail;
     }
-    if ((err = snd_pcm_hw_params_set_periods(s->fd, hwparams, s->periods, 0)) < 0)
+    if (s->periods > 0)
     {
-        LOG_ERROR2("Error setting %u periods: %s", s->periods, snd_strerror(err));
-        goto fail;
+        err = snd_pcm_hw_params_set_periods(s->fd, hwparams, s->periods, 0);
+        if (err < 0)
+        {
+            LOG_ERROR2("Error setting %u periods: %s", s->periods, snd_strerror(err));
+            goto fail;
+        }
     }
     if ((err = snd_pcm_hw_params(s->fd, hwparams)) < 0)
     {
@@ -267,8 +271,8 @@ input_module_t *alsa_open_module(module_param_t *params)
 
     /* We're done, and we didn't fail! */
     LOG_INFO1 ("Opened audio device %s", device);
-    LOG_INFO4 ("using %d channel(s), %d Hz, buffer %u ms (%u periods)",
-            s->channels, s->rate, s->buffer_time/1000, s->periods);
+    LOG_INFO3 ("using %d channel(s), %d Hz, buffer %u ms ",
+            s->channels, s->rate, s->buffer_time/1000);
 
     if(use_metadata)
     {
