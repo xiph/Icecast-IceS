@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.28 2003/03/28 01:07:37 karl Exp $
+ * $Id: input.c,v 1.29 2003/07/09 23:44:11 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -89,7 +89,7 @@ static module modules[] = {
     {NULL,NULL}
 };
 
-static timing_control _control, *control = &_control;
+static timing_control control;
 
 
 /* This is identical to shout_sync(), really. */
@@ -98,10 +98,10 @@ void input_sleep(void)
     int64_t sleep;
 
     /* no need to sleep if we haven't sent data */
-    if (control->senttime == 0) return;
+    if (control.senttime == 0) return;
 
-    sleep = ((double)control->senttime / 1000) - 
-        (timing_get_time() - control->starttime);
+    sleep = ((double)control.senttime / 1000) - 
+        (timing_get_time() - control.starttime);
 
     /* trap for long sleeps, typically indicating a clock change.  it's not */
     /* perfect though, as low bitrate/low samplerate vorbis can trigger this */
@@ -116,63 +116,93 @@ void input_sleep(void)
 
 int input_calculate_pcm_sleep(unsigned bytes, unsigned bytes_per_sec)
 {
-    control->senttime += ((uint64_t)bytes * 1000000)/bytes_per_sec;
+    control.senttime += ((uint64_t)bytes * 1000000)/bytes_per_sec;
 
     return 0;
 }
 
 int input_calculate_ogg_sleep(ogg_page *page)
 {
-    /* Largely copied from shout_send(), without the sending happening.*/
-    ogg_stream_state os;
+    static ogg_stream_state os;
     ogg_packet op;
-    vorbis_info vi;
-    vorbis_comment vc;
-    int ret = 0;
+    static vorbis_info vi;
+    static vorbis_comment vc;
+    static int need_start_pos, need_headers, state_in_use = 0;
+    static uint64_t offset;
+    static uint64_t first_granulepos;
 
-    if (ogg_page_bos (page))
-    {
-        control->serialno = ogg_page_serialno(page);
-
-        control->oldsamples = 0;
-
-        ogg_stream_init(&os, control->serialno);
-        ogg_stream_pagein(&os, page);
-        ogg_stream_packetout(&os, &op);
-
-        vorbis_info_init(&vi);
-        vorbis_comment_init(&vc);
-
-        if(vorbis_synthesis_headerin(&vi, &vc, &op) < 0) 
-        {
-            LOG_ERROR0("Timing control: can't determine sample rate for input, "
-                       "not vorbis.");
-            control->samplerate = 0;
-            ret = -1;
-        }
-        else
-            control->samplerate = vi.rate;
-
-        vorbis_comment_clear(&vc);
-        vorbis_info_clear(&vi);
-        ogg_stream_clear(&os);
-    }
-
-    if(ogg_page_granulepos(page) == -1)
+    if (ogg_page_granulepos(page) == -1)
     {
         LOG_ERROR0("Timing control: corrupt timing information in vorbis file, cannot stream.");
         return -1;
     }
+    if (ogg_page_bos (page))
+    {
+        control.oldsamples = 0;
 
-    control->samples = ogg_page_granulepos(page) - control->oldsamples;
-    control->oldsamples = ogg_page_granulepos(page);
+        if (state_in_use)
+            ogg_stream_clear (&os);
+        ogg_stream_init (&os, ogg_page_serialno (page));
+        state_in_use = 1;
+        vorbis_info_init (&vi);
+        vorbis_comment_init (&vc);
+        need_start_pos = 1;
+        need_headers = 3;
+        offset = (uint64_t)0;
+    }
+    if (need_start_pos)
+    {
+        int found_first_granulepos = 0;
 
-    if(control->samplerate) 
-        control->senttime += ((double)control->samples * 1000000 / 
-                (double)control->samplerate);
+        ogg_stream_pagein (&os, page);
+        while (ogg_stream_packetout (&os, &op) == 1)
+        {
+            if (need_headers)
+            {
+                if (vorbis_synthesis_headerin (&vi, &vc, &op) < 0)
+                {
+                    LOG_ERROR0("Timing control: can't determine sample rate for input, not vorbis.");
+                    control.samplerate = 0;
+                    return -1;
+                }
+                need_headers--;
+                control.samplerate = vi.rate;
 
-    return ret;
+                if (need_headers == 0)
+                {
+                    vorbis_comment_clear (&vc);
+                    first_granulepos = (uint64_t)0;
+                    return 0;
+                }
+                continue;
+            }
+            /* headers have been read */
+            if (first_granulepos == 0 && op.granulepos > 0)
+            {
+                first_granulepos = op.granulepos;
+                found_first_granulepos = 1;
+            }
+            offset += vorbis_packet_blocksize (&vi, &op) / 4;
+        }
+        if (!found_first_granulepos)
+            return 0;
+
+        need_start_pos = 0;
+        control.oldsamples = first_granulepos - offset;
+        vorbis_info_clear (&vi);
+        ogg_stream_clear (&os);
+        state_in_use = 0;
+    }
+    control.samples = ogg_page_granulepos (page) - control.oldsamples;
+    control.oldsamples = ogg_page_granulepos (page);
+
+    control.senttime += ((uint64_t)control.samples * 1000000 /
+            (uint64_t)control.samplerate);
+
+    return 0;
 }
+
+
 
 void input_flush_queue(buffer_queue *queue, int keep_critical)
 {
@@ -249,7 +279,7 @@ void input_loop(void)
     thread_mutex_create(&ices_config->refcount_lock);
     thread_mutex_create(&ices_config->flush_lock);
 
-    memset (control, 0, sizeof (*control));
+    memset (&control, 0, sizeof (control));
 
     while(ices_config->playlist_module && modules[current_module].open)
     {
@@ -359,8 +389,8 @@ void input_loop(void)
          * be done before the call to inmod->getdata() below, in order to
          * properly keep time if this input module blocks.
          */
-        if(control->starttime == 0)
-            control->starttime = timing_get_time();
+        if (control.starttime == 0)
+            control.starttime = timing_get_time();
 
         /* get a chunk of data from the input module */
         ret = inmod->getdata(inmod->internal, chunk);
