@@ -2,7 +2,7 @@
  * - Gets a filename to play back based on output from a program/shell script
  *   run each time.
  *
- * $Id: playlist_script.c,v 1.1 2002/06/29 15:19:18 msmith Exp $
+ * $Id: playlist_script.c,v 1.2 2002/06/29 15:34:50 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -58,6 +58,8 @@ char *playlist_script_get_filename(void *data) {
     /* De-fuck windows files. */
     if(strlen(buf) > 0 && buf[strlen(buf)-1] == '\r')
         buf[strlen(buf)-1] = 0;
+
+    LOG_DEBUG2("Program/script (\"%s\") returned filename \"%s\"", prog, buf);
 
     return buf;
 }
