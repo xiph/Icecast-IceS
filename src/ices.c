@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.8 2003/03/22 02:27:55 karl Exp $
+ * $Id: ices.c,v 1.9 2003/03/28 00:45:54 karl Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -20,8 +20,8 @@
 #include <unistd.h>
 
 
-#include "resolver.h"
-#include "thread.h"
+#include <net/resolver.h>
+#include <thread/thread.h>
 
 #include "cfgparse.h"
 #include "stream.h"
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 
     if (argc != 2) 
     {
-        fprintf(stderr, VERSIONSTRING "\n"
+        fprintf(stderr, PACKAGE_STRING "\n"
                 "  (c) Copyright 2001-2002 Michael Smith <msmith@icecast.org>\n"
                 "\n"
                 "Usage: \"ices config.xml\"\n");
