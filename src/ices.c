@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: ices.c,v 1.3 2001/11/09 08:14:50 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 	char logpath[FILENAME_MAX];
 	int log;
 
-	if (argc < 2) 
+	if (argc != 2) 
 	{
 		fprintf(stderr, "IceS version 2.0beta1\n"
 				"  (c) Copyright 2001 Michael Smith <msmith@icecast.org>\n"
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 	** make it so you can specify all parameters on the commandline
 	** too.
 	*/
-	if (!config_read(argv[1])) 
+	if (config_read(argv[1]) <= 0) 
 	{
 		fprintf(stderr, "Failed to read config file \"%s\"\n", argv[1]);
 		goto fail;
