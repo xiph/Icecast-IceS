@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.3 2001/11/10 04:47:24 msmith Exp $
+ * $Id: encode.c,v 1.4 2002/01/27 23:45:32 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -151,9 +151,11 @@ int encode_dataout(encoder_state *s, ogg_page *og)
 	{
 		while(vorbis_analysis_blockout(&s->vd, &s->vb)==1)
 		{
-			vorbis_analysis(&s->vb, &op);
+			vorbis_analysis(&s->vb, NULL);
+            vorbis_bitrate_addblock(&s->vd);
 
-			ogg_stream_packetin(&s->os, &op);
+            while(vorbis_bitrate_flushpacket(&s->vd, &op)) 
+    			ogg_stream_packetin(&s->os, &op);
 		}
 
         /* FIXME: Make this threshold configurable.
