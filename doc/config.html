@@ -9,6 +9,15 @@
   <div class=boxtest>
    <h1>Config File</h1>
    <table width="100%"><tr><td bgcolor="#007B79" height="10" align="center"></td></tr></table>
+   <p>The ices 2 configuration file is in XML format, which is described in detail below.
+   There are 2 sample XML files provided which show the two main ways ices is used.<p>
+   </p>
+   <ul>
+   <li><a href="ices-live.xml">live</a> audio streaming, takes audio from the soundcard which can
+   be captured from say the Mic, line-In, or CD. 
+   <li><a href="ices-playlist.xml">playlist</a> audio streaming, takes pre-encoded Ogg Vorbis files
+   and either sends them as-is or re-encodes them to different settings</p>
+   </ul>
    <h2>General layout</h2>
    <pre>
     &lt;?xml version="1.0"?&gt;
@@ -82,6 +91,7 @@
          &lt;name&gt;My Stream&lt;/name&gt;
          &lt;genre&gt;Rock&lt;/genre&gt;
          &lt;description&gt;A short description of your stream&lt;/description&gt;
+         &lt;url&gt;http://mysite.org&lt;/url&gt;
      &lt;/metadata&gt;
     </pre>
     <p>
