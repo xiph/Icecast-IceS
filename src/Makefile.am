@@ -3,6 +3,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = log
+EXTRA_DIST = timing net thread avl
 
 bin_PROGRAMS = ices
 AM_CPPFLAGS = @XIPH_CPPFLAGS@

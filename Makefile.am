@@ -5,7 +5,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = src conf
 
-EXTRA_DIST = README AUTHORS COPYING TODO m4/shout.m4 m4/vorbis.m4 m4/ogg.m4
+EXTRA_DIST = README AUTHORS COPYING TODO m4/shout.m4 m4/vorbis.m4 m4/ogg.m4 m4/xiph_compiler.m4
 
 # SCCS Definitions (for BitKeeper)
 GET = true
