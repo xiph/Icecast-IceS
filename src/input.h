@@ -1,7 +1,7 @@
 /* input.h
  * - Input functions
  *
- * $Id: input.h,v 1.6 2002/08/03 08:14:54 msmith Exp $
+ * $Id: input.h,v 1.7 2003/03/07 04:20:55 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -38,6 +38,10 @@ typedef struct {
 
 void input_loop(void);
 void input_flush_queue(buffer_queue *queue, int keep_critical);
+void input_sleep(void);
+int  input_calculate_ogg_sleep(ogg_page *og);
+int  input_calculate_pcm_sleep(unsigned bytes, unsigned bytes_per_sec);
+
 
 #endif /* __INPUT_H__ */
 

@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.22 2003/03/02 21:16:27 karl Exp $
+ * $Id: input.c,v 1.23 2003/03/07 04:20:55 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -58,9 +58,9 @@ typedef struct _timing_control_tag
 {
 	uint64_t starttime;
 	uint64_t senttime;
-	int samples;
-	int oldsamples;
-	int samplerate;
+	uint64_t samples;
+	uint64_t oldsamples;
+	unsigned samplerate;
 	long serialno;
 } timing_control;
 
@@ -85,8 +85,11 @@ static module modules[] = {
 	{NULL,NULL}
 };
 
+static timing_control _control, *control = &_control;
+
+
 /* This is identical to shout_sync(), really. */
-static void _sleep(timing_control *control)
+void input_sleep(void)
 {
 	int64_t sleep;
 
@@ -96,7 +99,9 @@ static void _sleep(timing_control *control)
 	sleep = ((double)control->senttime / 1000) - 
 		(timing_get_time() - control->starttime);
 
-    if(sleep > 5000) {
+    /* trap for long sleeps, typically indicating a clock change.  it's not */
+    /* perfect though, as low bitrate/low samplerate vorbis can trigger this */
+    if(sleep > 8000) {
         LOG_WARN1("Extended sleep requested (%ld ms), sleeping for 5 seconds",
                 sleep);
         timing_sleep(5000);
@@ -105,35 +110,30 @@ static void _sleep(timing_control *control)
         timing_sleep((uint64_t)sleep);
 }
 
-static int _calculate_pcm_sleep(ref_buffer *buf, timing_control *control)
+int input_calculate_pcm_sleep(unsigned bytes, unsigned bytes_per_sec)
 {
-	control->senttime += ((double)buf->len * 1000000.)/((double)buf->aux_data);
+	control->senttime += ((uint64_t)bytes * 1000000)/bytes_per_sec;
 
     return 0;
 }
 
-static int _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
+int input_calculate_ogg_sleep(ogg_page *page)
 {
 	/* Largely copied from shout_send(), without the sending happening.*/
 	ogg_stream_state os;
-	ogg_page og;
 	ogg_packet op;
 	vorbis_info vi;
 	vorbis_comment vc;
     int ret = 0;
 
-	og.header_len = buf->aux_data;
-	og.body_len = buf->len - buf->aux_data;
-	og.header = buf->buf;
-	og.body = buf->buf + og.header_len;
-
-	if(control->serialno != ogg_page_serialno(&og)) {
-		control->serialno = ogg_page_serialno(&og);
+	if (ogg_page_bos (page))
+    {
+		control->serialno = ogg_page_serialno(page);
 
 		control->oldsamples = 0;
 
 		ogg_stream_init(&os, control->serialno);
-		ogg_stream_pagein(&os, &og);
+		ogg_stream_pagein(&os, page);
 		ogg_stream_packetout(&os, &op);
 
 		vorbis_info_init(&vi);
@@ -154,13 +154,14 @@ static int _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
 		ogg_stream_clear(&os);
 	}
 
-    if(ogg_page_granulepos(&og) == -1) {
+    if(ogg_page_granulepos(page) == -1)
+    {
         LOG_ERROR0("Timing control: corrupt timing information in vorbis file, cannot stream.");
         return -1;
     }
 
-	control->samples = ogg_page_granulepos(&og) - control->oldsamples;
-	control->oldsamples = ogg_page_granulepos(&og);
+	control->samples = ogg_page_granulepos(page) - control->oldsamples;
+	control->oldsamples = ogg_page_granulepos(page);
 
     if(control->samplerate) 
 	    control->senttime += ((double)control->samples * 1000000 / 
@@ -231,7 +232,6 @@ void input_flush_queue(buffer_queue *queue, int keep_critical)
 void input_loop(void)
 {
 	input_module_t *inmod=NULL;
-	timing_control *control = calloc(1, sizeof(timing_control));
 	instance_t *instance, *prev, *next;
 	queue_item *queued;
 	int shutdown = 0;
@@ -244,6 +244,8 @@ void input_loop(void)
 	thread_cond_create(&ices_config->event_pending_cond);
 	thread_mutex_create(&ices_config->refcount_lock);
 	thread_mutex_create(&ices_config->flush_lock);
+
+    memset (control, 0, sizeof (*control));
 
 	while(ices_config->playlist_module && modules[current_module].open)
 	{
@@ -379,17 +381,6 @@ void input_loop(void)
         if(chunk->critical)
             valid_stream = 1;
 
-		/* figure out how much time the data represents */
-		switch(inmod->type)
-		{
-			case ICES_INPUT_VORBIS:
-				ret = _calculate_ogg_sleep(chunk, control);
-				break;
-			case ICES_INPUT_PCM:
-				ret = _calculate_pcm_sleep(chunk, control);
-				break;
-		}
-
         if(ret < 0) {
             /* Tell the input module to go to the next track, hopefully allowing
              * resync. */
@@ -481,7 +472,6 @@ void input_loop(void)
     		/* wake up the instances */
 	    	thread_cond_broadcast(&ices_config->queue_cond);
 
-		    _sleep(control);
         }
 	}
 

@@ -1,7 +1,7 @@
 /* im_stdinpcm.c
  * - Raw PCM input from stdin
  *
- * $Id: im_stdinpcm.c,v 1.3 2002/08/03 15:05:38 msmith Exp $
+ * $Id: im_stdinpcm.c,v 1.4 2003/03/07 04:20:55 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -23,7 +23,7 @@
 #include "stream.h"
 
 #include "inputmodule.h"
-
+#include "input.h"
 #include "im_stdinpcm.h"
 
 #define MODULE "input-stdinpcm/"
@@ -86,6 +86,8 @@ static int stdin_read(void *self, ref_buffer *rb)
 		free(rb->buf);
 		return -1;
 	}
+    input_calculate_pcm_sleep (rb->len, rb->aux_data);
+    input_sleep ();
 
 	return rb->len;
 }

@@ -1,7 +1,7 @@
 /* playlist.c
  * - Basic playlist functionality
  *
- * $Id: im_playlist.c,v 1.6 2002/08/03 15:05:38 msmith Exp $
+ * $Id: im_playlist.c,v 1.7 2003/03/07 04:20:55 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -24,6 +24,7 @@
 #include "event.h"
 
 #include "inputmodule.h"
+#include "input.h"
 #include "im_playlist.h"
 
 #include "playlist_basic.h"
@@ -153,6 +154,11 @@ static int playlist_read(void *self, ref_buffer *rb)
 			LOG_WARN1("Corrupt or missing data in file (%s)", pl->filename);
 		else if(result > 0)
 		{
+            if (input_calculate_ogg_sleep (&og) < 0)
+            {
+                pl->nexttrack = 1;
+                return 0;
+            }
 			rb->len = og.header_len + og.body_len;
 			rb->buf = malloc(rb->len);
 			rb->aux_data = og.header_len;
@@ -189,6 +195,7 @@ static int playlist_read(void *self, ref_buffer *rb)
 	}
 
 	pl->errors=0;
+    input_sleep ();
 
 	return rb->len;
 }
