@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = log
+SUBDIRS = log thread timing avl
 
 bin_PROGRAMS = ices
 AM_CFLAGS = @XIPH_CFLAGS@
