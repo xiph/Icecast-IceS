@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.4 2002/01/28 00:19:15 msmith Exp $
+ * $Id: config.c,v 1.5 2002/01/28 12:52:58 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -422,7 +422,7 @@ void config_dump(void)
 		fprintf(stderr, "minimum bitrate = %d\n", i->min_br);
 		fprintf(stderr, "nominal bitrate = %d\n", i->nom_br);
 		fprintf(stderr, "maximum bitrate = %d\n", i->max_br);
-		fprintf(stderr, "quality = %d\n", i->quality);
+		fprintf(stderr, "quality = %f\n", i->quality);
 		fprintf(stderr, "managed = %d\n", i->managed);
 		fprintf(stderr, "reencode = %d\n", i->encode);
 		fprintf(stderr, "reconnect: %d times at %d second intervals\n", 
