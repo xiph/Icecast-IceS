@@ -1,7 +1,7 @@
 /* im_sun.c
  * - Raw PCM input from Solaris audio devices
  *
- * $Id: im_sun.c,v 1.11 2003/07/01 23:53:06 karl Exp $
+ * $Id: im_sun.c,v 1.12 2003/12/24 15:52:09 karl Exp $
  *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
@@ -26,7 +26,9 @@
 #include <sys/audioio.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#ifdef HAVE_STROPTS_H
 #include <stropts.h>
+#endif
 #include <fcntl.h>
 
 #include "cfgparse.h"
@@ -162,7 +164,11 @@ input_module_t *sun_open_module(module_param_t *params)
     int use_metadata = 1; /* Default to on */
 
     mod->type = ICES_INPUT_PCM;
+#ifdef WORDS_BIGENDIAN
     mod->subtype = INPUT_PCM_BE_16;
+#else
+    mod->subtype = INPUT_PCM_LE_16;
+#endif
     mod->getdata = sun_read;
     mod->handle_event = event_handler;
     mod->metadata_update = metadata_update;
@@ -206,12 +212,19 @@ input_module_t *sun_open_module(module_param_t *params)
     s->device_info.record.precision = 16;
     s->device_info.record.encoding = AUDIO_ENCODING_LINEAR;
     s->device_info.record.port = AUDIO_LINE_IN;
+    s->device_info.record.pause = 0;
+
     if (ioctl(s->fd, AUDIO_SETINFO, &s->device_info) < 0) {
         LOG_ERROR2("Failed to configure audio device %s: %s",
                 device, strerror(errno));
         goto fail;
     }
-    ioctl(s->fd, I_FLUSH, FLUSHR);
+#ifdef __sun
+    ioctl (s->fd, I_FLUSH, FLUSHR);
+#endif
+#ifdef __OpenBSD__
+    ioctl (s->fd, AUDIO_FLUSH, NULL);
+#endif
 
     /* Check all went according to plan */
     if (s->device_info.record.sample_rate != sample_rate) {

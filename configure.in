@@ -51,6 +51,7 @@ dnl Checks for libraries.
 
 dnl Checks for header files.
 AC_HEADER_STDC
+AC_CHECK_HEADERS([stropts.h])
 
 dnl Check for OSS
 
@@ -63,6 +64,7 @@ fi
 
 dnl Check for Sun audio
 
+AC_C_BIGENDIAN
 AC_ARG_ENABLE(sun-audio,
     AC_HELP_STRING([--disable-sun-audio],
                    [Disable sun audio input (default autodetect)]),
