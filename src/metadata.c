@@ -1,7 +1,7 @@
 /* metadata.c
  * - Metadata manipulation
  *
- * $Id: metadata.c,v 1.12 2004/01/17 04:24:10 karl Exp $
+ * $Id: metadata.c,v 1.13 2004/02/24 15:39:14 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -126,6 +126,7 @@ void *metadata_thread_signal(void *arg)
                 LOG_INFO0 ("metadata thread shutting down");
                 return NULL;
             }
+            LOG_DEBUG0("meta thread wakeup");
         }
 
         metadata_update_signalled = 0;
@@ -137,6 +138,7 @@ void *metadata_thread_signal(void *arg)
             continue;
         }
 
+        LOG_DEBUG1("reading metadata from \"%s\"", ices_config->metadata_filename);
         while(fgets(buf, 1024, file))
         {
             if(buf[0] == '\n')
@@ -164,6 +166,8 @@ void *metadata_thread_signal(void *arg)
             LOG_INFO0("Updating metadata");
             mod->handle_event(mod,EVENT_METADATAUPDATE,md);
         }
+        else
+            LOG_INFO0("No metadata has been read");
 
     }
 }

@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.16 2004/01/13 16:35:27 karl Exp $
+ * $Id: ices.c,v 1.17 2004/02/24 15:39:14 karl Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     if (argc != 2) 
     {
         fprintf(stderr, PACKAGE_STRING "\n"
-                "  (c) Copyright 2001-2003 The IceS Development Team <team@icecast.org>\n"
+                "  (c) Copyright 2001-2004 The IceS Development Team <team@icecast.org>\n"
                 "        Michael Smith <msmith@icecast.org>\n"
                 "        Karl Heyes    <karl@xiph.org>\n"
                 "        and others\n"
@@ -108,6 +108,12 @@ int main(int argc, char **argv)
         {
             fprintf (f, "%i", getpid());
             fclose (f);
+        }
+        else
+        {
+            LOG_WARN1("pidfile \"%s\" cannot be written to", ices_config->pidfile);
+            xmlFree (ices_config->pidfile);
+            ices_config->pidfile = NULL;
         }
     }
 
