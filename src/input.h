@@ -1,7 +1,7 @@
 /* input.h
  * - Input functions
  *
- * $Id: input.h,v 1.3 2001/09/25 12:04:21 msmith Exp $
+ * $Id: input.h,v 1.4 2002/01/23 03:40:28 jack Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -28,7 +28,7 @@ typedef struct {
 	input_module_t *input;
     reencode_state *reenc;
     encoder_state *enc;
-    shout_conn_t conn;
+    shout_t *shout;
     vorbis_comment vc;
 } stream_description;
 

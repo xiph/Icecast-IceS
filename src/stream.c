@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.9 2001/11/10 04:47:24 msmith Exp $
+ * $Id: stream.c,v 1.10 2002/01/23 03:40:28 jack Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -46,8 +46,9 @@
  */
 void *ices_instance_stream(void *arg)
 {
-	int ret;
+	int ret, shouterr;
 	ref_buffer *buffer;
+	char *connip;
 	stream_description *sdsc = arg;
 	instance_t *stream = sdsc->stream;
 	input_module_t *inmod = sdsc->input;
@@ -56,29 +57,66 @@ void *ices_instance_stream(void *arg)
 	
 	vorbis_comment_init(&sdsc->vc);
 
-	shout_init_connection(&sdsc->conn);
+	sdsc->shout = shout_new();
+
+	/* we only support the ice protocol and vorbis streams currently */
+	shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
+	shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_ICE);
+
 	signal(SIGPIPE, signal_hup_handler);
 
-	sdsc->conn.ip = malloc(16);
-	if(!resolver_getip(stream->hostname, sdsc->conn.ip, 16))
+	connip = malloc(16);
+	if(!resolver_getip(stream->hostname, connip, 16))
 	{
 		LOG_ERROR1("Could not resolve hostname \"%s\"", stream->hostname);
-		free(sdsc->conn.ip);
+		free(connip);
 		stream->died = 1;
 		return NULL;
 	}
 
-	sdsc->conn.port = stream->port;
-	sdsc->conn.password = strdup(stream->password);
-	sdsc->conn.mount = strdup(stream->mount);
+	if (!(shout_set_host(sdsc->shout, connip)) == SHOUTERR_SUCCESS) {
+		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+		free(connip);
+		stream->died = 1;
+		return NULL;
+	}
+
+	shout_set_port(sdsc->shout, stream->port);
+	if (!(shout_set_password(sdsc->shout, stream->password)) == SHOUTERR_SUCCESS) {
+		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+		free(connip);
+		stream->died = 1;
+		return NULL;
+	}
+	if (!(shout_set_mount(sdsc->shout, stream->mount)) == SHOUTERR_SUCCESS) {
+		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+		free(connip);
+		stream->died = 1;
+		return NULL;
+	}
 
 	/* set the metadata for the stream */
 	if (ices_config->stream_name)
-		sdsc->conn.name = strdup(ices_config->stream_name);
+		if (!(shout_set_name(sdsc->shout, ices_config->stream_name)) == SHOUTERR_SUCCESS) {
+			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+			free(connip);
+			stream->died = 1;
+			return NULL;
+		}
 	if (ices_config->stream_genre)
-		sdsc->conn.genre = strdup(ices_config->stream_genre);
+		if (!(shout_set_genre(sdsc->shout, ices_config->stream_genre)) == SHOUTERR_SUCCESS) {
+			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+			free(connip);
+			stream->died = 1;
+			return NULL;
+		}
 	if (ices_config->stream_description)
-		sdsc->conn.description = strdup(ices_config->stream_description);
+		if (!(shout_set_description(sdsc->shout, ices_config->stream_description)) == SHOUTERR_SUCCESS) {
+			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+			free(connip);
+			stream->died = 1;
+			return NULL;
+		}
 
 	if(encoding)
 	{
@@ -100,10 +138,10 @@ void *ices_instance_stream(void *arg)
             LOG_INFO1("Saving stream to file %s", stream->savefilename);
     }
 
-	if(shout_connect(&sdsc->conn))
+	if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
 	{
 		LOG_INFO3("Connected to server: %s:%d%s", 
-				sdsc->conn.ip, sdsc->conn.port, sdsc->conn.mount);
+				shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), shout_get_mount(sdsc->shout));
 
 		while(1)
 		{
@@ -161,8 +199,8 @@ void *ices_instance_stream(void *arg)
             else if(ret == 0)
 			{
 				LOG_ERROR1("Send error: %s", 
-                        shout_strerror(sdsc->conn.error));
-				if(sdsc->conn.error == SHOUTERR_SOCKET)
+                        shout_get_error(sdsc->shout));
+				if(shouterr == SHOUTERR_SOCKET)
 				{
 					int i=0;
 
@@ -183,19 +221,19 @@ void *ices_instance_stream(void *arg)
 					{
 						i++;
 						LOG_WARN0("Trying reconnect after server socket error");
-						shout_disconnect(&sdsc->conn);
-						if(shout_connect(&sdsc->conn))
+						shout_close(sdsc->shout);
+						if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
 						{
 							LOG_INFO3("Connected to server: %s:%d%s", 
-                                    sdsc->conn.ip, sdsc->conn.port, 
-                                    sdsc->conn.mount);
+                                    shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), 
+                                    shout_get_mount(sdsc->shout));
 							break;
 						}
 						else
 						{
 							LOG_ERROR3("Failed to reconnect to %s:%d (%s)",
-								sdsc->conn.ip,sdsc->conn.port,
-								shout_strerror(sdsc->conn.error));
+								shout_get_host(sdsc->shout),shout_get_port(sdsc->shout),
+								shout_get_error(sdsc->shout));
 							if(i==stream->reconnect_attempts)
 							{
 								LOG_ERROR0("Reconnect failed too many times, "
@@ -217,16 +255,15 @@ void *ices_instance_stream(void *arg)
 	else
 	{
 		LOG_ERROR3("Failed initial connect to %s:%d (%s)", 
-				sdsc->conn.ip,sdsc->conn.port,
-                shout_strerror(sdsc->conn.error));
+				shout_get_host(sdsc->shout),shout_get_port(sdsc->shout), shout_get_error(sdsc->shout));
 	}
 	
-	shout_disconnect(&sdsc->conn);
+	shout_close(sdsc->shout);
 
     if(stream->savefile != NULL) 
         fclose(stream->savefile);
 
-	free(sdsc->conn.ip);
+    	shout_free(sdsc->shout);
 	encode_clear(sdsc->enc);
 	reencode_clear(sdsc->reenc);
 	vorbis_comment_clear(&sdsc->vc);

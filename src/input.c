@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.11 2001/11/10 04:47:24 msmith Exp $
+ * $Id: input.c,v 1.12 2002/01/23 03:40:28 jack Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -78,7 +78,7 @@ static module modules[] = {
 	{NULL,NULL}
 };
 
-/* This is identical to shout_sleep(), really. */
+/* This is identical to shout_sync(), really. */
 static void _sleep(timing_control *control)
 {
 	uint64_t sleep;
@@ -104,7 +104,7 @@ static int _calculate_pcm_sleep(ref_buffer *buf, timing_control *control)
 
 static int _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
 {
-	/* Largely copied from shout_send_data(), without the sending happening.*/
+	/* Largely copied from shout_send(), without the sending happening.*/
 	ogg_stream_state os;
 	ogg_page og;
 	ogg_packet op;

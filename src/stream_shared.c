@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.4 2001/09/25 12:04:22 msmith Exp $
+ * $Id: stream_shared.c,v 1.5 2002/01/23 03:40:28 jack Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -37,7 +37,7 @@ int stream_send_data(stream_description *s, unsigned char *buf,
             LOG_ERROR1("Failed to write %d bytes to savefile", len);
     }
 
-    return shout_send_data(&s->conn, buf, len);
+    return shout_send(s->shout, buf, len);
 }
 
 void stream_release_buffer(ref_buffer *buf)
