@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.4 2001/11/07 13:52:52 msmith Exp $
+ * $Id: playlist_basic.c,v 1.5 2001/11/10 05:07:17 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -64,16 +64,18 @@ static int load_playlist(basic_playlist *data)
 	{
 		LOG_ERROR2("Playlist file %s could not be opened: %s", 
 				data->file, strerror(errno));
-		free(data);
 		return -1;
 	}
 
 
-	if(data->pl)
-	{
+	if(data->pl) 
+    {
+        int i;
+        for(i = 0; i < data->len; i++)
+            free(data->pl[i]);
 		free(data->pl);
-		data->pl = NULL;
-	}
+    }
+	data->pl = NULL;
 	data->len = 0;
 	buflen = 0;
 	while (1) 
@@ -111,8 +113,13 @@ void playlist_basic_clear(void *data)
 	basic_playlist *pl = data;
 	if(pl)
 	{
-		if(pl->pl)
+		if(pl->pl) 
+        {
+            int i;
+            for(i=0; i < pl->len; i++)
+                free(pl->pl[i]);
 			free(pl->pl);
+        }
 		free(pl);
 	}
 }
@@ -133,7 +140,8 @@ char *playlist_basic_get_next_filename(void *data)
 	if(st.st_mtime != pl->mtime)
 	{
 		LOG_INFO1("Reloading playlist after file \"%s\" changed", pl->file);
-		load_playlist(pl);
+		if(load_playlist(pl) < 0)
+            return NULL;
         if(pl->restartafterreread)
             pl->pos = 0;
 	}
