@@ -1,7 +1,7 @@
 /* im_playlist.h
  * - Basic playlist functionality
  *
- * $Id: im_playlist.h,v 1.4 2003/03/16 14:21:48 msmith Exp $
+ * $Id: im_playlist.h,v 1.5 2003/08/13 00:58:02 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -23,6 +23,7 @@ typedef struct _playlist_state_tag
     char *filename; /* Currently streaming file */
     int errors; /* Consecutive errors */
     int nexttrack;
+    int allow_repeat;
     ogg_sync_state oy;
     
     char *(*get_filename)(void *data); /* returns the next desired filename */

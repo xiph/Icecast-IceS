@@ -2,7 +2,7 @@
  * - Gets a filename to play back based on output from a program/shell script
  *   run each time.
  *
- * $Id: playlist_script.c,v 1.6 2003/03/22 02:27:55 karl Exp $
+ * $Id: playlist_script.c,v 1.7 2003/08/13 00:58:02 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -106,6 +106,8 @@ int playlist_script_initialise(module_param_t *params, playlist_state_t *pl)
             if(data->program) free(data->program);
             data->program = params->value;
         }
+        else if(!strcmp(params->name, "allow-repeats"))
+            pl->allow_repeat = atoi(params->value);
         else if(!strcmp(params->name, "type")) {
             /* We ignore this one */
         }

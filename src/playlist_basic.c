@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.12 2003/07/09 23:47:01 karl Exp $
+ * $Id: playlist_basic.c,v 1.13 2003/08/13 00:58:02 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -40,7 +40,7 @@ static void shuffle(char **buf, int len)
     n = len;
     while(n > 1)
     {
-        d = (int)(((double) rand() / RAND_MAX) * n);
+        d = (int) ((double)len * rand()/(RAND_MAX+1.0));
         temp = buf[d];
         buf[d] = buf[n-1];
         buf[n-1] = temp;
@@ -203,6 +203,8 @@ int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
             data->random = atoi(params->value);
         else if(!strcmp(params->name, "once"))
             data->once = atoi(params->value);
+        else if(!strcmp(params->name, "allow-repeats"))
+            pl->allow_repeat = atoi(params->value);
         else if(!strcmp(params->name, "restart-after-reread"))
             data->restartafterreread = atoi(params->value);
         else if(!strcmp(params->name, "type"))

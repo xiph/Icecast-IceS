@@ -1,7 +1,7 @@
 /* playlist.c
  * - Basic playlist functionality
  *
- * $Id: im_playlist.c,v 1.12 2003/07/09 23:47:01 karl Exp $
+ * $Id: im_playlist.c,v 1.13 2003/08/13 00:58:01 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -124,7 +124,7 @@ static int playlist_read(void *self, ref_buffer *rb)
 
         if (strcmp (newfn, "-"))
         {
-            if (pl->filename && !strcmp(pl->filename, newfn))
+            if (!pl->allow_repeat && pl->filename && !strcmp(pl->filename, newfn))
             {
                 LOG_ERROR0("Cannot play same file twice in a row, skipping");
                 pl->errors++;
