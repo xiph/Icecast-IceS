@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.10 2002/08/03 12:11:57 msmith Exp $
+ * $Id: stream_shared.c,v 1.11 2002/08/13 14:03:20 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -146,8 +146,10 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 			encode_finish(sdsc->enc);
 			while(encode_flush(sdsc->enc, &og) != 0)
 			{
-				ret = stream_send_data(sdsc, og.header, og.header_len);
-				ret = stream_send_data(sdsc, og.body, og.body_len);
+				if ((ret = stream_send_data(sdsc, og.header, og.header_len)) == 0)
+                    return 0;
+				if ((ret = stream_send_data(sdsc, og.body, og.body_len)) == 0)
+                    return 0;
 			}
 			encode_clear(sdsc->enc);
 
@@ -196,8 +198,10 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 
 		while(encode_dataout(sdsc->enc, &og) > 0)
 		{
-			ret = stream_send_data(sdsc, og.header, og.header_len);
-			ret = stream_send_data(sdsc, og.body, og.body_len);
+			if ((ret = stream_send_data(sdsc, og.header, og.header_len)) == 0)
+                return 0;
+			if ((ret = stream_send_data(sdsc, og.body, og.body_len)) == 0)
+                return 0;
 		}
                         
         return ret;
