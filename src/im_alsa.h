@@ -1,7 +1,7 @@
 /* im_alsa.h
  * - read pcm data from oss devices
  *
- * $Id: im_alsa.h,v 1.1 2002/12/29 10:28:30 msmith Exp $
+ * $Id: im_alsa.h,v 1.2 2003/03/16 14:21:48 msmith Exp $
  *
  * by Jason Chu  <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -23,13 +23,13 @@
 
 typedef struct
 {
-	int rate;
-	int channels;
+    int rate;
+    int channels;
 
-	snd_pcm_t *fd;
-	char **metadata;
-	int newtrack;
-	mutex_t metadatalock;
+    snd_pcm_t *fd;
+    char **metadata;
+    int newtrack;
+    mutex_t metadatalock;
 } im_alsa_state; 
 
 input_module_t *alsa_open_module(module_param_t *params);

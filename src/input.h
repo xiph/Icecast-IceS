@@ -1,7 +1,7 @@
 /* input.h
  * - Input functions
  *
- * $Id: input.h,v 1.7 2003/03/07 04:20:55 karl Exp $
+ * $Id: input.h,v 1.8 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -25,8 +25,8 @@
 #include "audio.h"
 
 typedef struct {
-	instance_t *stream;
-	input_module_t *input;
+    instance_t *stream;
+    input_module_t *input;
     reencode_state *reenc;
     encoder_state *enc;
     downmix_state *downmix;

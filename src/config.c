@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.13 2002/08/16 14:23:43 msmith Exp $
+ * $Id: config.c,v 1.14 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -57,30 +57,30 @@
 ** stupid code over and over
 */
 #define SET_STRING(x) \
-	do {\
-		if (x) free(x);\
-		(x) = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
-	} while (0) 
+    do {\
+        if (x) free(x);\
+        (x) = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
+    } while (0) 
 
 #define SET_INT(x) \
-	do {\
-		char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
-		(x) = atoi(tmp);\
-		if (tmp) free(tmp);\
-	} while (0)
+    do {\
+        char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
+        (x) = atoi(tmp);\
+        if (tmp) free(tmp);\
+    } while (0)
 
 #define SET_FLOAT(x) \
-	do {\
-		char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
-		(x) = atof(tmp);\
-		if (tmp) free(tmp);\
-	} while (0)
+    do {\
+        char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
+        (x) = atof(tmp);\
+        if (tmp) free(tmp);\
+    } while (0)
 
 #define SET_PARM_STRING(p,x) \
         do {\
                 if (x) free(x);\
                 (x) = (char *)xmlGetProp(node, p);\
-	} while (0)
+    } while (0)
 
 
 /* this is the global config variable */
@@ -90,65 +90,65 @@ static int _using_default_instance = 1;
 
 static void _free_instances(instance_t *instance)
 {
-	instance_t *next;
-	
-	next = NULL;
-	do 
-	{
-		config_free_instance(instance);
-		next = instance->next;
-		free(instance);
-		
-		instance = next;
-	} while (next != NULL);
+    instance_t *next;
+    
+    next = NULL;
+    do 
+    {
+        config_free_instance(instance);
+        next = instance->next;
+        free(instance);
+        
+        instance = next;
+    } while (next != NULL);
 }
 
 void config_free_instance(instance_t *instance)
 {
-	if (instance->hostname) free(instance->hostname);
-	if (instance->password) free(instance->password);
-	if (instance->user) free(instance->user);
-	if (instance->mount) free(instance->mount);
-	if (instance->queue) 
-	{
-		thread_mutex_destroy(&instance->queue->lock);
-		free(instance->queue);
-	}
+    if (instance->hostname) free(instance->hostname);
+    if (instance->password) free(instance->password);
+    if (instance->user) free(instance->user);
+    if (instance->mount) free(instance->mount);
+    if (instance->queue) 
+    {
+        thread_mutex_destroy(&instance->queue->lock);
+        free(instance->queue);
+    }
 }
 
 static void _set_instance_defaults(instance_t *instance)
 {
-	instance->hostname = strdup(DEFAULT_HOSTNAME);
-	instance->port = DEFAULT_PORT;
-	instance->password = strdup(DEFAULT_PASSWORD);
-	instance->user = DEFAULT_USERNAME;
-	instance->mount = strdup(DEFAULT_MOUNT);
+    instance->hostname = strdup(DEFAULT_HOSTNAME);
+    instance->port = DEFAULT_PORT;
+    instance->password = strdup(DEFAULT_PASSWORD);
+    instance->user = DEFAULT_USERNAME;
+    instance->mount = strdup(DEFAULT_MOUNT);
     instance->managed = DEFAULT_MANAGED;
-	instance->min_br = DEFAULT_MIN_BITRATE;
-	instance->nom_br = DEFAULT_NOM_BITRATE;
-	instance->max_br = DEFAULT_MAX_BITRATE;
+    instance->min_br = DEFAULT_MIN_BITRATE;
+    instance->nom_br = DEFAULT_NOM_BITRATE;
+    instance->max_br = DEFAULT_MAX_BITRATE;
     instance->quality = DEFAULT_QUALITY;
-	instance->encode = DEFAULT_REENCODE;
+    instance->encode = DEFAULT_REENCODE;
     instance->downmix = DEFAULT_DOWNMIX;
     instance->resampleinrate = DEFAULT_RESAMPLE;
     instance->resampleoutrate = DEFAULT_RESAMPLE;
-	instance->reconnect_delay = DEFAULT_RECONN_DELAY;
-	instance->reconnect_attempts = DEFAULT_RECONN_ATTEMPTS;
-	instance->max_queue_length = DEFAULT_MAXQUEUELENGTH;
-	instance->savefilename = DEFAULT_SAVEFILENAME;
+    instance->reconnect_delay = DEFAULT_RECONN_DELAY;
+    instance->reconnect_attempts = DEFAULT_RECONN_ATTEMPTS;
+    instance->max_queue_length = DEFAULT_MAXQUEUELENGTH;
+    instance->savefilename = DEFAULT_SAVEFILENAME;
 
-	instance->queue = calloc(1, sizeof(buffer_queue));
-	thread_mutex_create(&instance->queue->lock);
-	instance->serial = rand();
+    instance->queue = calloc(1, sizeof(buffer_queue));
+    thread_mutex_create(&instance->queue->lock);
+    instance->serial = rand();
 
-	instance->next = NULL;
+    instance->next = NULL;
 }
 
 static void _parse_resample(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
 {
-	do {
-		if (node == NULL) break;
-		if (xmlIsBlankNode(node)) continue;
+    do {
+        if (node == NULL) break;
+        if (xmlIsBlankNode(node)) continue;
 
         if(strcmp(node->name, "in-rate") == 0)
             SET_INT(instance->resampleinrate);
@@ -159,326 +159,326 @@ static void _parse_resample(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
 
 static void _parse_encode(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
 {
-	instance->encode = 1;
-	do {
-		if (node == NULL) break;
-		if (xmlIsBlankNode(node)) continue;
+    instance->encode = 1;
+    do {
+        if (node == NULL) break;
+        if (xmlIsBlankNode(node)) continue;
 
         if (strcmp(node->name, "nominal-bitrate") == 0)
-			SET_INT(instance->nom_br);
+            SET_INT(instance->nom_br);
         else if (strcmp(node->name, "minimum-bitrate") == 0)
-			SET_INT(instance->min_br);
+            SET_INT(instance->min_br);
         else if (strcmp(node->name, "maximum-bitrate") == 0)
-			SET_INT(instance->max_br);
+            SET_INT(instance->max_br);
         else if (strcmp(node->name, "quality") == 0)
-			SET_FLOAT(instance->quality);
-		else if (strcmp(node->name, "samplerate") == 0)
-			SET_INT(instance->samplerate);
-		else if (strcmp(node->name, "channels") == 0)
-			SET_INT(instance->channels);
+            SET_FLOAT(instance->quality);
+        else if (strcmp(node->name, "samplerate") == 0)
+            SET_INT(instance->samplerate);
+        else if (strcmp(node->name, "channels") == 0)
+            SET_INT(instance->channels);
         else if (strcmp(node->name, "managed") == 0)
             SET_INT(instance->managed);
-	} while ((node = node->next));
+    } while ((node = node->next));
 
 }
 
 static void _parse_metadata(instance_t *instance, config_t *config, 
         xmlDocPtr doc, xmlNodePtr node)
 {
-	do 
-	{
-		if (node == NULL) break;
-		if (xmlIsBlankNode(node)) continue;
+    do 
+    {
+        if (node == NULL) break;
+        if (xmlIsBlankNode(node)) continue;
 
-		if (strcmp(node->name, "name") == 0) {
+        if (strcmp(node->name, "name") == 0) {
             if(instance)
-    			SET_STRING(instance->stream_name);
+                SET_STRING(instance->stream_name);
             else
-    			SET_STRING(config->stream_name);
+                SET_STRING(config->stream_name);
         }
-		else if (strcmp(node->name, "genre") == 0) {
+        else if (strcmp(node->name, "genre") == 0) {
             if(instance)
-    			SET_STRING(instance->stream_genre);
+                SET_STRING(instance->stream_genre);
             else
-    			SET_STRING(config->stream_genre);
+                SET_STRING(config->stream_genre);
         }
-		else if (strcmp(node->name, "description") == 0) {
+        else if (strcmp(node->name, "description") == 0) {
             if(instance)
-			    SET_STRING(instance->stream_description);
+                SET_STRING(instance->stream_description);
             else
-			    SET_STRING(config->stream_description);
+                SET_STRING(config->stream_description);
         }
-	} while ((node = node->next));
+    } while ((node = node->next));
 }
 
 static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 {
-	instance_t *instance, *i;
+    instance_t *instance, *i;
 
-	instance = (instance_t *)calloc(1, sizeof(instance_t));
-	_set_instance_defaults(instance);
+    instance = (instance_t *)calloc(1, sizeof(instance_t));
+    _set_instance_defaults(instance);
 
-	do 
-	{
-		if (node == NULL) break;
-		if (xmlIsBlankNode(node)) continue;
+    do 
+    {
+        if (node == NULL) break;
+        if (xmlIsBlankNode(node)) continue;
 
-		if (strcmp(node->name, "hostname") == 0)
-			SET_STRING(instance->hostname);
-		else if (strcmp(node->name, "port") == 0)
-			SET_INT(instance->port);
-		else if (strcmp(node->name, "password") == 0)
-			SET_STRING(instance->password);
-		else if (strcmp(node->name, "username") == 0)
-			SET_STRING(instance->user);
-		else if (strcmp(node->name, "savefile") == 0)
-			SET_STRING(instance->savefilename);
-		else if (strcmp(node->name, "mount") == 0)
-			SET_STRING(instance->mount);
-		else if(strcmp(node->name, "reconnectdelay") == 0)
-			SET_INT(instance->reconnect_delay);
-		else if(strcmp(node->name, "reconnectattempts") == 0)
-			SET_INT(instance->reconnect_attempts);
-		else if(strcmp(node->name, "maxqueuelength") == 0)
-			SET_INT(instance->max_queue_length);
+        if (strcmp(node->name, "hostname") == 0)
+            SET_STRING(instance->hostname);
+        else if (strcmp(node->name, "port") == 0)
+            SET_INT(instance->port);
+        else if (strcmp(node->name, "password") == 0)
+            SET_STRING(instance->password);
+        else if (strcmp(node->name, "username") == 0)
+            SET_STRING(instance->user);
+        else if (strcmp(node->name, "savefile") == 0)
+            SET_STRING(instance->savefilename);
+        else if (strcmp(node->name, "mount") == 0)
+            SET_STRING(instance->mount);
+        else if(strcmp(node->name, "reconnectdelay") == 0)
+            SET_INT(instance->reconnect_delay);
+        else if(strcmp(node->name, "reconnectattempts") == 0)
+            SET_INT(instance->reconnect_attempts);
+        else if(strcmp(node->name, "maxqueuelength") == 0)
+            SET_INT(instance->max_queue_length);
         else if(strcmp(node->name, "downmix") == 0)
             SET_INT(instance->downmix);
         else if(strcmp(node->name, "resample") == 0)
             _parse_resample(instance, doc, node->xmlChildrenNode);
-		else if (strcmp(node->name, "encode") == 0)
-			_parse_encode(instance, doc, node->xmlChildrenNode);
+        else if (strcmp(node->name, "encode") == 0)
+            _parse_encode(instance, doc, node->xmlChildrenNode);
         else if (strcmp(node->name, "metadata") == 0)
-			_parse_metadata(instance, config, doc, node->xmlChildrenNode);
-	} while ((node = node->next));
+            _parse_metadata(instance, config, doc, node->xmlChildrenNode);
+    } while ((node = node->next));
 
-	instance->next = NULL;
+    instance->next = NULL;
 
-	if (_using_default_instance) 
-	{
-		_using_default_instance = 0;
-		_free_instances(config->instances);
-		config->instances = NULL;
-	}
+    if (_using_default_instance) 
+    {
+        _using_default_instance = 0;
+        _free_instances(config->instances);
+        config->instances = NULL;
+    }
 
-	if (config->instances == NULL) 
-	{
-		config->instances = instance;
-	} 
-	else 
-	{
-		i = config->instances;
-		while (i->next != NULL) i = i->next;
-		i->next = instance;
-	}
+    if (config->instances == NULL) 
+    {
+        config->instances = instance;
+    } 
+    else 
+    {
+        i = config->instances;
+        while (i->next != NULL) i = i->next;
+        i->next = instance;
+    }
 }
 
 static void _parse_input(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 {
-	module_param_t *param, *p;
+    module_param_t *param, *p;
 
-	do 
-	{
-		if (node == NULL) break;
-		if (xmlIsBlankNode(node)) continue;
+    do 
+    {
+        if (node == NULL) break;
+        if (xmlIsBlankNode(node)) continue;
 
-		if (strcmp(node->name, "module") == 0)
-			SET_STRING(config->playlist_module);
-		else if (strcmp(node->name, "param") == 0) {
-			param = (module_param_t *)calloc(1, sizeof(module_param_t));
-			SET_PARM_STRING("name", param->name);
-			SET_STRING(param->value);
-			param->next = NULL;
+        if (strcmp(node->name, "module") == 0)
+            SET_STRING(config->playlist_module);
+        else if (strcmp(node->name, "param") == 0) {
+            param = (module_param_t *)calloc(1, sizeof(module_param_t));
+            SET_PARM_STRING("name", param->name);
+            SET_STRING(param->value);
+            param->next = NULL;
 
-			if (config->module_params == NULL) 
-			{
-				config->module_params = param;
-			} 
-			else 
-			{
-				p = config->module_params;
-				while (p->next != NULL) p = p->next;
-				p->next = param;
-			}
-		}
-	} while ((node = node->next));
+            if (config->module_params == NULL) 
+            {
+                config->module_params = param;
+            } 
+            else 
+            {
+                p = config->module_params;
+                while (p->next != NULL) p = p->next;
+                p->next = param;
+            }
+        }
+    } while ((node = node->next));
 }
 
 static void _parse_stream(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 {
-	do 
-	{
-		if (node == NULL) break;
-		if (xmlIsBlankNode(node)) continue;
+    do 
+    {
+        if (node == NULL) break;
+        if (xmlIsBlankNode(node)) continue;
 
-		if (strcmp(node->name, "metadata") == 0)
-			_parse_metadata(NULL, config, doc, node->xmlChildrenNode);
-		else if (strcmp(node->name, "input") == 0)
-			_parse_input(config, doc, node->xmlChildrenNode);
-		else if (strcmp(node->name, "instance") == 0)
-			_parse_instance(config, doc, node->xmlChildrenNode);
-	} while ((node = node->next));
+        if (strcmp(node->name, "metadata") == 0)
+            _parse_metadata(NULL, config, doc, node->xmlChildrenNode);
+        else if (strcmp(node->name, "input") == 0)
+            _parse_input(config, doc, node->xmlChildrenNode);
+        else if (strcmp(node->name, "instance") == 0)
+            _parse_instance(config, doc, node->xmlChildrenNode);
+    } while ((node = node->next));
 }
 
 static void _parse_root(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 {
-	do 
-	{
-		if (node == NULL) break;
-		if (xmlIsBlankNode(node)) continue;
-		
-		if (strcmp(node->name, "background") == 0)
-			SET_INT(config->background);
-		else if (strcmp(node->name, "logpath") == 0)
-			SET_STRING(config->logpath);
-		else if (strcmp(node->name, "logfile") == 0)
-			SET_STRING(config->logfile);
-		else if (strcmp(node->name, "loglevel") == 0)
-			SET_INT(config->loglevel);
+    do 
+    {
+        if (node == NULL) break;
+        if (xmlIsBlankNode(node)) continue;
+        
+        if (strcmp(node->name, "background") == 0)
+            SET_INT(config->background);
+        else if (strcmp(node->name, "logpath") == 0)
+            SET_STRING(config->logpath);
+        else if (strcmp(node->name, "logfile") == 0)
+            SET_STRING(config->logfile);
+        else if (strcmp(node->name, "loglevel") == 0)
+            SET_INT(config->loglevel);
         else if (strcmp(node->name, "consolelog") == 0)
             SET_INT(config->log_stderr);
-		else if (strcmp(node->name, "stream") == 0)
-			_parse_stream(config, doc, node->xmlChildrenNode);
-	} while ((node = node->next));
+        else if (strcmp(node->name, "stream") == 0)
+            _parse_stream(config, doc, node->xmlChildrenNode);
+    } while ((node = node->next));
 }
 
 static void _set_defaults(config_t *c)
 {
-	instance_t *instance;
+    instance_t *instance;
 
-	c->background = DEFAULT_BACKGROUND;
-	c->logpath = strdup(DEFAULT_LOGPATH);
-	c->logfile = strdup(DEFAULT_LOGFILE);
-	c->loglevel = DEFAULT_LOGLEVEL;
+    c->background = DEFAULT_BACKGROUND;
+    c->logpath = strdup(DEFAULT_LOGPATH);
+    c->logfile = strdup(DEFAULT_LOGFILE);
+    c->loglevel = DEFAULT_LOGLEVEL;
     c->log_stderr = DEFAULT_LOG_STDERR;
 
-	c->stream_name = strdup(DEFAULT_STREAM_NAME);
-	c->stream_genre = strdup(DEFAULT_STREAM_GENRE);
-	c->stream_description = strdup(DEFAULT_STREAM_DESCRIPTION);
+    c->stream_name = strdup(DEFAULT_STREAM_NAME);
+    c->stream_genre = strdup(DEFAULT_STREAM_GENRE);
+    c->stream_description = strdup(DEFAULT_STREAM_DESCRIPTION);
 
-	c->playlist_module = strdup(DEFAULT_PLAYLIST_MODULE);
-	
-	c->module_params = NULL;
+    c->playlist_module = strdup(DEFAULT_PLAYLIST_MODULE);
+    
+    c->module_params = NULL;
 
-	instance = (instance_t *)malloc(sizeof(instance_t));
-	_set_instance_defaults(instance);
-	c->instances = instance;
+    instance = (instance_t *)malloc(sizeof(instance_t));
+    _set_instance_defaults(instance);
+    c->instances = instance;
 }
 
 static void _free_params(module_param_t *param)
 {
-	module_param_t *next;
-	next = NULL;
-	do 
-	{
-		if (param->name) free(param->name);
-		if (param->value) free(param->value);
-		next = param->next;
-		free(param);
-		
-		param = next;
-	} while (next != NULL);
+    module_param_t *next;
+    next = NULL;
+    do 
+    {
+        if (param->name) free(param->name);
+        if (param->value) free(param->value);
+        next = param->next;
+        free(param);
+        
+        param = next;
+    } while (next != NULL);
 }
 
 void config_initialize(void)
 {
-	ices_config = (config_t *)calloc(1, sizeof(config_t));
-	_set_defaults(ices_config);
-	srand(time(NULL));
+    ices_config = (config_t *)calloc(1, sizeof(config_t));
+    _set_defaults(ices_config);
+    srand(time(NULL));
     xmlInitParser();
 }
 
 void config_shutdown(void)
 {
-	if (ices_config == NULL) return;
+    if (ices_config == NULL) return;
 
-	if (ices_config->module_params != NULL) 
-	{
-		_free_params(ices_config->module_params);
-		ices_config->module_params = NULL;
-	}
+    if (ices_config->module_params != NULL) 
+    {
+        _free_params(ices_config->module_params);
+        ices_config->module_params = NULL;
+    }
 
-	if (ices_config->instances != NULL) 
-	{
-		_free_instances(ices_config->instances);
-		ices_config->instances = NULL;
-	}
+    if (ices_config->instances != NULL) 
+    {
+        _free_instances(ices_config->instances);
+        ices_config->instances = NULL;
+    }
 
-	free(ices_config);
-	ices_config = NULL;
+    free(ices_config);
+    ices_config = NULL;
     xmlCleanupParser();
 }
 
 int config_read(const char *fn)
 {
-	xmlDocPtr doc;
-	xmlNodePtr node;
+    xmlDocPtr doc;
+    xmlNodePtr node;
 
-	if (fn == NULL || strcmp(fn, "") == 0) return -1;
+    if (fn == NULL || strcmp(fn, "") == 0) return -1;
 
-	doc = xmlParseFile(fn);
-	if (doc == NULL) return -1;
+    doc = xmlParseFile(fn);
+    if (doc == NULL) return -1;
 
-	node = xmlDocGetRootElement(doc);
-	if (node == NULL || strcmp(node->name, "ices") != 0) 
-	{
-		xmlFreeDoc(doc);
-		return 0;
-	}
+    node = xmlDocGetRootElement(doc);
+    if (node == NULL || strcmp(node->name, "ices") != 0) 
+    {
+        xmlFreeDoc(doc);
+        return 0;
+    }
 
-	_parse_root(ices_config, doc, node->xmlChildrenNode);
+    _parse_root(ices_config, doc, node->xmlChildrenNode);
 
-	xmlFreeDoc(doc);
+    xmlFreeDoc(doc);
 
-	return 1;
+    return 1;
 }
 
 void config_dump(void)
 {
-	config_t *c = ices_config;
-	module_param_t *param;
-	instance_t *i;
+    config_t *c = ices_config;
+    module_param_t *param;
+    instance_t *i;
 
-	fprintf(stderr, "ices config dump:\n");
-	fprintf(stderr, "background = %d\n", c->background);
-	fprintf(stderr, "logpath = %s\n", c->logpath);
-	fprintf(stderr, "logfile = %s\n", c->logfile);
-	fprintf(stderr, "loglevel = %d\n", c->loglevel);
-	fprintf(stderr, "\n");
-	fprintf(stderr, "stream_name = %s\n", c->stream_name);
-	fprintf(stderr, "stream_genre = %s\n", c->stream_genre);
-	fprintf(stderr, "stream_description = %s\n", c->stream_description);
-	fprintf(stderr, "\n");
-	fprintf(stderr, "playlist_module = %s\n", c->playlist_module);
-	param = c->module_params;
-	while(param)
-	{
-		fprintf(stderr, "module_param: %s = %s\n", param->name, param->value);
-		param = param->next;
-	}
-	fprintf(stderr, "\ninstances:\n\n");
+    fprintf(stderr, "ices config dump:\n");
+    fprintf(stderr, "background = %d\n", c->background);
+    fprintf(stderr, "logpath = %s\n", c->logpath);
+    fprintf(stderr, "logfile = %s\n", c->logfile);
+    fprintf(stderr, "loglevel = %d\n", c->loglevel);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "stream_name = %s\n", c->stream_name);
+    fprintf(stderr, "stream_genre = %s\n", c->stream_genre);
+    fprintf(stderr, "stream_description = %s\n", c->stream_description);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "playlist_module = %s\n", c->playlist_module);
+    param = c->module_params;
+    while(param)
+    {
+        fprintf(stderr, "module_param: %s = %s\n", param->name, param->value);
+        param = param->next;
+    }
+    fprintf(stderr, "\ninstances:\n\n");
 
-	i = c->instances;
-	while (i) 
-	{
-		fprintf(stderr, "hostname = %s\n", i->hostname);
-		fprintf(stderr, "port = %d\n", i->port);
-		fprintf(stderr, "password = %s\n", i->password);
-		fprintf(stderr, "mount = %s\n", i->mount);
-		fprintf(stderr, "minimum bitrate = %d\n", i->min_br);
-		fprintf(stderr, "nominal bitrate = %d\n", i->nom_br);
-		fprintf(stderr, "maximum bitrate = %d\n", i->max_br);
-		fprintf(stderr, "quality = %f\n", i->quality);
-		fprintf(stderr, "managed = %d\n", i->managed);
-		fprintf(stderr, "reencode = %d\n", i->encode);
-		fprintf(stderr, "reconnect: %d times at %d second intervals\n", 
-				i->reconnect_attempts, i->reconnect_delay);
-		fprintf(stderr, "maxqueuelength = %d\n", i->max_queue_length);
-		fprintf(stderr, "\n");
+    i = c->instances;
+    while (i) 
+    {
+        fprintf(stderr, "hostname = %s\n", i->hostname);
+        fprintf(stderr, "port = %d\n", i->port);
+        fprintf(stderr, "password = %s\n", i->password);
+        fprintf(stderr, "mount = %s\n", i->mount);
+        fprintf(stderr, "minimum bitrate = %d\n", i->min_br);
+        fprintf(stderr, "nominal bitrate = %d\n", i->nom_br);
+        fprintf(stderr, "maximum bitrate = %d\n", i->max_br);
+        fprintf(stderr, "quality = %f\n", i->quality);
+        fprintf(stderr, "managed = %d\n", i->managed);
+        fprintf(stderr, "reencode = %d\n", i->encode);
+        fprintf(stderr, "reconnect: %d times at %d second intervals\n", 
+                i->reconnect_attempts, i->reconnect_delay);
+        fprintf(stderr, "maxqueuelength = %d\n", i->max_queue_length);
+        fprintf(stderr, "\n");
 
-		i = i->next;
-	}
-	
-	fprintf(stderr, "\n");
+        i = i->next;
+    }
+    
+    fprintf(stderr, "\n");
 }
 
 

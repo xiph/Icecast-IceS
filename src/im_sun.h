@@ -1,7 +1,7 @@
 /* im_sun.h
  * - read pcm data from sun devices
  *
- * $Id: im_sun.h,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: im_sun.h,v 1.3 2003/03/16 14:21:48 msmith Exp $
  *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
@@ -23,12 +23,12 @@
 
 typedef struct
 {
-	audio_info_t device_info;
-	int fd;
-	int fdctl;
-	char **metadata;
-	int newtrack;
-	mutex_t metadatalock;
+    audio_info_t device_info;
+    int fd;
+    int fdctl;
+    char **metadata;
+    int newtrack;
+    mutex_t metadatalock;
 } im_sun_state; 
 
 input_module_t *sun_open_module(module_param_t *params);

@@ -1,7 +1,7 @@
 /* im_stdinpcm.h
  * - stdin reading
  *
- * $Id: im_stdinpcm.h,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: im_stdinpcm.h,v 1.3 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -19,9 +19,9 @@
 
 typedef struct
 {
-	int rate;
-	int channels;
-	int newtrack;
+    int rate;
+    int channels;
+    int newtrack;
 } stdinpcm_state; 
 
 input_module_t *stdin_open_module(module_param_t *params);

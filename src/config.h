@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.15 2002/08/16 15:47:36 msmith Exp $
+ * $Id: config.h,v 1.16 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -21,10 +21,10 @@
 
 typedef struct _module_param_tag
 {
-	char *name;
-	char *value;
+    char *name;
+    char *value;
 
-	struct _module_param_tag *next;
+    struct _module_param_tag *next;
 } module_param_t;
 
 /* FIXME: orward declaraction because my headers are a mess. */
@@ -32,81 +32,81 @@ struct buffer_queue;
 
 typedef struct _instance_tag
 {
-	char *hostname;
-	int port;
-	char *password;
+    char *hostname;
+    int port;
+    char *password;
     char *user;
-	char *mount;
-	int reconnect_delay;
-	int reconnect_attempts;
-	int encode;
+    char *mount;
+    int reconnect_delay;
+    int reconnect_attempts;
+    int encode;
     int downmix;
     int resampleinrate;
     int resampleoutrate;
-	int max_queue_length;
-	char *savefilename;
+    int max_queue_length;
+    char *savefilename;
 
     /* local metadata */
-	char *stream_name;
-	char *stream_genre;
-	char *stream_description;
+    char *stream_name;
+    char *stream_genre;
+    char *stream_description;
 
-	/* Parameters for re-encoding */
+    /* Parameters for re-encoding */
     int managed;
-	int min_br, nom_br, max_br;
+    int min_br, nom_br, max_br;
     float quality;
-	int samplerate;
-	int channels;
-	
-	/* private */
+    int samplerate;
+    int channels;
+    
+    /* private */
     FILE *savefile;
-	int serial;
-	int buffer_failures;
-	int died;
-	int kill;
-	int skip;
+    int serial;
+    int buffer_failures;
+    int died;
+    int kill;
+    int skip;
     int wait_for_critical;
 
-	struct buffer_queue *queue;
+    struct buffer_queue *queue;
 
-	struct _instance_tag *next;
+    struct _instance_tag *next;
 } instance_t;
 
 typedef struct _config_tag
 {
-	int background;
-	char *logpath;
-	char *logfile;
-	int loglevel;
+    int background;
+    char *logpath;
+    char *logfile;
+    int loglevel;
     int log_stderr;
 
-	/* <stream> */
+    /* <stream> */
 
-	/* <metadata> */
+    /* <metadata> */
 
-	char *stream_name;
-	char *stream_genre;
-	char *stream_description;
-	
-	/* <playlist> */
-	
-	char *playlist_module;
-	module_param_t *module_params;
+    char *stream_name;
+    char *stream_genre;
+    char *stream_description;
+    
+    /* <playlist> */
+    
+    char *playlist_module;
+    module_param_t *module_params;
 
-	/* <instance> */
+    /* <instance> */
 
-	instance_t *instances;
+    instance_t *instances;
 
-	/* private */
-	int log_id;
-	int shutdown;
+    /* private */
+    int log_id;
+    int shutdown;
     char *metadata_filename;
-	cond_t queue_cond;
-	cond_t event_pending_cond;
-	mutex_t refcount_lock;
-	mutex_t flush_lock;
-	input_module_t *inmod;
-	struct _config_tag *next;
+    cond_t queue_cond;
+    cond_t event_pending_cond;
+    mutex_t refcount_lock;
+    mutex_t flush_lock;
+    input_module_t *inmod;
+    struct _config_tag *next;
 } config_t;
 
 extern config_t *ices_config;

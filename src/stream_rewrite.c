@@ -5,7 +5,7 @@
  *
  * Heavily based on vcedit.c from vorbiscomment.
  *
- * $Id: stream_rewrite.c,v 1.3 2001/11/10 04:47:24 msmith Exp $
+ * $Id: stream_rewrite.c,v 1.4 2003/03/16 14:21:49 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -53,92 +53,92 @@ typedef struct {
  */
 static void _v_writestring(oggpack_buffer *o,char *s, int len)
 {
-	while(len--)
-	{
-		oggpack_write(o,*s++,8);
-	}
+    while(len--)
+    {
+        oggpack_write(o,*s++,8);
+    }
 }
 
 static int _commentheader_out(vorbis_comment *vc, char *vendor, ogg_packet *op)
 {
-	oggpack_buffer opb;
+    oggpack_buffer opb;
 
-	oggpack_writeinit(&opb);
+    oggpack_writeinit(&opb);
 
-	/* preamble */  
-	oggpack_write(&opb,0x03,8);
-	_v_writestring(&opb,"vorbis", 6);
+    /* preamble */  
+    oggpack_write(&opb,0x03,8);
+    _v_writestring(&opb,"vorbis", 6);
 
-	/* vendor */
-	oggpack_write(&opb,strlen(vendor),32);
-	_v_writestring(&opb,vendor, strlen(vendor));
+    /* vendor */
+    oggpack_write(&opb,strlen(vendor),32);
+    _v_writestring(&opb,vendor, strlen(vendor));
 
-	/* comments */
-	oggpack_write(&opb,vc->comments,32);
-	if(vc->comments){
-		int i;
-		for(i=0;i<vc->comments;i++){
-			if(vc->user_comments[i]){
-				oggpack_write(&opb,vc->comment_lengths[i],32);
-				_v_writestring(&opb,vc->user_comments[i], vc->comment_lengths[i]);
-			}else{
-				oggpack_write(&opb,0,32);
-			}
-		}
-	}
-	oggpack_write(&opb,1,1);
+    /* comments */
+    oggpack_write(&opb,vc->comments,32);
+    if(vc->comments){
+        int i;
+        for(i=0;i<vc->comments;i++){
+            if(vc->user_comments[i]){
+                oggpack_write(&opb,vc->comment_lengths[i],32);
+                _v_writestring(&opb,vc->user_comments[i], vc->comment_lengths[i]);
+            }else{
+                oggpack_write(&opb,0,32);
+            }
+        }
+    }
+    oggpack_write(&opb,1,1);
 
-	op->packet = _ogg_malloc(oggpack_bytes(&opb));
-	memcpy(op->packet, opb.buffer, oggpack_bytes(&opb));
+    op->packet = _ogg_malloc(oggpack_bytes(&opb));
+    memcpy(op->packet, opb.buffer, oggpack_bytes(&opb));
 
-	op->bytes=oggpack_bytes(&opb);
-	op->b_o_s=0;
-	op->e_o_s=0;
-	op->granulepos=0;
+    op->bytes=oggpack_bytes(&opb);
+    op->b_o_s=0;
+    op->e_o_s=0;
+    op->granulepos=0;
 
-	return 0;
+    return 0;
 }
 
 static int _blocksize(stream_rewriter *s, ogg_packet *p)
 {
-	int this = vorbis_packet_blocksize(&s->vi, p);
-	int ret = (this + s->prevW)/4;
+    int this = vorbis_packet_blocksize(&s->vi, p);
+    int ret = (this + s->prevW)/4;
 
-	if(!s->prevW)
-	{
-		s->prevW = this;
-		return 0;
-	}
+    if(!s->prevW)
+    {
+        s->prevW = this;
+        return 0;
+    }
 
-	s->prevW = this;
-	return ret;
+    s->prevW = this;
+    return ret;
 }
 
 static int _fetch_next_packet(stream_rewriter *s, ogg_packet *p)
 {
-	int result;
-	ogg_page og;
-	char *buffer;
-	int bytes;
+    int result;
+    ogg_page og;
+    char *buffer;
+    int bytes;
 
-	result = ogg_stream_packetout(&s->stream_in, p);
+    result = ogg_stream_packetout(&s->stream_in, p);
 
-	if(result > 0)
-		return 1;
-	else
-	{
-		while(ogg_sync_pageout(&s->sync, &og) <= 0)
-		{
-			buffer = ogg_sync_buffer(&s->sync, CHUNKSIZE);
-			bytes = fread(buffer,1, CHUNKSIZE, s->in);
-			ogg_sync_wrote(&s->sync, bytes);
-			if(bytes == 0) 
-				return 0;
-		}
+    if(result > 0)
+        return 1;
+    else
+    {
+        while(ogg_sync_pageout(&s->sync, &og) <= 0)
+        {
+            buffer = ogg_sync_buffer(&s->sync, CHUNKSIZE);
+            bytes = fread(buffer,1, CHUNKSIZE, s->in);
+            ogg_sync_wrote(&s->sync, bytes);
+            if(bytes == 0) 
+                return 0;
+        }
 
-		ogg_stream_pagein(&s->stream_in, &og);
-		return _fetch_next_packet(s, p);
-	}
+        ogg_stream_pagein(&s->stream_in, &og);
+        return _fetch_next_packet(s, p);
+    }
 }
 
 static int _get_next_page(stream_rewriter *s, ogg_page *page)

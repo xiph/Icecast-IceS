@@ -1,7 +1,7 @@
 /* stream.h
  * - Core streaming functions/main loop.
  *
- * $Id: stream.h,v 1.2 2001/09/25 12:04:22 msmith Exp $
+ * $Id: stream.h,v 1.3 2003/03/16 14:21:49 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -21,22 +21,22 @@
 #include "config.h"
 
 typedef struct {
-	unsigned char *buf;
-	long len;
-	int count;
-	int critical;
-	long aux_data;
+    unsigned char *buf;
+    long len;
+    int count;
+    int critical;
+    long aux_data;
 } ref_buffer;
 
 typedef struct _queue_item {
-	ref_buffer *buf;
-	struct _queue_item *next;
+    ref_buffer *buf;
+    struct _queue_item *next;
 } queue_item;
 
 typedef struct buffer_queue {
-	queue_item *head, *tail;
-	int length;
-	mutex_t lock;
+    queue_item *head, *tail;
+    int length;
+    mutex_t lock;
 } buffer_queue;
 
 void *ices_instance_stream(void *arg);

@@ -1,7 +1,7 @@
 /* encode.h
  * - encoding functions
  *
- * $Id: encode.h,v 1.3 2002/01/28 00:19:15 msmith Exp $
+ * $Id: encode.h,v 1.4 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -18,20 +18,20 @@
 #include <vorbis/codec.h>
 
 typedef struct {
-	ogg_stream_state os;
-	vorbis_block vb;
-	vorbis_dsp_state vd;
-	vorbis_info vi;
+    ogg_stream_state os;
+    vorbis_block vb;
+    vorbis_dsp_state vd;
+    vorbis_info vi;
 
     int samples_in_current_page;
     int samplerate;
     ogg_int64_t prevgranulepos;
-	int in_header;
+    int in_header;
 } encoder_state;
 
 encoder_state *encode_initialise(int channels, int rate, int managed,
     int min_br, int nom_br, int max_br, float quality,
-	int serial, vorbis_comment *vc);
+    int serial, vorbis_comment *vc);
 void encode_clear(encoder_state *s);
 void encode_data_float(encoder_state *s, float **pcm, int samples);
 void encode_data(encoder_state *s, signed char *buf, int bytes, int bigendian);

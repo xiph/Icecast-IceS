@@ -1,7 +1,7 @@
 /* process.h
  * - Processing chains
  *
- * $Id: process.h,v 1.2 2002/02/09 03:55:37 msmith Exp $
+ * $Id: process.h,v 1.3 2003/03/16 14:21:49 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -41,14 +41,14 @@ typedef struct {
     short channels;
     int rate;
 
-	void *buf;            /* Actual data */
-	int len;             /* Length of data (usually bytes, sometimes samples */
+    void *buf;            /* Actual data */
+    int len;             /* Length of data (usually bytes, sometimes samples */
 
-	short count;          /* Reference count */
+    short count;          /* Reference count */
 
-	buffer_flags flags;   /* Flag: critical chunks must be processed fully */
+    buffer_flags flags;   /* Flag: critical chunks must be processed fully */
     int aux_data_len;
-	long aux_data[1];     /* Auxilliary data used for various purposes */
+    long aux_data[1];     /* Auxilliary data used for various purposes */
 } ref_buffer;
 
 /* Need some forward declarations */
@@ -81,13 +81,13 @@ typedef struct _process_chain_element {
 
 typedef struct _instance_t
 {
-	int buffer_failures;
-	int died;
-	int kill;
-	int skip;
+    int buffer_failures;
+    int died;
+    int kill;
+    int skip;
     int wait_for_critical;
 
-	struct buffer_queue *queue;
+    struct buffer_queue *queue;
     int max_queue_length;
     process_chain_element *output_chain;
 

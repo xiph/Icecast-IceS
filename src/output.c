@@ -1,7 +1,7 @@
 /* output.c
  * - Manage output instances
  *
- * $Id: output.c,v 1.2 2002/02/09 03:55:37 msmith Exp $
+ * $Id: output.c,v 1.3 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -28,44 +28,44 @@
 
 ref_buffer *instance_wait_for_data(instance_t *stream)
 {
-	ref_buffer *buffer;
-	queue_item *old;
+    ref_buffer *buffer;
+    queue_item *old;
 
-	thread_mutex_lock(&stream->queue->lock);
-	while(!stream->queue->head && !ices_config->shutdown && !stream->kill)
-	{
-		thread_mutex_unlock(&stream->queue->lock);
-		thread_cond_wait(&ices_config->queue_cond);
-		thread_mutex_lock(&stream->queue->lock);
-	}
+    thread_mutex_lock(&stream->queue->lock);
+    while(!stream->queue->head && !ices_config->shutdown && !stream->kill)
+    {
+        thread_mutex_unlock(&stream->queue->lock);
+        thread_cond_wait(&ices_config->queue_cond);
+        thread_mutex_lock(&stream->queue->lock);
+    }
 
-	if(ices_config->shutdown || stream->kill)
-	{
-		LOG_DEBUG0("Shutdown signalled: thread shutting down");
-		thread_mutex_unlock(&stream->queue->lock);
-		return NULL;
-	}
+    if(ices_config->shutdown || stream->kill)
+    {
+        LOG_DEBUG0("Shutdown signalled: thread shutting down");
+        thread_mutex_unlock(&stream->queue->lock);
+        return NULL;
+    }
 
-	buffer = stream->queue->head->buf;
-	old = stream->queue->head;
+    buffer = stream->queue->head->buf;
+    old = stream->queue->head;
 
-	stream->queue->head = stream->queue->head->next;
-	if(!stream->queue->head)
-	    stream->queue->tail = NULL;
+    stream->queue->head = stream->queue->head->next;
+    if(!stream->queue->head)
+        stream->queue->tail = NULL;
 
-	free(old);
-	stream->queue->length--;
-	thread_mutex_unlock(&stream->queue->lock);
+    free(old);
+    stream->queue->length--;
+    thread_mutex_unlock(&stream->queue->lock);
 
-	/* ok, we pulled something off the queue and the queue is
-	 * now empty - this means we're probably keeping up, so
-	 * clear one of the errors. This way, very occasional errors
-	 * don't cause eventual shutdown
-	 */
-	if(!stream->queue->head && stream->buffer_failures>0)
-		stream->buffer_failures--;
+    /* ok, we pulled something off the queue and the queue is
+     * now empty - this means we're probably keeping up, so
+     * clear one of the errors. This way, very occasional errors
+     * don't cause eventual shutdown
+     */
+    if(!stream->queue->head && stream->buffer_failures>0)
+        stream->buffer_failures--;
 
-	return buffer;
+    return buffer;
 }
 
 /* The main loop for each instance. Gets data passed to it from the stream

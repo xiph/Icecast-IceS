@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.24 2003/03/02 18:36:02 karl Exp $
+ * $Id: stream.c,v 1.25 2003/03/16 14:21:49 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -46,64 +46,64 @@
  */
 void *ices_instance_stream(void *arg)
 {
-	int ret, shouterr;
-	ref_buffer *buffer;
-	stream_description *sdsc = arg;
-	instance_t *stream = sdsc->stream;
-	input_module_t *inmod = sdsc->input;
-	int reencoding = (inmod->type == ICES_INPUT_VORBIS) && stream->encode;
-	int encoding = (inmod->type == ICES_INPUT_PCM) && stream->encode;
+    int ret, shouterr;
+    ref_buffer *buffer;
+    stream_description *sdsc = arg;
+    instance_t *stream = sdsc->stream;
+    input_module_t *inmod = sdsc->input;
+    int reencoding = (inmod->type == ICES_INPUT_VORBIS) && stream->encode;
+    int encoding = (inmod->type == ICES_INPUT_PCM) && stream->encode;
     char *stream_name = NULL, *stream_genre = NULL, *stream_description = NULL;
     char *user = NULL;
     char audio_info[11];
-	
-	vorbis_comment_init(&sdsc->vc);
+    
+    vorbis_comment_init(&sdsc->vc);
 
-	sdsc->shout = shout_new();
+    sdsc->shout = shout_new();
 
-	/* we only support the ice protocol and vorbis streams currently */
-	shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
-	//shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_ICE);
-	shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_HTTP);
+    /* we only support the ice protocol and vorbis streams currently */
+    shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
+    //shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_ICE);
+    shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_HTTP);
 
     signal(SIGPIPE, signal_hup_handler);
 
-	if (!(shout_set_host(sdsc->shout, stream->hostname)) == SHOUTERR_SUCCESS) {
-		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		stream->died = 1;
-		return NULL;
-	}
+    if (!(shout_set_host(sdsc->shout, stream->hostname)) == SHOUTERR_SUCCESS) {
+        LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+        stream->died = 1;
+        return NULL;
+    }
 
-	shout_set_port(sdsc->shout, stream->port);
-	if (!(shout_set_password(sdsc->shout, stream->password)) == SHOUTERR_SUCCESS) {
-		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		stream->died = 1;
-		return NULL;
-	}
+    shout_set_port(sdsc->shout, stream->port);
+    if (!(shout_set_password(sdsc->shout, stream->password)) == SHOUTERR_SUCCESS) {
+        LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+        stream->died = 1;
+        return NULL;
+    }
     if (stream->user)
         user = stream->user;
     else
         user = "source";
 
     if(shout_set_user(sdsc->shout, user) != SHOUTERR_SUCCESS) {
-		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		stream->died = 1;
-		return NULL;
+        LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+        stream->died = 1;
+        return NULL;
     }
 
-	if (!(shout_set_agent(sdsc->shout, VERSIONSTRING)) == SHOUTERR_SUCCESS) {
-		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		stream->died = 1;
-		return NULL;
-	}
+    if (!(shout_set_agent(sdsc->shout, VERSIONSTRING)) == SHOUTERR_SUCCESS) {
+        LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+        stream->died = 1;
+        return NULL;
+    }
 
-	if (!(shout_set_mount(sdsc->shout, stream->mount)) == SHOUTERR_SUCCESS) {
-		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		stream->died = 1;
-		return NULL;
-	}
+    if (!(shout_set_mount(sdsc->shout, stream->mount)) == SHOUTERR_SUCCESS) {
+        LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+        stream->died = 1;
+        return NULL;
+    }
 
-	/* set the metadata for the stream */
+    /* set the metadata for the stream */
     if(stream->stream_name)
         stream_name = stream->stream_name;
     else if (ices_config->stream_name)
@@ -120,23 +120,23 @@ void *ices_instance_stream(void *arg)
         stream_genre = ices_config->stream_genre;
 
     if(stream_name)
-		if (!(shout_set_name(sdsc->shout, stream_name)) == SHOUTERR_SUCCESS) {
-			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-			stream->died = 1;
-			return NULL;
-		}
-	if (stream_genre)
-		if (!(shout_set_genre(sdsc->shout, stream_genre)) == SHOUTERR_SUCCESS) {
-			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-			stream->died = 1;
-			return NULL;
-		}
-	if (stream_description)
-		if (!(shout_set_description(sdsc->shout, stream_description)) == SHOUTERR_SUCCESS) {
-			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-			stream->died = 1;
-			return NULL;
-		}
+        if (!(shout_set_name(sdsc->shout, stream_name)) == SHOUTERR_SUCCESS) {
+            LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+            stream->died = 1;
+            return NULL;
+        }
+    if (stream_genre)
+        if (!(shout_set_genre(sdsc->shout, stream_genre)) == SHOUTERR_SUCCESS) {
+            LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+            stream->died = 1;
+            return NULL;
+        }
+    if (stream_description)
+        if (!(shout_set_description(sdsc->shout, stream_description)) == SHOUTERR_SUCCESS) {
+            LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+            stream->died = 1;
+            return NULL;
+        }
 
     if(stream->downmix && encoding && stream->channels == 1) {
         stream->channels = 1;
@@ -165,21 +165,21 @@ void *ices_instance_stream(void *arg)
         shout_set_audio_info(sdsc->shout, SHOUT_AI_QUALITY, audio_info);
     }
 
-	if(encoding)
-	{
-		if(inmod->metadata_update)
-			inmod->metadata_update(inmod->internal, &sdsc->vc);
-		sdsc->enc = encode_initialise(stream->channels, stream->samplerate,
-				stream->managed, stream->min_br, stream->nom_br, stream->max_br,
+    if(encoding)
+    {
+        if(inmod->metadata_update)
+            inmod->metadata_update(inmod->internal, &sdsc->vc);
+        sdsc->enc = encode_initialise(stream->channels, stream->samplerate,
+                stream->managed, stream->min_br, stream->nom_br, stream->max_br,
                 stream->quality, stream->serial++, &sdsc->vc);
         if(!sdsc->enc) {
             LOG_ERROR0("Failed to configure encoder");
-		    stream->died = 1;
+            stream->died = 1;
             return NULL; /* FIXME: probably leaking some memory here */
         }
-	}
-	else if(reencoding)
-		sdsc->reenc = reencode_init(stream);
+    }
+    else if(reencoding)
+        sdsc->reenc = reencode_init(stream);
 
     if(stream->savefilename != NULL) 
     {
@@ -191,38 +191,38 @@ void *ices_instance_stream(void *arg)
             LOG_INFO1("Saving stream to file %s", stream->savefilename);
     }
 
-	if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
-	{
-		LOG_INFO3("Connected to server: %s:%d%s", 
-				shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), shout_get_mount(sdsc->shout));
+    if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
+    {
+        LOG_INFO3("Connected to server: %s:%d%s", 
+                shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), shout_get_mount(sdsc->shout));
 
-		while(1)
-		{
-			if(stream->buffer_failures > MAX_ERRORS)
-			{
-				LOG_WARN0("Too many errors, shutting down");
-				break;
-			}
+        while(1)
+        {
+            if(stream->buffer_failures > MAX_ERRORS)
+            {
+                LOG_WARN0("Too many errors, shutting down");
+                break;
+            }
 
-			buffer = stream_wait_for_data(stream);
+            buffer = stream_wait_for_data(stream);
 
-			/* buffer being NULL means that either a fatal error occured,
-			 * or we've been told to shut down
-			 */
-			if(!buffer)
-				break;
+            /* buffer being NULL means that either a fatal error occured,
+             * or we've been told to shut down
+             */
+            if(!buffer)
+                break;
 
-			/* If data is NULL or length is 0, we should just skip this one.
-			 * Probably, we've been signalled to shut down, and that'll be
-			 * caught next iteration. Add to the error count just in case,
-			 * so that we eventually break out anyway 
-			 */
-			if(!buffer->buf || !buffer->len)
-			{
-				LOG_WARN0("Bad buffer dequeued!");
-				stream->buffer_failures++;
-				continue; 
-			}
+            /* If data is NULL or length is 0, we should just skip this one.
+             * Probably, we've been signalled to shut down, and that'll be
+             * caught next iteration. Add to the error count just in case,
+             * so that we eventually break out anyway 
+             */
+            if(!buffer->buf || !buffer->len)
+            {
+                LOG_WARN0("Bad buffer dequeued!");
+                stream->buffer_failures++;
+                continue; 
+            }
 
             if(stream->wait_for_critical)
             {
@@ -250,34 +250,34 @@ void *ices_instance_stream(void *arg)
             }
             /* Non-fatal shout error */
             else if(ret == 0)
-			{
-				LOG_ERROR2("Send error: %s (%s)", 
+            {
+                LOG_ERROR2("Send error: %s (%s)", 
                         shout_get_error(sdsc->shout), strerror(errno));
-				if(shout_get_errno(sdsc->shout) == SHOUTERR_SOCKET)
-				{
-					int i=0;
+                if(shout_get_errno(sdsc->shout) == SHOUTERR_SOCKET)
+                {
+                    int i=0;
 
-					/* While we're trying to reconnect, don't receive data
-					 * to this instance, or we'll overflow once reconnect
-					 * succeeds
-					 */
-					thread_mutex_lock(&ices_config->flush_lock);
-					stream->skip = 1;
+                    /* While we're trying to reconnect, don't receive data
+                     * to this instance, or we'll overflow once reconnect
+                     * succeeds
+                     */
+                    thread_mutex_lock(&ices_config->flush_lock);
+                    stream->skip = 1;
 
-					/* Also, flush the current queue */
-					input_flush_queue(stream->queue, 1);
-					thread_mutex_unlock(&ices_config->flush_lock);
-					
-					while((i < stream->reconnect_attempts ||
-							stream->reconnect_attempts==-1) && 
+                    /* Also, flush the current queue */
+                    input_flush_queue(stream->queue, 1);
+                    thread_mutex_unlock(&ices_config->flush_lock);
+                    
+                    while((i < stream->reconnect_attempts ||
+                            stream->reconnect_attempts==-1) && 
                             !ices_config->shutdown)
-					{
-						i++;
-						LOG_WARN0("Trying reconnect after server socket error");
-						shout_close(sdsc->shout);
-						if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
-						{
-							LOG_INFO3("Connected to server: %s:%d%s", 
+                    {
+                        i++;
+                        LOG_WARN0("Trying reconnect after server socket error");
+                        shout_close(sdsc->shout);
+                        if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
+                        {
+                            LOG_INFO3("Connected to server: %s:%d%s", 
                                     shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), 
                                     shout_get_mount(sdsc->shout));
                             /* This stream can't restart until the next
@@ -290,50 +290,50 @@ void *ices_instance_stream(void *arg)
                             stream->wait_for_critical = 1;
                             input_flush_queue(stream->queue, 0);
                             thread_mutex_unlock(&ices_config->flush_lock);
-							break;
-						}
-						else
-						{
-							LOG_ERROR3("Failed to reconnect to %s:%d (%s)",
-								shout_get_host(sdsc->shout),shout_get_port(sdsc->shout),
-								shout_get_error(sdsc->shout));
-							if(i==stream->reconnect_attempts)
-							{
-								LOG_ERROR0("Reconnect failed too many times, "
-										  "giving up.");
+                            break;
+                        }
+                        else
+                        {
+                            LOG_ERROR3("Failed to reconnect to %s:%d (%s)",
+                                shout_get_host(sdsc->shout),shout_get_port(sdsc->shout),
+                                shout_get_error(sdsc->shout));
+                            if(i==stream->reconnect_attempts)
+                            {
+                                LOG_ERROR0("Reconnect failed too many times, "
+                                          "giving up.");
                                 /* We want to die now */
-								stream->buffer_failures = MAX_ERRORS+1; 
-							}
-							else /* Don't try again too soon */
-								sleep(stream->reconnect_delay); 
-						}
-					}
-					stream->skip = 0;
-				}
-				stream->buffer_failures++;
-			}
-			stream_release_buffer(buffer);
-		}
-	}
-	else
-	{
-		LOG_ERROR3("Failed initial connect to %s:%d (%s)", 
-				shout_get_host(sdsc->shout),shout_get_port(sdsc->shout), shout_get_error(sdsc->shout));
-	}
-	
-	shout_close(sdsc->shout);
+                                stream->buffer_failures = MAX_ERRORS+1; 
+                            }
+                            else /* Don't try again too soon */
+                                sleep(stream->reconnect_delay); 
+                        }
+                    }
+                    stream->skip = 0;
+                }
+                stream->buffer_failures++;
+            }
+            stream_release_buffer(buffer);
+        }
+    }
+    else
+    {
+        LOG_ERROR4("Failed initial connect to %s:%d (%s: %s)", 
+                shout_get_host(sdsc->shout),shout_get_port(sdsc->shout), shout_get_error(sdsc->shout), strerror(errno));
+    }
+    
+    shout_close(sdsc->shout);
 
     if(stream->savefile != NULL) 
         fclose(stream->savefile);
 
     shout_free(sdsc->shout);
-	encode_clear(sdsc->enc);
-	reencode_clear(sdsc->reenc);
+    encode_clear(sdsc->enc);
+    reencode_clear(sdsc->reenc);
     downmix_clear(sdsc->downmix);
     resample_clear(sdsc->resamp);
-	vorbis_comment_clear(&sdsc->vc);
+    vorbis_comment_clear(&sdsc->vc);
 
-	stream->died = 1;
-	return NULL;
+    stream->died = 1;
+    return NULL;
 }
 

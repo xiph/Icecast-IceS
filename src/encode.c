@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.13 2002/11/22 13:01:34 msmith Exp $
+ * $Id: encode.c,v 1.14 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -27,115 +27,115 @@
 
 void encode_clear(encoder_state *s)
 {
-	if(s)
-	{
-	    LOG_DEBUG0("Clearing encoder engine");
-		ogg_stream_clear(&s->os);
-		vorbis_block_clear(&s->vb);
-		vorbis_dsp_clear(&s->vd);
-		vorbis_info_clear(&s->vi);
-		free(s);
-	}
+    if(s)
+    {
+        LOG_DEBUG0("Clearing encoder engine");
+        ogg_stream_clear(&s->os);
+        vorbis_block_clear(&s->vb);
+        vorbis_dsp_clear(&s->vd);
+        vorbis_info_clear(&s->vi);
+        free(s);
+    }
 }
 
 encoder_state *encode_initialise(int channels, int rate, int managed,
         int min_br, int nom_br, int max_br, float quality,
-		int serial, vorbis_comment *vc)
+        int serial, vorbis_comment *vc)
 {
-	encoder_state *s = calloc(1, sizeof(encoder_state));
-	ogg_packet h1,h2,h3;
+    encoder_state *s = calloc(1, sizeof(encoder_state));
+    ogg_packet h1,h2,h3;
 
-	/* If none of these are set, it's obviously not supposed to be managed */
-	if (nom_br < 0 && min_br < 0 && max_br < 0) {
-		managed = 0;
-	}
+    /* If none of these are set, it's obviously not supposed to be managed */
+    if (nom_br < 0 && min_br < 0 && max_br < 0) {
+        managed = 0;
+    }
 
-	if (managed) {
-		LOG_INFO5("Encoder initialising with bitrate management: %d "
-				"channels, %d Hz, minimum bitrate %d, nominal %d, "
-				"maximum %d", channels, rate, min_br, nom_br, max_br);
-	} else {
-		if (min_br > 0 || max_br > 0) {
-			LOG_INFO5("Encoder initialising in constrained VBR mode: %d "
-					"channels, %d Hz, quality %f, minimum bitrate %d, "
-					"maximum %d", channels, rate, quality, min_br, max_br);
-		} else {
-			LOG_INFO3("Encoder initialising in VBR mode: %d channel(s), %d Hz, "
-					"quality %f", channels, rate, quality);
-		}
-	}
+    if (managed) {
+        LOG_INFO5("Encoder initialising with bitrate management: %d "
+                "channels, %d Hz, minimum bitrate %d, nominal %d, "
+                "maximum %d", channels, rate, min_br, nom_br, max_br);
+    } else {
+        if (min_br > 0 || max_br > 0) {
+            LOG_INFO5("Encoder initialising in constrained VBR mode: %d "
+                    "channels, %d Hz, quality %f, minimum bitrate %d, "
+                    "maximum %d", channels, rate, quality, min_br, max_br);
+        } else {
+            LOG_INFO3("Encoder initialising in VBR mode: %d channel(s), %d Hz, "
+                    "quality %f", channels, rate, quality);
+        }
+    }
 
-	/* Have vorbisenc choose a mode for us */
-	vorbis_info_init(&s->vi);
+    /* Have vorbisenc choose a mode for us */
+    vorbis_info_init(&s->vi);
 
-	if (managed) {
-		if (vorbis_encode_setup_managed(&s->vi, channels, rate,
-					max_br>0?max_br:-1, nom_br, min_br>0?min_br:-1)) {
-			LOG_ERROR5("Failed to configure managed encoding for "
-					"%d channel(s), at %d Hz, with bitrates %d max %d "
-					"nominal, %d min", channels, rate, max_br, nom_br, min_br);
-			vorbis_info_clear(&s->vi);
-			free(s);
-			return NULL;
-		}
-	} else {
-		if (vorbis_encode_setup_vbr(&s->vi, channels, rate, quality*0.1)) {
-			LOG_ERROR3("Failed to configure VBR encoding for %d channel(s), "
-					"at %d Hz, quality level %f", channels, rate, quality);
-			vorbis_info_clear(&s->vi);
-			free(s);
-			return NULL;
-		}
+    if (managed) {
+        if (vorbis_encode_setup_managed(&s->vi, channels, rate,
+                    max_br>0?max_br:-1, nom_br, min_br>0?min_br:-1)) {
+            LOG_ERROR5("Failed to configure managed encoding for "
+                    "%d channel(s), at %d Hz, with bitrates %d max %d "
+                    "nominal, %d min", channels, rate, max_br, nom_br, min_br);
+            vorbis_info_clear(&s->vi);
+            free(s);
+            return NULL;
+        }
+    } else {
+        if (vorbis_encode_setup_vbr(&s->vi, channels, rate, quality*0.1)) {
+            LOG_ERROR3("Failed to configure VBR encoding for %d channel(s), "
+                    "at %d Hz, quality level %f", channels, rate, quality);
+            vorbis_info_clear(&s->vi);
+            free(s);
+            return NULL;
+        }
 
-		if (max_br > 0 || min_br > 0) {
-			struct ovectl_ratemanage_arg ai;
-			vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_GET, &ai);
-			ai.bitrate_hard_min = min_br;
-			ai.bitrate_hard_max = max_br;
-			ai.management_active = 1;
-			vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, &ai);
-		}
-	}
+        if (max_br > 0 || min_br > 0) {
+            struct ovectl_ratemanage_arg ai;
+            vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_GET, &ai);
+            ai.bitrate_hard_min = min_br;
+            ai.bitrate_hard_max = max_br;
+            ai.management_active = 1;
+            vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, &ai);
+        }
+    }
 
-	if (managed && nom_br < 0) {
-		vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_AVG, NULL);
-	} else if (!managed) {
-		vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, NULL);
-	}
+    if (managed && nom_br < 0) {
+        vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_AVG, NULL);
+    } else if (!managed) {
+        vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, NULL);
+    }
     
     vorbis_encode_setup_init(&s->vi);
 
-	vorbis_analysis_init(&s->vd, &s->vi);
-	vorbis_block_init(&s->vd, &s->vb);
+    vorbis_analysis_init(&s->vd, &s->vi);
+    vorbis_block_init(&s->vd, &s->vb);
 
-	ogg_stream_init(&s->os, serial);
+    ogg_stream_init(&s->os, serial);
 
-	vorbis_analysis_headerout(&s->vd, vc, &h1,&h2,&h3);
-	ogg_stream_packetin(&s->os, &h1);
-	ogg_stream_packetin(&s->os, &h2);
-	ogg_stream_packetin(&s->os, &h3);
+    vorbis_analysis_headerout(&s->vd, vc, &h1,&h2,&h3);
+    ogg_stream_packetin(&s->os, &h1);
+    ogg_stream_packetin(&s->os, &h2);
+    ogg_stream_packetin(&s->os, &h3);
 
-	s->in_header = 1;
+    s->in_header = 1;
     s->samplerate = rate;
     s->samples_in_current_page = 0;
     s->prevgranulepos = 0;
 
-	return s;
+    return s;
 }
 
 void encode_data_float(encoder_state *s, float **pcm, int samples)
 {
-	float **buf;
-	int i;
+    float **buf;
+    int i;
 
-	buf = vorbis_analysis_buffer(&s->vd, samples); 
+    buf = vorbis_analysis_buffer(&s->vd, samples); 
 
-	for(i=0; i < s->vi.channels; i++)
-	{
-		memcpy(buf[i], pcm[i], samples*sizeof(float));
-	}
+    for(i=0; i < s->vi.channels; i++)
+    {
+        memcpy(buf[i], pcm[i], samples*sizeof(float));
+    }
 
-	vorbis_analysis_wrote(&s->vd, samples);
+    vorbis_analysis_wrote(&s->vd, samples);
 
     s->samples_in_current_page += samples;
 }
@@ -143,37 +143,37 @@ void encode_data_float(encoder_state *s, float **pcm, int samples)
 /* Requires little endian data (currently) */
 void encode_data(encoder_state *s, signed char *buf, int bytes, int bigendian)
 {
-	float **buffer;
-	int i,j;
-	int channels = s->vi.channels;
-	int samples = bytes/(2*channels);
+    float **buffer;
+    int i,j;
+    int channels = s->vi.channels;
+    int samples = bytes/(2*channels);
 
-	buffer = vorbis_analysis_buffer(&s->vd, samples);
+    buffer = vorbis_analysis_buffer(&s->vd, samples);
 
-	if(bigendian)
-	{
-		for(i=0; i < samples; i++)
-		{
-			for(j=0; j < channels; j++)
-			{
-				buffer[j][i]=((buf[2*(i*channels + j)]<<8) |
-						      (0x00ff&(int)buf[2*(i*channels + j)+1]))/32768.f;
-			}
-		}
-	}
-	else
-	{
-		for(i=0; i < samples; i++)
-		{
-			for(j=0; j < channels; j++)
-			{
-				buffer[j][i]=((buf[2*(i*channels + j) + 1]<<8) |
-						      (0x00ff&(int)buf[2*(i*channels + j)]))/32768.f;
-			}
-		}
-	}
+    if(bigendian)
+    {
+        for(i=0; i < samples; i++)
+        {
+            for(j=0; j < channels; j++)
+            {
+                buffer[j][i]=((buf[2*(i*channels + j)]<<8) |
+                              (0x00ff&(int)buf[2*(i*channels + j)+1]))/32768.f;
+            }
+        }
+    }
+    else
+    {
+        for(i=0; i < samples; i++)
+        {
+            for(j=0; j < channels; j++)
+            {
+                buffer[j][i]=((buf[2*(i*channels + j) + 1]<<8) |
+                              (0x00ff&(int)buf[2*(i*channels + j)]))/32768.f;
+            }
+        }
+    }
 
-	vorbis_analysis_wrote(&s->vd, samples);
+    vorbis_analysis_wrote(&s->vd, samples);
 
     s->samples_in_current_page += samples;
 }
@@ -188,30 +188,30 @@ void encode_data(encoder_state *s, signed char *buf, int bytes, int bigendian)
  */
 int encode_dataout(encoder_state *s, ogg_page *og)
 {
-	ogg_packet op;
-	int result;
+    ogg_packet op;
+    int result;
 
-	if(s->in_header)
-	{
-		result = ogg_stream_flush(&s->os, og);
-		if(result==0) 
-		{
-			s->in_header = 0;
-			return encode_dataout(s,og);
-		}
-		else
-			return 1;
-	}
-	else
-	{
-		while(vorbis_analysis_blockout(&s->vd, &s->vb)==1)
-		{
-			vorbis_analysis(&s->vb, NULL);
+    if(s->in_header)
+    {
+        result = ogg_stream_flush(&s->os, og);
+        if(result==0) 
+        {
+            s->in_header = 0;
+            return encode_dataout(s,og);
+        }
+        else
+            return 1;
+    }
+    else
+    {
+        while(vorbis_analysis_blockout(&s->vd, &s->vb)==1)
+        {
+            vorbis_analysis(&s->vb, NULL);
             vorbis_bitrate_addblock(&s->vb);
 
             while(vorbis_bitrate_flushpacket(&s->vd, &op)) 
-    			ogg_stream_packetin(&s->os, &op);
-		}
+                ogg_stream_packetin(&s->os, &op);
+        }
 
         /* FIXME: Make this threshold configurable.
          * We don't want to buffer too many samples in one page when doing
@@ -226,43 +226,43 @@ int encode_dataout(encoder_state *s, ogg_page *og)
             result = ogg_stream_flush(&s->os, og);
         }
         else
-		    result = ogg_stream_pageout(&s->os, og);
+            result = ogg_stream_pageout(&s->os, og);
 
-		if(result==0)
-			return 0;
-		else /* Page found! */
+        if(result==0)
+            return 0;
+        else /* Page found! */
         {
             s->samples_in_current_page -= ogg_page_granulepos(og) - 
                     s->prevgranulepos;
             s->prevgranulepos = ogg_page_granulepos(og);
-			return 1;
+            return 1;
         }
-	}
+    }
 }
 
 void encode_finish(encoder_state *s)
 {
-	ogg_packet op;
-	vorbis_analysis_wrote(&s->vd, 0);
+    ogg_packet op;
+    vorbis_analysis_wrote(&s->vd, 0);
 
-	while(vorbis_analysis_blockout(&s->vd, &s->vb)==1)
-	{
+    while(vorbis_analysis_blockout(&s->vd, &s->vb)==1)
+    {
         vorbis_analysis(&s->vb, NULL);
         vorbis_bitrate_addblock(&s->vb);
         while(vorbis_bitrate_flushpacket(&s->vd, &op))
-		    ogg_stream_packetin(&s->os, &op);
-	}
+            ogg_stream_packetin(&s->os, &op);
+    }
 
 }
 
 int encode_flush(encoder_state *s, ogg_page *og)
 {
-	int result = ogg_stream_pageout(&s->os, og);
+    int result = ogg_stream_pageout(&s->os, og);
 
-	if(result<=0)
-		return 0;
-	else
-		return 1;
+    if(result<=0)
+        return 0;
+    else
+        return 1;
 }
 
 

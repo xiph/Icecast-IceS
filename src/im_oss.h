@@ -1,7 +1,7 @@
 /* im_oss.h
  * - read pcm data from oss devices
  *
- * $Id: im_oss.h,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: im_oss.h,v 1.3 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -20,13 +20,13 @@
 
 typedef struct
 {
-	int rate;
-	int channels;
+    int rate;
+    int channels;
 
-	int fd;
-	char **metadata;
-	int newtrack;
-	mutex_t metadatalock;
+    int fd;
+    char **metadata;
+    int newtrack;
+    mutex_t metadatalock;
 } im_oss_state; 
 
 input_module_t *oss_open_module(module_param_t *params);

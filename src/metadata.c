@@ -1,7 +1,7 @@
 /* metadata.c
  * - Metadata manipulation
  *
- * $Id: metadata.c,v 1.8 2003/03/02 21:18:28 karl Exp $
+ * $Id: metadata.c,v 1.9 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -29,51 +29,51 @@ volatile int metadata_update_signalled = 0;
 
 void *metadata_thread_stdin(void *arg)
 {
-	char buf[1024];
-	input_module_t *mod = arg;
+    char buf[1024];
+    input_module_t *mod = arg;
 
-	while(1)
-	{
-		char **md = NULL;
-		int comments = 0;
+    while(1)
+    {
+        char **md = NULL;
+        int comments = 0;
 
-		while(fgets(buf, 1024, stdin))
-		{
-			if(buf[0] == '\n')
-				break;
-			else
-			{
-				if(buf[strlen(buf)-1] == '\n')
-					buf[strlen(buf)-1] = 0;
-				md = realloc(md, (comments+2)*sizeof(char *));
-				md[comments] = malloc(strlen(buf)+1);
+        while(fgets(buf, 1024, stdin))
+        {
+            if(buf[0] == '\n')
+                break;
+            else
+            {
+                if(buf[strlen(buf)-1] == '\n')
+                    buf[strlen(buf)-1] = 0;
+                md = realloc(md, (comments+2)*sizeof(char *));
+                md[comments] = malloc(strlen(buf)+1);
 
-				memcpy(md[comments], buf, strlen(buf)+1);
-				comments++;
-			}
-		}
+                memcpy(md[comments], buf, strlen(buf)+1);
+                comments++;
+            }
+        }
 
-		if(md) /* Don't update if there's nothing there */
-		{
-			md[comments]=0;
+        if(md) /* Don't update if there's nothing there */
+        {
+            md[comments]=0;
 
-			/* Now, let's actually use the new data */
-			LOG_INFO0("Updating metadata");
-			mod->handle_event(mod,EVENT_METADATAUPDATE,md);
-		}
+            /* Now, let's actually use the new data */
+            LOG_INFO0("Updating metadata");
+            mod->handle_event(mod,EVENT_METADATAUPDATE,md);
+        }
 
-	}
+    }
 }
 
 void *metadata_thread_signal(void *arg)
 {
-	char buf[1024];
-	input_module_t *mod = arg;
+    char buf[1024];
+    input_module_t *mod = arg;
 
-	while(1)
-	{
-		char **md = NULL;
-		int comments = 0;
+    while(1)
+    {
+        char **md = NULL;
+        int comments = 0;
         FILE *file;
 
         while(metadata_update_signalled == 0){
@@ -89,35 +89,35 @@ void *metadata_thread_signal(void *arg)
             continue;
         }
 
-		while(fgets(buf, 1024, file))
-		{
-			if(buf[0] == '\n')
-				break;
-			else
-			{
-				if(buf[strlen(buf)-1] == '\n')
-					buf[strlen(buf)-1] = 0;
-				md = realloc(md, (comments+2)*sizeof(char *));
-				md[comments] = malloc(strlen(buf)+1);
+        while(fgets(buf, 1024, file))
+        {
+            if(buf[0] == '\n')
+                break;
+            else
+            {
+                if(buf[strlen(buf)-1] == '\n')
+                    buf[strlen(buf)-1] = 0;
+                md = realloc(md, (comments+2)*sizeof(char *));
+                md[comments] = malloc(strlen(buf)+1);
 
-				memcpy(md[comments], buf, strlen(buf)+1);
-				comments++;
+                memcpy(md[comments], buf, strlen(buf)+1);
+                comments++;
                 LOG_INFO2 ("tag %d is %s", comments, buf);
-			}
-		}
+            }
+        }
 
         fclose(file);
 
-		if(md) /* Don't update if there's nothing there */
-		{
-			md[comments]=0;
+        if(md) /* Don't update if there's nothing there */
+        {
+            md[comments]=0;
 
-			/* Now, let's actually use the new data */
-			LOG_INFO0("Updating metadata");
-			mod->handle_event(mod,EVENT_METADATAUPDATE,md);
-		}
+            /* Now, let's actually use the new data */
+            LOG_INFO0("Updating metadata");
+            mod->handle_event(mod,EVENT_METADATAUPDATE,md);
+        }
 
-	}
+    }
 }
 
 

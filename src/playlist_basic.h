@@ -1,7 +1,7 @@
 /* playlist_basic.h
  * - Simple unscripted playlist
  *
- * $Id: playlist_basic.h,v 1.4 2002/06/29 15:19:18 msmith Exp $
+ * $Id: playlist_basic.h,v 1.5 2003/03/16 14:21:49 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -16,13 +16,13 @@
 
 typedef struct
 {
-	char **pl;
-	int len;
-	int pos;
-	char *file; /* Playlist file */
-	time_t mtime;
-	int random;
-	int once;
+    char **pl;
+    int len;
+    int pos;
+    char *file; /* Playlist file */
+    time_t mtime;
+    int random;
+    int once;
     int restartafterreread;
 
 } basic_playlist;

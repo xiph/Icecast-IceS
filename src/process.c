@@ -2,7 +2,7 @@
  * - Processing chains - data sources, sinks, processing effects, reencoding,
  *   etc.
  *
- * $Id: process.c,v 1.3 2002/02/09 05:07:01 msmith Exp $
+ * $Id: process.c,v 1.4 2003/03/16 14:21:49 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -48,7 +48,7 @@ void acquire_buffer(ref_buffer *buf)
 #ifdef DEBUG_BUFFERS
     if(!buf) {
         LOG_ERROR0("Null buffer aquired?");
-	    thread_mutex_unlock(&ices_config->refcount_lock);
+        thread_mutex_unlock(&ices_config->refcount_lock);
         return;
     }
     if(buf->count < 0)
@@ -57,31 +57,31 @@ void acquire_buffer(ref_buffer *buf)
 
     buf->count++;
     
-	thread_mutex_unlock(&ices_config->refcount_lock);
+    thread_mutex_unlock(&ices_config->refcount_lock);
 }
 
 void release_buffer(ref_buffer *buf)
 {
-	thread_mutex_lock(&ices_config->refcount_lock);
+    thread_mutex_lock(&ices_config->refcount_lock);
 
 #ifdef DEBUG_BUFFERS
     if(!buf) {
         LOG_ERROR0("Null buffer released?");
-	    thread_mutex_unlock(&ices_config->refcount_lock);
+        thread_mutex_unlock(&ices_config->refcount_lock);
         return;
     }
     if(buf->count <= 0)
         LOG_ERROR1("Error: refbuf has count %d before decrement.", buf->count);
 #endif
 
-	buf->count--;
+    buf->count--;
     
-	if(!buf->count)
-	{
-		free(buf->buf);
-		free(buf);
-	}
-	thread_mutex_unlock(&ices_config->refcount_lock);
+    if(!buf->count)
+    {
+        free(buf->buf);
+        free(buf);
+    }
+    thread_mutex_unlock(&ices_config->refcount_lock);
 }
 
 /* return values:

@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.24 2003/03/13 18:08:06 karl Exp $
+ * $Id: input.c,v 1.25 2003/03/16 14:21:48 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -56,33 +56,33 @@ typedef unsigned __int64 uint64_t
 
 typedef struct _timing_control_tag 
 {
-	uint64_t starttime;
-	uint64_t senttime;
-	uint64_t samples;
-	uint64_t oldsamples;
-	unsigned samplerate;
-	long serialno;
+    uint64_t starttime;
+    uint64_t senttime;
+    uint64_t samples;
+    uint64_t oldsamples;
+    unsigned samplerate;
+    long serialno;
 } timing_control;
 
 typedef struct _module 
 {
-	char *name;
-	input_module_t *(*open)(module_param_t *params);
+    char *name;
+    input_module_t *(*open)(module_param_t *params);
 } module;
 
 static module modules[] = {
-	{ "playlist", playlist_open_module},
-	{ "stdinpcm", stdin_open_module},
+    { "playlist", playlist_open_module},
+    { "stdinpcm", stdin_open_module},
 #ifdef HAVE_OSS
-	{ "oss", oss_open_module},
+    { "oss", oss_open_module},
 #endif
 #ifdef HAVE_SUN_AUDIO
-	{ "sun", sun_open_module},
+    { "sun", sun_open_module},
 #endif
 #ifdef HAVE_ALSA
-	{ "alsa", alsa_open_module},
+    { "alsa", alsa_open_module},
 #endif
-	{NULL,NULL}
+    {NULL,NULL}
 };
 
 static timing_control _control, *control = &_control;
@@ -91,13 +91,13 @@ static timing_control _control, *control = &_control;
 /* This is identical to shout_sync(), really. */
 void input_sleep(void)
 {
-	int64_t sleep;
+    int64_t sleep;
 
-	/* no need to sleep if we haven't sent data */
-	if (control->senttime == 0) return;
+    /* no need to sleep if we haven't sent data */
+    if (control->senttime == 0) return;
 
-	sleep = ((double)control->senttime / 1000) - 
-		(timing_get_time() - control->starttime);
+    sleep = ((double)control->senttime / 1000) - 
+        (timing_get_time() - control->starttime);
 
     /* trap for long sleeps, typically indicating a clock change.  it's not */
     /* perfect though, as low bitrate/low samplerate vorbis can trigger this */
@@ -112,34 +112,34 @@ void input_sleep(void)
 
 int input_calculate_pcm_sleep(unsigned bytes, unsigned bytes_per_sec)
 {
-	control->senttime += ((uint64_t)bytes * 1000000)/bytes_per_sec;
+    control->senttime += ((uint64_t)bytes * 1000000)/bytes_per_sec;
 
     return 0;
 }
 
 int input_calculate_ogg_sleep(ogg_page *page)
 {
-	/* Largely copied from shout_send(), without the sending happening.*/
-	ogg_stream_state os;
-	ogg_packet op;
-	vorbis_info vi;
-	vorbis_comment vc;
+    /* Largely copied from shout_send(), without the sending happening.*/
+    ogg_stream_state os;
+    ogg_packet op;
+    vorbis_info vi;
+    vorbis_comment vc;
     int ret = 0;
 
-	if (ogg_page_bos (page))
+    if (ogg_page_bos (page))
     {
-		control->serialno = ogg_page_serialno(page);
+        control->serialno = ogg_page_serialno(page);
 
-		control->oldsamples = 0;
+        control->oldsamples = 0;
 
-		ogg_stream_init(&os, control->serialno);
-		ogg_stream_pagein(&os, page);
-		ogg_stream_packetout(&os, &op);
+        ogg_stream_init(&os, control->serialno);
+        ogg_stream_pagein(&os, page);
+        ogg_stream_packetout(&os, &op);
 
-		vorbis_info_init(&vi);
-		vorbis_comment_init(&vc);
+        vorbis_info_init(&vi);
+        vorbis_comment_init(&vc);
 
-		if(vorbis_synthesis_headerin(&vi, &vc, &op) < 0) 
+        if(vorbis_synthesis_headerin(&vi, &vc, &op) < 0) 
         {
             LOG_ERROR0("Timing control: can't determine sample rate for input, "
                        "not vorbis.");
@@ -147,12 +147,12 @@ int input_calculate_ogg_sleep(ogg_page *page)
             ret = -1;
         }
         else
-		    control->samplerate = vi.rate;
+            control->samplerate = vi.rate;
 
-		vorbis_comment_clear(&vc);
-		vorbis_info_clear(&vi);
-		ogg_stream_clear(&os);
-	}
+        vorbis_comment_clear(&vc);
+        vorbis_info_clear(&vi);
+        ogg_stream_clear(&os);
+    }
 
     if(ogg_page_granulepos(page) == -1)
     {
@@ -160,223 +160,223 @@ int input_calculate_ogg_sleep(ogg_page *page)
         return -1;
     }
 
-	control->samples = ogg_page_granulepos(page) - control->oldsamples;
-	control->oldsamples = ogg_page_granulepos(page);
+    control->samples = ogg_page_granulepos(page) - control->oldsamples;
+    control->oldsamples = ogg_page_granulepos(page);
 
     if(control->samplerate) 
-	    control->senttime += ((double)control->samples * 1000000 / 
-		    	(double)control->samplerate);
+        control->senttime += ((double)control->samples * 1000000 / 
+                (double)control->samplerate);
 
     return ret;
 }
 
 void input_flush_queue(buffer_queue *queue, int keep_critical)
 {
-	queue_item *item, *next, *prev=NULL;
+    queue_item *item, *next, *prev=NULL;
 
-	LOG_DEBUG0("Input queue flush requested");
+    LOG_DEBUG0("Input queue flush requested");
 
-	thread_mutex_lock(&queue->lock);
-	if(!queue->head)
-	{
-		thread_mutex_unlock(&queue->lock);
-		return;
-	}
+    thread_mutex_lock(&queue->lock);
+    if(!queue->head)
+    {
+        thread_mutex_unlock(&queue->lock);
+        return;
+    }
 
-	item = queue->head;
-	while(item)
-	{
-		next = item->next;
+    item = queue->head;
+    while(item)
+    {
+        next = item->next;
 
-		if(!(keep_critical && item->buf->critical))
-		{
-			thread_mutex_lock(&ices_config->refcount_lock);
-			item->buf->count--;
-			if(!item->buf->count)
-			{
-				free(item->buf->buf);
-				free(item->buf);
-			}
-			thread_mutex_unlock(&ices_config->refcount_lock);
+        if(!(keep_critical && item->buf->critical))
+        {
+            thread_mutex_lock(&ices_config->refcount_lock);
+            item->buf->count--;
+            if(!item->buf->count)
+            {
+                free(item->buf->buf);
+                free(item->buf);
+            }
+            thread_mutex_unlock(&ices_config->refcount_lock);
 
-			if(prev)
-				prev->next = next;
-			else
-				queue->head = next;
+            if(prev)
+                prev->next = next;
+            else
+                queue->head = next;
 
-			free(item);
-			item = next;
+            free(item);
+            item = next;
 
-			queue->length--;
-		}
-		else
-		{
-			prev = item;
-			item = next;
-		}
-	}
+            queue->length--;
+        }
+        else
+        {
+            prev = item;
+            item = next;
+        }
+    }
 
-	/* Now, fix up the tail pointer */
-	queue->tail = NULL;
-	item = queue->head;
+    /* Now, fix up the tail pointer */
+    queue->tail = NULL;
+    item = queue->head;
 
-	while(item)
-	{
-		queue->tail = item;
-		item = item->next;
-	}
+    while(item)
+    {
+        queue->tail = item;
+        item = item->next;
+    }
 
-	thread_mutex_unlock(&queue->lock);
+    thread_mutex_unlock(&queue->lock);
 }
 
 void input_loop(void)
 {
-	input_module_t *inmod=NULL;
-	instance_t *instance, *prev, *next;
-	queue_item *queued;
-	int shutdown = 0;
-	int current_module = 0;
+    input_module_t *inmod=NULL;
+    instance_t *instance, *prev, *next;
+    queue_item *queued;
+    int shutdown = 0;
+    int current_module = 0;
     int valid_stream = 1;
     int inc_count;
     int not_waiting_for_critical;
 
-	thread_cond_create(&ices_config->queue_cond);
-	thread_cond_create(&ices_config->event_pending_cond);
-	thread_mutex_create(&ices_config->refcount_lock);
-	thread_mutex_create(&ices_config->flush_lock);
+    thread_cond_create(&ices_config->queue_cond);
+    thread_cond_create(&ices_config->event_pending_cond);
+    thread_mutex_create(&ices_config->refcount_lock);
+    thread_mutex_create(&ices_config->flush_lock);
 
     memset (control, 0, sizeof (*control));
 
-	while(ices_config->playlist_module && modules[current_module].open)
-	{
-		if(!strcmp(ices_config->playlist_module, modules[current_module].name))
-		{
-			inmod = modules[current_module].open(ices_config->module_params);
-			break;
-		}
-		current_module++;
-	}
+    while(ices_config->playlist_module && modules[current_module].open)
+    {
+        if(!strcmp(ices_config->playlist_module, modules[current_module].name))
+        {
+            inmod = modules[current_module].open(ices_config->module_params);
+            break;
+        }
+        current_module++;
+    }
 
-	if(!inmod)
-	{
-		LOG_ERROR1("Couldn't initialise input module \"%s\"\n", 
-				ices_config->playlist_module);
-		return;
-	}
+    if(!inmod)
+    {
+        LOG_ERROR1("Couldn't initialise input module \"%s\"\n", 
+                ices_config->playlist_module);
+        return;
+    }
 
-	ices_config->inmod = inmod;
+    ices_config->inmod = inmod;
 
 
-	/* ok, basic config stuff done. Now, we want to start all our listening
-	 * threads.
-	 */
+    /* ok, basic config stuff done. Now, we want to start all our listening
+     * threads.
+     */
 
-	instance = ices_config->instances;
+    instance = ices_config->instances;
 
-	while(instance) 
-	{
-		stream_description *arg = calloc(1, sizeof(stream_description));
-		arg->stream = instance;
-		arg->input = inmod;
+    while(instance) 
+    {
+        stream_description *arg = calloc(1, sizeof(stream_description));
+        arg->stream = instance;
+        arg->input = inmod;
         /*
-		if(instance->savefilename != NULL)
-			thread_create("savefile", savefile_stream, arg, 1);
+        if(instance->savefilename != NULL)
+            thread_create("savefile", savefile_stream, arg, 1);
          */
-		thread_create("stream", ices_instance_stream, arg, 1);
+        thread_create("stream", ices_instance_stream, arg, 1);
 
-		instance = instance->next;
-	}
+        instance = instance->next;
+    }
     /* treat as if a signal has arrived straight away */
     signal_usr1_handler (0);
 
-	/* now we go into the main loop
-	 * We shut down the main thread ONLY once all the instances
-	 * have killed themselves.
-	 */
-	while(!shutdown) 
-	{
-		ref_buffer *chunk = calloc(1, sizeof(ref_buffer));
-		buffer_queue *current;
-		int ret;
+    /* now we go into the main loop
+     * We shut down the main thread ONLY once all the instances
+     * have killed themselves.
+     */
+    while(!shutdown) 
+    {
+        ref_buffer *chunk = calloc(1, sizeof(ref_buffer));
+        buffer_queue *current;
+        int ret;
 
-		instance = ices_config->instances;
-		prev = NULL;
+        instance = ices_config->instances;
+        prev = NULL;
 
-		while(instance)
-		{
-			/* if an instance has died, get rid of it
-			** this should be replaced with something that tries to 
-			** restart the instance, probably.
-			*/
-			if (instance->died) 
-			{
-				LOG_DEBUG0("An instance died, removing it");
-				next = instance->next;
+        while(instance)
+        {
+            /* if an instance has died, get rid of it
+            ** this should be replaced with something that tries to 
+            ** restart the instance, probably.
+            */
+            if (instance->died) 
+            {
+                LOG_DEBUG0("An instance died, removing it");
+                next = instance->next;
 
-				if (prev)
-					prev->next = next;
-				else
-					ices_config->instances = next;
+                if (prev)
+                    prev->next = next;
+                else
+                    ices_config->instances = next;
 
-				/* Just in case, flush any existing buffers
-				 * Locks shouldn't be needed, but lets be SURE */
-				thread_mutex_lock(&ices_config->flush_lock);
-				input_flush_queue(instance->queue, 0);
-				thread_mutex_unlock(&ices_config->flush_lock);
+                /* Just in case, flush any existing buffers
+                 * Locks shouldn't be needed, but lets be SURE */
+                thread_mutex_lock(&ices_config->flush_lock);
+                input_flush_queue(instance->queue, 0);
+                thread_mutex_unlock(&ices_config->flush_lock);
 
-				config_free_instance(instance);
-				free(instance);
+                config_free_instance(instance);
+                free(instance);
 
-				instance = next;
-				continue;
-			}
+                instance = next;
+                continue;
+            }
 
-			prev = instance;
-			instance = instance->next;
-		}
+            prev = instance;
+            instance = instance->next;
+        }
 
-		instance = ices_config->instances;
+        instance = ices_config->instances;
 
-		if(!instance)
-		{
-			shutdown = 1;
-			free(chunk);
-			continue;
-		}
+        if(!instance)
+        {
+            shutdown = 1;
+            free(chunk);
+            continue;
+        }
 
-		if(ices_config->shutdown) /* We've been signalled to shut down, but */
-		{						  /* the instances haven't done so yet... */
-			timing_sleep(250); /* sleep for quarter of a second */
-			free(chunk);
-			continue;
-		}
+        if(ices_config->shutdown) /* We've been signalled to shut down, but */
+        {                          /* the instances haven't done so yet... */
+            timing_sleep(250); /* sleep for quarter of a second */
+            free(chunk);
+            continue;
+        }
         
         /* If this is the first time through, set initial time. This should
          * be done before the call to inmod->getdata() below, in order to
          * properly keep time if this input module blocks.
          */
-	    if(control->starttime == 0)
-		    control->starttime = timing_get_time();
+        if(control->starttime == 0)
+            control->starttime = timing_get_time();
 
-		/* get a chunk of data from the input module */
-		ret = inmod->getdata(inmod->internal, chunk);
+        /* get a chunk of data from the input module */
+        ret = inmod->getdata(inmod->internal, chunk);
 
-		/* input module signalled non-fatal error. Skip this chunk */
-		if(ret==0)
-		{
-			free(chunk);
-			continue;
-		}
+        /* input module signalled non-fatal error. Skip this chunk */
+        if(ret==0)
+        {
+            free(chunk);
+            continue;
+        }
 
-		/* Input module signalled fatal error, shut down - nothing we can do
-		 * from here */
-		if(ret < 0)
-		{
-			ices_config->shutdown = 1;
-			thread_cond_broadcast(&ices_config->queue_cond);
-			free(chunk);
-			continue;
-		}
+        /* Input module signalled fatal error, shut down - nothing we can do
+         * from here */
+        if(ret < 0)
+        {
+            ices_config->shutdown = 1;
+            thread_cond_broadcast(&ices_config->queue_cond);
+            free(chunk);
+            continue;
+        }
 
         if(chunk->critical)
             valid_stream = 1;
@@ -384,7 +384,7 @@ void input_loop(void)
         if(ret < 0) {
             /* Tell the input module to go to the next track, hopefully allowing
              * resync. */
-	        ices_config->inmod->handle_event(ices_config->inmod,
+            ices_config->inmod->handle_event(ices_config->inmod,
                     EVENT_NEXTTRACK,NULL);
             valid_stream = 0;
         }
@@ -394,8 +394,8 @@ void input_loop(void)
 
         if(valid_stream) 
         {
-    		while(instance)
-	    	{
+            while(instance)
+            {
                 if(instance->wait_for_critical && !chunk->critical)
                 {
                     instance = instance->next;
@@ -406,85 +406,85 @@ void input_loop(void)
                 not_waiting_for_critical = 1;
 
                 if(instance->skip)
-	    		{
-		    		instance = instance->next;
-			    	continue;
-    			}
+                {
+                    instance = instance->next;
+                    continue;
+                }
     
-	    		queued = malloc(sizeof(queue_item));
+                queued = malloc(sizeof(queue_item));
     
-	    		queued->buf = chunk;
-    			current = instance->queue;
+                queued->buf = chunk;
+                current = instance->queue;
     
                 inc_count++;
     
-	    		thread_mutex_lock(&current->lock);
+                thread_mutex_lock(&current->lock);
     
-	    		if(current->head == NULL)
-		    	{
-			    	current->head = current->tail = queued;
-				    current->head->next = current->tail->next = NULL;
-	    		}
-    			else
-			    {
-		    		current->tail->next = queued;
-				    queued->next = NULL;
-    				current->tail = queued;
-	    		}
+                if(current->head == NULL)
+                {
+                    current->head = current->tail = queued;
+                    current->head->next = current->tail->next = NULL;
+                }
+                else
+                {
+                    current->tail->next = queued;
+                    queued->next = NULL;
+                    current->tail = queued;
+                }
 
-		    	current->length++;
-			    thread_mutex_unlock(&current->lock);
+                current->length++;
+                thread_mutex_unlock(&current->lock);
 
-    			instance = instance->next;
-	    	}
+                instance = instance->next;
+            }
         }
 
         /* If everything is waiting for a critical buffer, force one
          * early. (This will take effect on the next pass through)
          */
         if(valid_stream && !not_waiting_for_critical) {
-	        ices_config->inmod->handle_event(ices_config->inmod,
+            ices_config->inmod->handle_event(ices_config->inmod,
                     EVENT_NEXTTRACK,NULL);
-		    instance = ices_config->instances;
+            instance = ices_config->instances;
             while(instance) {
-			    thread_mutex_lock(&ices_config->flush_lock);
-			    input_flush_queue(instance->queue, 0);
+                thread_mutex_lock(&ices_config->flush_lock);
+                input_flush_queue(instance->queue, 0);
                 instance->wait_for_critical = 0;
-			    thread_mutex_unlock(&ices_config->flush_lock);
-			    instance = instance->next;
+                thread_mutex_unlock(&ices_config->flush_lock);
+                instance = instance->next;
             }
         }
 
-		/* Make sure we don't end up with a 0-refcount buffer that 
-		 * will never hit any of the free points. (this happens
-		 * if all threads are set to skip, for example).
-		 */
-		thread_mutex_lock(&ices_config->refcount_lock);
+        /* Make sure we don't end up with a 0-refcount buffer that 
+         * will never hit any of the free points. (this happens
+         * if all threads are set to skip, for example).
+         */
+        thread_mutex_lock(&ices_config->refcount_lock);
         chunk->count += inc_count;
-		if(!chunk->count)
-		{
-			free(chunk->buf);
-			free(chunk);
-		}
-		thread_mutex_unlock(&ices_config->refcount_lock);
+        if(!chunk->count)
+        {
+            free(chunk->buf);
+            free(chunk);
+        }
+        thread_mutex_unlock(&ices_config->refcount_lock);
 
         if(valid_stream) {
-    		/* wake up the instances */
-	    	thread_cond_broadcast(&ices_config->queue_cond);
+            /* wake up the instances */
+            thread_cond_broadcast(&ices_config->queue_cond);
 
         }
-	}
+    }
 
-	LOG_DEBUG0("All instances removed, shutting down control thread.");
+    LOG_DEBUG0("All instances removed, shutting down control thread.");
 
-	thread_cond_destroy(&ices_config->queue_cond);
-	thread_cond_destroy(&ices_config->event_pending_cond);
-	thread_mutex_destroy(&ices_config->flush_lock);
-	thread_mutex_destroy(&ices_config->refcount_lock);
+    thread_cond_destroy(&ices_config->queue_cond);
+    thread_cond_destroy(&ices_config->event_pending_cond);
+    thread_mutex_destroy(&ices_config->flush_lock);
+    thread_mutex_destroy(&ices_config->refcount_lock);
 
-	inmod->handle_event(inmod, EVENT_SHUTDOWN, NULL);
+    inmod->handle_event(inmod, EVENT_SHUTDOWN, NULL);
 
-	return;
+    return;
 }
 
 

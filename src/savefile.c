@@ -1,7 +1,7 @@
 /* savefile.c
  * - Stream saving to file.
  *
- * $Id: savefile.c,v 1.3 2001/09/25 12:04:22 msmith Exp $
+ * $Id: savefile.c,v 1.4 2003/03/16 14:21:49 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -31,59 +31,59 @@
 
 void *savefile_stream(void *arg)
 {
-	stream_description *sdsc = arg;
-	instance_t *stream = sdsc->stream;
-	ref_buffer *buf;
-	FILE *file;
-	int ret;
-	char *filename = stream->savefilename; 
-	
-	/* FIXME: Check for file existence, and append some unique string
-	 * if it already exists.
-	 */
-	file = fopen(filename, "wb");
+    stream_description *sdsc = arg;
+    instance_t *stream = sdsc->stream;
+    ref_buffer *buf;
+    FILE *file;
+    int ret;
+    char *filename = stream->savefilename; 
+    
+    /* FIXME: Check for file existence, and append some unique string
+     * if it already exists.
+     */
+    file = fopen(filename, "wb");
 
-	if(!file)
-	{
-		LOG_ERROR1("Couldn't open file to save stream: %s", filename);
-		stream->died = 1;
-		return NULL;
-	}
+    if(!file)
+    {
+        LOG_ERROR1("Couldn't open file to save stream: %s", filename);
+        stream->died = 1;
+        return NULL;
+    }
 
-	LOG_INFO1("Saving stream to file: %s", filename);
+    LOG_INFO1("Saving stream to file: %s", filename);
 
-	while(1)
-	{
-		buf = stream_wait_for_data(stream);
+    while(1)
+    {
+        buf = stream_wait_for_data(stream);
 
-		if(!buf)
-			break;
+        if(!buf)
+            break;
 
-		if(!buf->buf || !buf->len)
-		{
-			LOG_WARN0("Bad buffer dequeue, not saving");
-			continue;
-		}
+        if(!buf->buf || !buf->len)
+        {
+            LOG_WARN0("Bad buffer dequeue, not saving");
+            continue;
+        }
 
-		ret = fwrite(buf->buf, 1, buf->len, file);
+        ret = fwrite(buf->buf, 1, buf->len, file);
 
-		if(ret != buf->len)
-		{
-			LOG_ERROR1("Error writing to file: %s", strerror(errno));
-			/* FIXME: Try writing to a new file, or something */
-			break;
-		}
+        if(ret != buf->len)
+        {
+            LOG_ERROR1("Error writing to file: %s", strerror(errno));
+            /* FIXME: Try writing to a new file, or something */
+            break;
+        }
 
-		stream_release_buffer(buf);
-	}
+        stream_release_buffer(buf);
+    }
 
-	fclose(file);
+    fclose(file);
 
-	stream->died = 1;
-	return NULL;
+    stream->died = 1;
+    return NULL;
 }
-	
-		
-		
+    
+        
+        
 
 

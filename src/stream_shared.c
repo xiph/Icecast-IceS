@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.12 2002/08/17 05:17:57 msmith Exp $
+ * $Id: stream_shared.c,v 1.13 2003/03/16 14:21:49 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -49,56 +49,56 @@ int stream_send_data(stream_description *s, unsigned char *buf,
 
 void stream_release_buffer(ref_buffer *buf)
 {
-	thread_mutex_lock(&ices_config->refcount_lock);
-	buf->count--;
-	if(!buf->count)
-	{
-		free(buf->buf);
-		free(buf);
-	}
-	thread_mutex_unlock(&ices_config->refcount_lock);
+    thread_mutex_lock(&ices_config->refcount_lock);
+    buf->count--;
+    if(!buf->count)
+    {
+        free(buf->buf);
+        free(buf);
+    }
+    thread_mutex_unlock(&ices_config->refcount_lock);
 }
 
 ref_buffer *stream_wait_for_data(instance_t *stream)
 {
-	ref_buffer *buffer;
-	queue_item *old;
+    ref_buffer *buffer;
+    queue_item *old;
 
-	thread_mutex_lock(&stream->queue->lock);
-	while(!stream->queue->head && !ices_config->shutdown && !stream->kill)
-	{
-		thread_mutex_unlock(&stream->queue->lock);
-		thread_cond_wait(&ices_config->queue_cond);
-		thread_mutex_lock(&stream->queue->lock);
-	}
+    thread_mutex_lock(&stream->queue->lock);
+    while(!stream->queue->head && !ices_config->shutdown && !stream->kill)
+    {
+        thread_mutex_unlock(&stream->queue->lock);
+        thread_cond_wait(&ices_config->queue_cond);
+        thread_mutex_lock(&stream->queue->lock);
+    }
 
-	if(ices_config->shutdown || stream->kill)
-	{
-		LOG_DEBUG0("Shutdown signalled: thread shutting down");
-		thread_mutex_unlock(&stream->queue->lock);
-		return NULL;
-	}
+    if(ices_config->shutdown || stream->kill)
+    {
+        LOG_DEBUG0("Shutdown signalled: thread shutting down");
+        thread_mutex_unlock(&stream->queue->lock);
+        return NULL;
+    }
 
-	buffer = stream->queue->head->buf;
-	old = stream->queue->head;
+    buffer = stream->queue->head->buf;
+    old = stream->queue->head;
 
-	stream->queue->head = stream->queue->head->next;
-	if(!stream->queue->head)
-	    stream->queue->tail = NULL;
+    stream->queue->head = stream->queue->head->next;
+    if(!stream->queue->head)
+        stream->queue->tail = NULL;
 
-	free(old);
-	stream->queue->length--;
-	thread_mutex_unlock(&stream->queue->lock);
+    free(old);
+    stream->queue->length--;
+    thread_mutex_unlock(&stream->queue->lock);
 
-	/* ok, we pulled something off the queue and the queue is
-	 * now empty - this means we're probably keeping up, so
-	 * clear one of the errors. This way, very occasional errors
-	 * don't cause eventual shutdown
-	 */
-	if(!stream->queue->head && stream->buffer_failures>0)
-		stream->buffer_failures--;
+    /* ok, we pulled something off the queue and the queue is
+     * now empty - this means we're probably keeping up, so
+     * clear one of the errors. This way, very occasional errors
+     * don't cause eventual shutdown
+     */
+    if(!stream->queue->head && stream->buffer_failures>0)
+        stream->buffer_failures--;
 
-	return buffer;
+    return buffer;
 }
 
 /* Process a buffer (including reencoding or encoding, if desired).
@@ -109,59 +109,59 @@ ref_buffer *stream_wait_for_data(instance_t *stream)
  */
 int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 {
-	if(sdsc->reenc)
-	{
-		unsigned char *buf;
-		int buflen,ret;
+    if(sdsc->reenc)
+    {
+        unsigned char *buf;
+        int buflen,ret;
 
-		ret = reencode_page(sdsc->reenc, buffer, &buf, &buflen);
-		if(ret > 0) 
-		{
-			ret = stream_send_data(sdsc, buf, buflen);
-			free(buf);
+        ret = reencode_page(sdsc->reenc, buffer, &buf, &buflen);
+        if(ret > 0) 
+        {
+            ret = stream_send_data(sdsc, buf, buflen);
+            free(buf);
             return ret;
-		}
-		else if(ret==0) /* No data produced by reencode */
+        }
+        else if(ret==0) /* No data produced by reencode */
             return -1;
-		else
-		{
-			LOG_ERROR0("Fatal reencoding error encountered");
+        else
+        {
+            LOG_ERROR0("Fatal reencoding error encountered");
             return -2;
-		}
-	}
+        }
+    }
     else if (sdsc->enc)
     {
-		ogg_page og;
-		int be = (sdsc->input->subtype == INPUT_PCM_BE_16)?1:0;
+        ogg_page og;
+        int be = (sdsc->input->subtype == INPUT_PCM_BE_16)?1:0;
         int ret=1;
 
-		/* We use critical as a flag to say 'start a new stream' */
-		if(buffer->critical)
-		{
+        /* We use critical as a flag to say 'start a new stream' */
+        if(buffer->critical)
+        {
             if(sdsc->resamp) {
                 resample_finish(sdsc->resamp);
                 encode_data_float(sdsc->enc, sdsc->resamp->buffers,
                         sdsc->resamp->buffill);
             }
-			encode_finish(sdsc->enc);
-			while(encode_flush(sdsc->enc, &og) != 0)
-			{
-				if ((ret = stream_send_data(sdsc, og.header, og.header_len)) == 0)
-                    return 0;
-				if ((ret = stream_send_data(sdsc, og.body, og.body_len)) == 0)
-                    return 0;
-			}
-			encode_clear(sdsc->enc);
-
-			if(sdsc->input->metadata_update)
+            encode_finish(sdsc->enc);
+            while(encode_flush(sdsc->enc, &og) != 0)
             {
-				vorbis_comment_clear(&sdsc->vc);
-				vorbis_comment_init(&sdsc->vc);
+                if ((ret = stream_send_data(sdsc, og.header, og.header_len)) == 0)
+                    return 0;
+                if ((ret = stream_send_data(sdsc, og.body, og.body_len)) == 0)
+                    return 0;
+            }
+            encode_clear(sdsc->enc);
 
-				sdsc->input->metadata_update(sdsc->input->internal, &sdsc->vc);
-			}
+            if(sdsc->input->metadata_update)
+            {
+                vorbis_comment_clear(&sdsc->vc);
+                vorbis_comment_init(&sdsc->vc);
 
-			sdsc->enc = encode_initialise(sdsc->stream->channels,
+                sdsc->input->metadata_update(sdsc->input->internal, &sdsc->vc);
+            }
+
+            sdsc->enc = encode_initialise(sdsc->stream->channels,
                     sdsc->stream->samplerate, sdsc->stream->managed, 
                     sdsc->stream->min_br, sdsc->stream->nom_br, 
                     sdsc->stream->max_br, sdsc->stream->quality,
@@ -171,7 +171,7 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
                 return -2;
             }
 
-		}
+        }
 
         if(sdsc->downmix) {
             downmix_buffer(sdsc->downmix, buffer->buf, buffer->len, be);
@@ -192,21 +192,21 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
                     sdsc->resamp->buffill);
         }
         else {
-		    encode_data(sdsc->enc, (signed char *)(buffer->buf), 
+            encode_data(sdsc->enc, (signed char *)(buffer->buf), 
                     buffer->len, be);
         }
 
-		while(encode_dataout(sdsc->enc, &og) > 0)
-		{
-			if ((ret = stream_send_data(sdsc, og.header, og.header_len)) == 0)
+        while(encode_dataout(sdsc->enc, &og) > 0)
+        {
+            if ((ret = stream_send_data(sdsc, og.header, og.header_len)) == 0)
                 return 0;
-			if ((ret = stream_send_data(sdsc, og.body, og.body_len)) == 0)
+            if ((ret = stream_send_data(sdsc, og.body, og.body_len)) == 0)
                 return 0;
-		}
+        }
                         
         return ret;
-	}
-	else	
-		return stream_send_data(sdsc, buffer->buf, buffer->len);
+    }
+    else    
+        return stream_send_data(sdsc, buffer->buf, buffer->len);
 }
 

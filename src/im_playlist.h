@@ -1,7 +1,7 @@
 /* im_playlist.h
  * - Basic playlist functionality
  *
- * $Id: im_playlist.h,v 1.3 2002/07/07 11:07:55 msmith Exp $
+ * $Id: im_playlist.h,v 1.4 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -19,18 +19,18 @@
 
 typedef struct _playlist_state_tag
 {
-	FILE *current_file;
-	char *filename; /* Currently streaming file */
-	int errors; /* Consecutive errors */
-	int nexttrack;
-	ogg_sync_state oy;
-	
-	char *(*get_filename)(void *data); /* returns the next desired filename */
+    FILE *current_file;
+    char *filename; /* Currently streaming file */
+    int errors; /* Consecutive errors */
+    int nexttrack;
+    ogg_sync_state oy;
+    
+    char *(*get_filename)(void *data); /* returns the next desired filename */
     void (*free_filename)(void *data, char *fn); /* Called when im_playlist is
                                                     done with this filename */
-	void (*clear)(void *data); /* module clears self here */
+    void (*clear)(void *data); /* module clears self here */
 
-	void *data; /* Internal data for this particular playlist module */
+    void *data; /* Internal data for this particular playlist module */
 
 } playlist_state_t;
 

@@ -1,7 +1,7 @@
 /* event.h
  * - Generic interface for passing events to modules.
  *
- * $Id: event.h,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: event.h,v 1.3 2003/03/16 14:21:48 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -15,11 +15,11 @@
 #define __EVENT_H__
 
 enum event_type {
-	EVENT_SHUTDOWN, /* Full/final shutdown. MUST NOT ignore */
-	EVENT_PAUSE, /* temporary shutdown. Can be ignored */
-	EVENT_NEXTTRACK, /* Start a new track in some way */
-	EVENT_RECONF, /* Reconfigure self, if possible */
-	EVENT_METADATAUPDATE, /* Incoming new metadata */
+    EVENT_SHUTDOWN, /* Full/final shutdown. MUST NOT ignore */
+    EVENT_PAUSE, /* temporary shutdown. Can be ignored */
+    EVENT_NEXTTRACK, /* Start a new track in some way */
+    EVENT_RECONF, /* Reconfigure self, if possible */
+    EVENT_METADATAUPDATE, /* Incoming new metadata */
 };
 
 #endif /* __EVENT_H__ */
