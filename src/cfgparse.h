@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: cfgparse.h,v 1.3 2003/07/02 20:26:51 karl Exp $
+ * $Id: cfgparse.h,v 1.4 2003/07/09 04:26:26 brendan Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -48,6 +48,7 @@ typedef struct _instance_tag
     char *stream_name;
     char *stream_genre;
     char *stream_description;
+    char *stream_url;
 
     /* Parameters for re-encoding */
     int managed;
@@ -86,6 +87,7 @@ typedef struct _config_tag
     char *stream_name;
     char *stream_genre;
     char *stream_description;
+    char *stream_url;
     
     /* <playlist> */
     

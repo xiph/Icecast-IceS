@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.29 2003/07/02 20:26:51 karl Exp $
+ * $Id: stream.c,v 1.30 2003/07/09 04:26:26 brendan Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -58,7 +58,7 @@ void *ices_instance_stream(void *arg)
     int reencoding = (inmod->type == ICES_INPUT_VORBIS) && stream->encode;
     int encoding = (inmod->type == ICES_INPUT_PCM) && stream->encode;
     char *stream_name = NULL, *stream_genre = NULL, *stream_description = NULL;
-    char *user = NULL;
+    char *stream_url = NULL, *user = NULL;
     char audio_info[11];
     
     vorbis_comment_init(&sdsc->vc);
@@ -129,6 +129,11 @@ void *ices_instance_stream(void *arg)
     else if (ices_config->stream_genre)
         stream_genre = ices_config->stream_genre;
 
+    if(stream->stream_url)
+        stream_url = stream->stream_url;
+    else if (ices_config->stream_url)
+        stream_url = ices_config->stream_url;
+
     if(stream_name)
         if (!(shout_set_name(sdsc->shout, stream_name)) == SHOUTERR_SUCCESS) {
             LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
@@ -143,6 +148,12 @@ void *ices_instance_stream(void *arg)
         }
     if (stream_description)
         if (!(shout_set_description(sdsc->shout, stream_description)) == SHOUTERR_SUCCESS) {
+            LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+            stream->died = 1;
+            return NULL;
+        }
+    if (stream_url)
+        if (!(shout_set_url(sdsc->shout, stream_url) == SHOUTERR_SUCCESS)) {
             LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
             stream->died = 1;
             return NULL;

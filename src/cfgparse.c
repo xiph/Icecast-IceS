@@ -1,7 +1,7 @@
 /* cfgparse.c
  * - cfgparse file reading code, plus default settings.
  *
- * $Id: cfgparse.c,v 1.5 2003/07/02 23:30:46 karl Exp $
+ * $Id: cfgparse.c,v 1.6 2003/07/09 04:26:26 brendan Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -214,6 +214,12 @@ static void _parse_metadata(instance_t *instance, config_t *config,
             else
                 SET_STRING(config->stream_description);
         }
+	else if (strcmp(node->name, "url") == 0) {
+	    if(instance)
+		SET_STRING(instance->stream_url);
+	    else
+		SET_STRING(config->stream_url);
+	}
     } while ((node = node->next));
 }
 
@@ -362,6 +368,7 @@ static void _set_defaults(config_t *c)
     c->stream_name = strdup(DEFAULT_STREAM_NAME);
     c->stream_genre = strdup(DEFAULT_STREAM_GENRE);
     c->stream_description = strdup(DEFAULT_STREAM_DESCRIPTION);
+    c->stream_url = NULL;
 
     c->playlist_module = strdup(DEFAULT_PLAYLIST_MODULE);
     
@@ -455,6 +462,7 @@ void config_dump(void)
     fprintf(stderr, "stream_name = %s\n", c->stream_name);
     fprintf(stderr, "stream_genre = %s\n", c->stream_genre);
     fprintf(stderr, "stream_description = %s\n", c->stream_description);
+    fprintf(stderr, "stream_url = %s\n", c->stream_url ? c->stream_url : "");
     fprintf(stderr, "\n");
     fprintf(stderr, "playlist_module = %s\n", c->playlist_module);
     param = c->module_params;
