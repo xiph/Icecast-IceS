@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: cfgparse.h,v 1.6 2003/12/22 14:01:09 karl Exp $
+ * $Id: cfgparse.h,v 1.7 2004/03/11 17:16:08 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -76,6 +76,7 @@ typedef struct _config_tag
     int background;
     char *logpath;
     char *logfile;
+    unsigned logsize;
     char *pidfile;
     int loglevel;
     int log_stderr;

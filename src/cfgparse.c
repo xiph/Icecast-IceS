@@ -1,7 +1,7 @@
 /* cfgparse.c
  * - cfgparse file reading code, plus default settings.
  *
- * $Id: cfgparse.c,v 1.9 2003/12/22 14:01:09 karl Exp $
+ * $Id: cfgparse.c,v 1.10 2004/03/11 17:16:08 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -33,6 +33,7 @@
 #define DEFAULT_LOGPATH "/tmp"
 #define DEFAULT_LOGFILE "ices.log"
 #define DEFAULT_LOGLEVEL 1
+#define DEFAULT_LOGSIZE 2048
 #define DEFAULT_LOG_STDERR 1
 #define DEFAULT_STREAM_NAME "unnamed ices stream"
 #define DEFAULT_STREAM_GENRE "ices unset"
@@ -344,6 +345,8 @@ static void _parse_root(config_t *config, xmlDocPtr doc, xmlNodePtr node)
             SET_STRING(config->logfile);
         else if (strcmp(node->name, "loglevel") == 0)
             SET_INT(config->loglevel);
+        else if (strcmp(node->name, "logsize") == 0)
+            SET_INT(config->logsize);
         else if (strcmp(node->name, "consolelog") == 0)
             SET_INT(config->log_stderr);
         else if (strcmp(node->name, "pidfile") == 0)
@@ -360,6 +363,7 @@ static void _set_defaults(config_t *c)
     c->background = DEFAULT_BACKGROUND;
     c->logpath = strdup(DEFAULT_LOGPATH);
     c->logfile = strdup(DEFAULT_LOGFILE);
+    c->logsize = DEFAULT_LOGSIZE;
     c->loglevel = DEFAULT_LOGLEVEL;
     c->log_stderr = DEFAULT_LOG_STDERR;
 
