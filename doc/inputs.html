@@ -96,11 +96,27 @@
 	&lt;param name="rate"&gt;44100&lt;/param&gt;
 	&lt;param name="channels"&gt;2&lt;/param&gt;
 	&lt;param name="device"&gt;plughw:0,0&lt;/param&gt;
+	&lt;param name="periods"&gt;plughw:0,0&lt;/param&gt;
+	&lt;param name="buffer-time"&gt;plughw:0,0&lt;/param&gt;
 	&lt;param name="metadata"&gt;1&lt;/param&gt;
 	&lt;param name="metadatafilename"&gt;/home/ices/metadata&lt;/param&gt;
    </pre>
-   The parameters to ALSA are the same for OSS, as it performs the same task,
-   ie captures audio from the DSP.
+   The parameters to ALSA are mostly the same for OSS, as it performs the same
+   task, ie captures audio from the DSP.
+
+   <h4>device</h4>
+   <div class=indentedbox>
+    <p>This is the device name as used in ALSA. This can be a physical device
+    as in the case of "hw:0.0" or a virtual device like one with dsnoop.</p>
+   </div>
+   <h4>periods</h4>
+   <div class=indentedbox>
+    <p>This specifies how many interrupts will be generated (default: 2)</p>
+   </div>
+   <h4>buffer-time</h4>
+   <div class=indentedbox>
+    <p>The size of the buffer measured in mS (default 500)</p>
+   </div>
 
    <h2>Sun</h2>
    <p>

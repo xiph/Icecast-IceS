@@ -42,6 +42,27 @@
     they only support one samplerate like 48khz. You have to experiment if the
     documentation for the device is not specific.
    </div>
+   <h4>Can I do crossfading with the playlist</h4>
+   <div class=indentedbox>
+    Ices does not do much in the way manipulating the audio itself, resampling
+    and downmixing are available as that has a direct effect on encoding an
+    outgoing stream.  Ices can still be used in conjunction with other
+    applications such as xmms by making ices read from the say the dsp (eg
+    oss, alsa etc), that way anything that is played by that other application
+    is encoded and sent to icecast.
+   </div>
+   <h4>My player seems unable to play the stream</h4>
+   <div class=indentedbox>
+    If the stream looks to be getting to the player then it will be how the
+    player is handling it. The usual causes of this are
+    <ul>missing ".ogg"  extension. Both ices and icecast do not care about the
+    extension however some apps use the extension to determine which plugin to
+    use.</ul>
+    <ul>Missing Ogg Vorbis plugin. The winamp lite versions were known for
+    this.</ul>
+    <ul>Are you running Winamp 3. This is a discontinued product and had problems
+    with the vorbis plugin, either use the later v2.9 series or v5.</ul>
+   </div>
    <h4>The sound quality is poor</h4>
    <div class=indentedbox>
     <p>

@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.31 2004/03/11 17:00:44 karl Exp $
+ * $Id: input.c,v 1.32 2004/03/11 17:22:59 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -300,7 +300,7 @@ void input_loop(void)
 
     if(!inmod)
     {
-        LOG_ERROR1("Couldn't initialise input module \"%s\"\n", 
+        LOG_ERROR1("Couldn't initialise input module \"%s\"", 
                 ices_config->playlist_module);
         return;
     }

@@ -32,6 +32,7 @@
      &lt;background&gt;0&lt;background&gt;
      &lt;logpath&gt;/var/log/ices&lt;logpath&gt;
      &lt;logfile&gt;ices.log&lt;logfile&gt;
+     &lt;logsize&gt;2048&lt;logsize&gt;
      &lt;loglevel&gt;3&lt;loglevel&gt;
      &lt;consolelog&gt;0&lt;consolelog&gt;
      &lt;pidfile&gt;/var/log/ices/ices.pid&lt;pidfile&gt;
@@ -50,6 +51,11 @@
     <div class=indentedbox>
      The name of the logfile created. On log re-opening the existing logfile is
      renamed to &lt;logfile&gt;.1
+    </div>
+    <h4>logsize</h4>
+    <div class=indentedbox>
+     When the log file reaches this size (in kilobytes) then the log file will
+     be cycled (the default is 2Meg)
     </div>
     <h4>loglevel</h4>
     <div class=indentedbox>
