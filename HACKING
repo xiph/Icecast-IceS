@@ -9,7 +9,6 @@ http://www.icecast.org/
 -----
 
 These are *brief* instructions on how to build this package from CVS.
-Yes, there are details left out.
 
 There are generally four steps necessary when building from CVS (i.e.,
 a developer's copy):
@@ -22,15 +21,6 @@ a developer's copy):
    GNU autoconf/automake tools.  Run the "autogen.sh" script to
    perform this step.  
 
-   *** IF YOU ARE NOT BUILDING WITH GNU MAKE *AND* GCC: you must set
-   the AUTOMAKE_FLAGS environment variable to "--include-deps"
-   before running autogen.sh.  For example:
-
-   csh% setenv AUTOMAKE_FLAGS --include-deps
-   csh% ./autogen.sh
-     or
-   sh% AUTOMAKE_FLAGS=--include-deps ./autogen.sh
-
 3. Run configure.  There are several options available; see
    "./configure --help" for more information.
 
@@ -39,10 +29,16 @@ a developer's copy):
 In general, steps 2 and 3 need to be re-run every time any of the
 following files are modified (either manually or by a cvs update):
 
-	  configure.in
-	  acinclude.m4
+    configure.in
+    m4/*.m4
 
 Running "make clean" after running steps 2 and 3 is generally also
 advisable before running step 4.  It isn't *always* necessary, but
 unless you understand the workings of autoconf/automake, it's safest
 to just do it.
+
+Note that the make allows for supplying compiler flags as well. eg
+make CFLAGS='-static' will try the build linking against any static
+libraries available. Also specific COU optimisations can be supplied
+this way.
+

@@ -12,7 +12,7 @@
    <table width="100%"><tr><td bgcolor="#007B79" height="10" align="center"></td></tr></table>
    <p>
     Several input modules are available, depending on the platform, drivers
-    and libraries available. The general layout is defined as 
+    and libraries available.  The general layout is defined as 
    </p>
    <pre>
     &lt;input&gt;
@@ -22,6 +22,11 @@
 	&lt;param name="name3"&gt;value&lt;/param&gt;
     &lt;/input&gt;
    </pre>
+   <p>
+    For live input you may want to look into various resources on the web for
+    information on sound input. You may find that ALSA for instance supports
+    a particular soundcard better than the Open Sound System.
+   </p>
    <h2>Open Sound</h2>
    <pre>
 	&lt;module&gt;oss&lt;/module&gt;
@@ -130,7 +135,10 @@
    <h2>Playlist</h2>
    <p>
     The playlist module is used to get audio from some pre-encoded Ogg
-    Vorbis files. The method of file selection is determined by the playlist
+    Vorbis files.  IceS currently checks to see if the same file gets
+    played in succession and skips it, this means that having a playlist
+    repeat with only one ogg file listed won't work.
+    The method of file selection is determined by the playlist
     type.  The current types are basic and script.
    </p>
 

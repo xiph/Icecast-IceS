@@ -29,7 +29,7 @@
     </pre>
     <h4>background</h4>
     <div class=indentedbox>
-     Set to 1 if you want IceS to put itself into the background
+     Set to 1 if you want IceS to put itself into the background.
     </div>
     <h4>logpath</h4>
     <div class=indentedbox>
@@ -67,7 +67,7 @@
      of certain events.
     </div>
     <h2>Stream section</h2>
-    <p>This describes how the input and outgoing streams are configured<p>
+    <p>This describes how the input and outgoing streams are configured.<p>
     <pre>
      &lt;stream&gt;
          Metadata
@@ -88,19 +88,19 @@
      This section describes what metadata information is passed in the headers
      at connection time to icecast.  This applies to each instance defined within
      the stream section but maybe overridden by a per-instance &lt;metadata&gt;
-     section
+     section.
     </p>
     <h3>Input</h3>
     <p>
      This section deals with getting the audio data into IceS. There are a few
-     ways that can happen. Typically it's either from a playlist or via a soundcard
+     ways that can happen. Typically it's either from a playlist or via a soundcard.
     </p>
     <p>
      The layout is consistent between the different input modules. Within the
      input section a module tag is needed to identify the module in question. The
      rest are made up of param tags specific to the module. There can be several
      param tags supplied to a module.  Details of the module parameters are
-     shown later
+     shown later.
     </p>
     <h3>Instance</h3>
     <p>
@@ -142,7 +142,7 @@
    <div class=indentedbox>
     Mountpoints are used to identify a particular stream on a icecast server,
     they must begin with / and for the sake of certain listening clients should
-    end in .ogg
+    end with the .ogg extension.
    </div>
    <h4>yp</h4>
    <div class=indentedbox>
@@ -167,7 +167,7 @@
     <p>
      The most common values used are 48000, 44100, 22050 and 11025, and is
      really only used to resample to a lower samplerate, going to a higher rate
-     serves no purpose within IceS
+     serves no purpose within IceS.
     </p>
    </div>
    <h4>Downmix</h4>

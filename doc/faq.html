@@ -42,6 +42,27 @@
     they only support one samplerate like 48khz. You have to experiment if the
     documentation for the device is not specific.
    </div>
+   <h4>The sound quality is poor</h4>
+   <div class=indentedbox>
+    <p>
+     Ogg Vorbis is a lossy compression technology, so quality of the sound is
+     reduced, however with live input the source of audio can be poor depending
+     on the soundcard and the system it's in.  As an initial test just record
+     a wav file from the DSP (using eg rec, arecord etc) and listen to the
+     quality of the audio recorded.  If the source of audio is poor then encoding
+     it to Ogg Vorbis is not going to improve it.
+    </p>
+    <p>
+     The reasons for poor audio from the DSP can be difficult to resolve, search
+     for information on audio quality.  It could be driver related or maybe some
+     interference from some other device.
+    </p>
+    <p>
+     Here are some links where further information can be found:
+    </p>
+     <a href="http://www.djcj.org/LAU/guide/index.php">http://www.djcj.org/LAU/guide/index.php</a><BR>
+     <a href="http://www.linuxdj.com/audio/lad/index.php3">http://www.linuxdj.com/audio/lad/index.php3</a>
+   </div>
   </div>
  </body>
 </html>
