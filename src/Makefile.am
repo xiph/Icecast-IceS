@@ -2,12 +2,11 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = log thread timing avl
+SUBDIRS = avl log net thread timing
 
 bin_PROGRAMS = ices
 AM_CFLAGS = @XIPH_CFLAGS@
 
-EXTRA_DIST = thread net timing avl
 EXTRA_ices_SOURCES = im_oss.c im_sun.c im_alsa.c
 
 if HAVE_OSS
