@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.6 2001/10/14 15:03:38 msmith Exp $
+ * $Id: input.c,v 1.7 2001/10/14 15:12:53 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -203,7 +203,7 @@ void input_loop(void)
 	int shutdown = 0;
 	int current_module = 0;
 
-	while(modules[current_module].open)
+	while(ices_config->playlist_module && modules[current_module].open)
 	{
 		if(!strcmp(ices_config->playlist_module, modules[current_module].name))
 		{
