@@ -74,7 +74,7 @@ void *metadata_thread_signal(void *arg)
         FILE *file;
 
         while(metadata_update_signalled == 0)
-            sleep(60);
+            sleep(1);
 
         metadata_update_signalled = 0;
 
