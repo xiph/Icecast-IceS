@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.12 2003/07/09 02:45:22 karl Exp $
+ * $Id: ices.c,v 1.13 2003/12/21 03:38:53 karl Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
         fprintf(stderr, PACKAGE_STRING "\n"
                 "  (c) Copyright 2001-2003 The IceS Development Team <team@icecast.org>\n"
                 "        Michael Smith <msmith@icecast.org>\n"
-                "        Karl Heyes    <karl@pts.tele2.co.uk>\n"
+                "        Karl Heyes    <karl@xiph.org>\n"
                 "        and others\n"
                 "\n"
                 "Usage: \"ices config.xml\"\n");
@@ -79,9 +79,21 @@ int main(int argc, char **argv)
     ices_config->log_id = log;
 
     LOG_INFO0("ices started...");
+    if (ices_config->pidfile != NULL)
+    {
+        FILE *f = fopen (ices_config->pidfile, "w");
+        if (f)
+        {
+            fprintf (f, "%i", getpid());
+            fclose (f);
+        }
+    }
 
     /* Start the core streaming loop */
     input_loop();
+
+    if (ices_config->pidfile)
+        remove (ices_config->pidfile);
 
     LOG_INFO0("Shutdown complete");
 

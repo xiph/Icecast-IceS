@@ -8,6 +8,9 @@
     <consolelog>0</consolelog> <!-- set this to 1 to log to the console instead
                                     of to the file above -->
 
+    <!-- optional filename to write process id to -->
+    <!-- <pidfile>/home/ices/ices.pid</pidfile> -->
+
 	<stream>
 		<!-- metadata used for stream listing (not currently used) -->
 		<metadata>

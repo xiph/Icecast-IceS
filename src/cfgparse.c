@@ -1,7 +1,7 @@
 /* cfgparse.c
  * - cfgparse file reading code, plus default settings.
  *
- * $Id: cfgparse.c,v 1.6 2003/07/09 04:26:26 brendan Exp $
+ * $Id: cfgparse.c,v 1.7 2003/12/21 03:38:53 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -350,6 +350,8 @@ static void _parse_root(config_t *config, xmlDocPtr doc, xmlNodePtr node)
             SET_INT(config->loglevel);
         else if (strcmp(node->name, "consolelog") == 0)
             SET_INT(config->log_stderr);
+        else if (strcmp(node->name, "pidfile") == 0)
+            SET_STRING(config->pidfile);
         else if (strcmp(node->name, "stream") == 0)
             _parse_stream(config, doc, node->xmlChildrenNode);
     } while ((node = node->next));
