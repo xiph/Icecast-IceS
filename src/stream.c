@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.21 2002/08/16 15:47:36 msmith Exp $
+ * $Id: stream.c,v 1.22 2002/08/17 05:17:57 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -156,13 +156,13 @@ void *ices_instance_stream(void *arg)
 			return NULL;
 		}
 
-    /* FIXME: For now, only on encoding, not reencoding */
-    if(stream->downmix && encoding && stream->channels == 2) {
+    if(stream->downmix && encoding && stream->channels == 1) {
         stream->channels = 1;
         sdsc->downmix = downmix_initialise();
     }
 
     if(stream->resampleinrate && stream->resampleoutrate && encoding) {
+        stream->samplerate = stream->resampleoutrate;
         sdsc->resamp = resample_initialise(stream->channels, 
                 stream->resampleinrate, stream->resampleoutrate);
     }

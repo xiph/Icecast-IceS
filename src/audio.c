@@ -2,7 +2,7 @@
  * stereo->mono downmixing
  * resampling
  *
- * $Id: audio.c,v 1.4 2002/08/11 21:47:03 msmith Exp $
+ * $Id: audio.c,v 1.5 2002/08/17 05:17:57 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -180,7 +180,12 @@ void resample_buffer_float(resample_state *s, float **buf, int buflen)
 
 void resample_finish(resample_state *s)
 {
-    int ret = res_drain(&s->resampler, s->buffers);
+    int ret;
+
+    if(!s->buffers[0])
+        return;
+
+    ret = res_drain(&s->resampler, s->buffers);
 
     if(ret > s->bufsize) {
         LOG_ERROR0("Fatal error in resampler: buffers too small");

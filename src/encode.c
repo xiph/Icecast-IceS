@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.11 2002/08/09 04:20:27 msmith Exp $
+ * $Id: encode.c,v 1.12 2002/08/17 05:17:57 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -258,12 +258,6 @@ void encode_finish(encoder_state *s)
 int encode_flush(encoder_state *s, ogg_page *og)
 {
 	int result = ogg_stream_pageout(&s->os, og);
-
-	if(s->in_header)
-	{
-		LOG_ERROR0("Unhandled case: flushing stream before headers have been "
-				  "output. Behaviour may be unpredictable.");
-	}
 
 	if(result<=0)
 		return 0;

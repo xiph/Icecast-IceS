@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.11 2002/08/13 14:03:20 msmith Exp $
+ * $Id: stream_shared.c,v 1.12 2002/08/17 05:17:57 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -186,10 +186,10 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
                        buffer->len/4);
         }
         else if(sdsc->resamp) {
-                resample_buffer(sdsc->resamp, (signed char *)buffer->buf, 
-                        buffer->len, be);
-                encode_data_float(sdsc->enc, sdsc->resamp->buffers,
-                        sdsc->resamp->buffill);
+            resample_buffer(sdsc->resamp, (signed char *)buffer->buf, 
+                    buffer->len, be);
+            encode_data_float(sdsc->enc, sdsc->resamp->buffers,
+                    sdsc->resamp->buffill);
         }
         else {
 		    encode_data(sdsc->enc, (signed char *)(buffer->buf), 
