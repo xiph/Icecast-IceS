@@ -1,7 +1,7 @@
 /* reencode.c
  * - runtime reencoding of vorbis audio (usually to lower bitrates).
  *
- * $Id: reencode.c,v 1.2 2001/09/25 12:04:22 msmith Exp $
+ * $Id: reencode.c,v 1.3 2001/11/10 04:47:24 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -43,6 +43,7 @@ void reencode_clear(reencode_state *s)
 {
 	if(s) 
 	{
+        LOG_DEBUG0("Clearing reencoder");
 		ogg_stream_clear(&s->os);
 		vorbis_block_clear(&s->vb);
 		vorbis_dsp_clear(&s->vd);
@@ -89,6 +90,7 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
 			}
 		}
 		encode_clear(s->encoder);
+        s->encoder = NULL;
 
 		ogg_stream_clear(&s->os);
 		ogg_stream_init(&s->os, s->current_serial);

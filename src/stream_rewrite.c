@@ -5,7 +5,7 @@
  *
  * Heavily based on vcedit.c from vorbiscomment.
  *
- * $Id: stream_rewrite.c,v 1.2 2001/10/21 16:17:14 jack Exp $
+ * $Id: stream_rewrite.c,v 1.3 2001/11/10 04:47:24 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -51,9 +51,9 @@ typedef struct {
 /* Next two functions pulled straight from libvorbis, apart from one change
  * - we don't want to overwrite the vendor string.
  */
-static void _v_writestring(oggpack_buffer *o,char *s)
+static void _v_writestring(oggpack_buffer *o,char *s, int len)
 {
-	while(*s)
+	while(len--)
 	{
 		oggpack_write(o,*s++,8);
 	}
@@ -67,11 +67,11 @@ static int _commentheader_out(vorbis_comment *vc, char *vendor, ogg_packet *op)
 
 	/* preamble */  
 	oggpack_write(&opb,0x03,8);
-	_v_writestring(&opb,"vorbis");
+	_v_writestring(&opb,"vorbis", 6);
 
 	/* vendor */
 	oggpack_write(&opb,strlen(vendor),32);
-	_v_writestring(&opb,vendor);
+	_v_writestring(&opb,vendor, strlen(vendor));
 
 	/* comments */
 	oggpack_write(&opb,vc->comments,32);
@@ -80,7 +80,7 @@ static int _commentheader_out(vorbis_comment *vc, char *vendor, ogg_packet *op)
 		for(i=0;i<vc->comments;i++){
 			if(vc->user_comments[i]){
 				oggpack_write(&opb,vc->comment_lengths[i],32);
-				_v_writestring(&opb,vc->user_comments[i]);
+				_v_writestring(&opb,vc->user_comments[i], vc->comment_lengths[i]);
 			}else{
 				oggpack_write(&opb,0,32);
 			}

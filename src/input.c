@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.10 2001/10/21 02:10:08 jack Exp $
+ * $Id: input.c,v 1.11 2001/11/10 04:47:24 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -92,15 +92,17 @@ static void _sleep(timing_control *control)
 	if(sleep > 0) timing_sleep(sleep);
 }
 
-static void _calculate_pcm_sleep(ref_buffer *buf, timing_control *control)
+static int _calculate_pcm_sleep(ref_buffer *buf, timing_control *control)
 {
 	if(control->starttime == 0)
 		control->starttime = timing_get_time();
 
 	control->senttime += ((double)buf->len * 1000000.)/((double)buf->aux_data);
+
+    return 0;
 }
 
-static void _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
+static int _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
 {
 	/* Largely copied from shout_send_data(), without the sending happening.*/
 	ogg_stream_state os;
@@ -108,6 +110,7 @@ static void _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
 	ogg_packet op;
 	vorbis_info vi;
 	vorbis_comment vc;
+    int ret = 0;
 
 	if(control->starttime == 0)
 		control->starttime = timing_get_time();
@@ -128,9 +131,16 @@ static void _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
 
 		vorbis_info_init(&vi);
 		vorbis_comment_init(&vc);
-		vorbis_synthesis_headerin(&vi, &vc, &op);
 
-		control->samplerate = vi.rate;
+		if(vorbis_synthesis_headerin(&vi, &vc, &op) < 0) 
+        {
+            LOG_ERROR0("Timing control: can't determine sample rate for input, "
+                       "not vorbis.");
+            control->samplerate = 0;
+            ret = -1;
+        }
+        else
+		    control->samplerate = vi.rate;
 
 		vorbis_comment_clear(&vc);
 		vorbis_info_clear(&vi);
@@ -140,8 +150,11 @@ static void _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
 	control->samples = ogg_page_granulepos(&og) - control->oldsamples;
 	control->oldsamples = ogg_page_granulepos(&og);
 
-	control->senttime += ((double)control->samples * 1000000 / 
-			(double)control->samplerate);
+    if(control->samplerate) 
+	    control->senttime += ((double)control->samples * 1000000 / 
+		    	(double)control->samplerate);
+
+    return ret;
 }
 
 void input_flush_queue(buffer_queue *queue, int keep_critical)
@@ -211,6 +224,7 @@ void input_loop(void)
 	queue_item *queued;
 	int shutdown = 0;
 	int current_module = 0;
+    int valid_stream = 1;
 
 	while(ices_config->playlist_module && modules[current_module].open)
 	{
@@ -342,53 +356,63 @@ void input_loop(void)
 			continue;
 		}
 
+        if(chunk->critical)
+            valid_stream = 1;
+
 		/* figure out how much time the data represents */
 		switch(inmod->type)
 		{
 			case ICES_INPUT_VORBIS:
-				_calculate_ogg_sleep(chunk, control);
+				ret = _calculate_ogg_sleep(chunk, control);
 				break;
 			case ICES_INPUT_PCM:
-				_calculate_pcm_sleep(chunk, control);
+				ret = _calculate_pcm_sleep(chunk, control);
 				break;
 		}
 
-		while(instance)
-		{
-			if(instance->skip)
-			{
-				instance = instance->next;
-				continue;
-			}
+        if(ret < 0)
+            valid_stream = 0;
 
-			queued = malloc(sizeof(queue_item));
+        if(valid_stream) 
+        {
+    		while(instance)
+	    	{
+		    	if(instance->skip || 
+                        (instance->wait_for_critical && !chunk->critical))
+	    		{
+		    		instance = instance->next;
+			    	continue;
+    			}
+    
+	    		queued = malloc(sizeof(queue_item));
+    
+	    		queued->buf = chunk;
+    			current = instance->queue;
+    
+	    		thread_mutex_lock(&ices_config->refcount_lock);
+		    	chunk->count++;
+			    thread_mutex_unlock(&ices_config->refcount_lock);
+    
+	    		thread_mutex_lock(&current->lock);
+    
+	    		if(current->head == NULL)
+		    	{
+			    	current->head = current->tail = queued;
+				    current->head->next = current->tail->next = NULL;
+	    		}
+    			else
+			    {
+		    		current->tail->next = queued;
+				    queued->next = NULL;
+    				current->tail = queued;
+	    		}
 
-			queued->buf = chunk;
-			current = instance->queue;
+		    	current->length++;
+			    thread_mutex_unlock(&current->lock);
 
-			thread_mutex_lock(&ices_config->refcount_lock);
-			chunk->count++;
-			thread_mutex_unlock(&ices_config->refcount_lock);
-
-			thread_mutex_lock(&current->lock);
-
-			if(current->head == NULL)
-			{
-				current->head = current->tail = queued;
-				current->head->next = current->tail->next = NULL;
-			}
-			else
-			{
-				current->tail->next = queued;
-				queued->next = NULL;
-				current->tail = queued;
-			}
-
-			current->length++;
-			thread_mutex_unlock(&current->lock);
-
-			instance = instance->next;
-		}
+    			instance = instance->next;
+	    	}
+        }
 
 		/* Make sure we don't end up with a 0-refcount buffer that 
 		 * will never hit any of the free points. (this happens
@@ -402,10 +426,12 @@ void input_loop(void)
 		}
 		thread_mutex_unlock(&ices_config->refcount_lock);
 
-		/* wake up the instances */
-		thread_cond_broadcast(&ices_config->queue_cond);
+        if(valid_stream) {
+    		/* wake up the instances */
+	    	thread_cond_broadcast(&ices_config->queue_cond);
 
-		_sleep(control);
+		    _sleep(control);
+        }
 	}
 
 	LOG_DEBUG0("All instances removed, shutting down control thread.");

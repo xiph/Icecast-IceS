@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.8 2001/11/07 13:30:03 msmith Exp $
+ * $Id: stream.c,v 1.9 2001/11/10 04:47:24 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -133,6 +133,12 @@ void *ices_instance_stream(void *arg)
 				continue; 
 			}
 
+            if(stream->wait_for_critical)
+            {
+                LOG_INFO0("Trying restart on new substream");
+                stream->wait_for_critical = 0;
+            }
+
             ret = process_and_send_buffer(sdsc, buffer);
 
             /* No data produced, do nothing */
@@ -140,7 +146,17 @@ void *ices_instance_stream(void *arg)
                 ;
             /* Fatal error */
             else if(ret == -2)
-                stream->buffer_failures = MAX_ERRORS+1;
+            {
+                LOG_ERROR0("Serious error, waiting to restart on "
+                           "next substream. Stream temporarily suspended.");
+                /* Set to wait until a critical buffer comes through (start of
+                 * a new substream, typically), and flush existing queue.
+                 */
+                thread_mutex_lock(&ices_config->flush_lock);
+                stream->wait_for_critical = 1;
+                input_flush_queue(stream->queue, 0);
+                thread_mutex_unlock(&ices_config->flush_lock);
+            }
             /* Non-fatal shout error */
             else if(ret == 0)
 			{

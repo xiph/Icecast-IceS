@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: encode.c,v 1.3 2001/11/10 04:47:24 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -27,9 +27,9 @@
 
 void encode_clear(encoder_state *s)
 {
-	LOG_DEBUG0("Clearing encoder engine");
 	if(s)
 	{
+	    LOG_DEBUG0("Clearing encoder engine");
 		ogg_stream_clear(&s->os);
 		vorbis_block_clear(&s->vb);
 		vorbis_dsp_clear(&s->vd);
@@ -44,7 +44,7 @@ encoder_state *encode_initialise(int channels, int rate, int bitrate,
 	encoder_state *s = calloc(1, sizeof(encoder_state));
 	ogg_packet h1,h2,h3;
 
-	LOG_DEBUG3("Setting up encode at %d channels, %d Hz, bitrate %d", 
+	LOG_INFO3("Encoder initialising at %d channels, %d Hz, bitrate %d", 
 			channels, rate, bitrate);
 
 	vorbis_info_init(&s->vi);

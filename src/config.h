@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.7 2001/10/21 02:10:08 jack Exp $
+ * $Id: config.h,v 1.8 2001/11/10 04:47:24 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -52,7 +52,10 @@ typedef struct _instance_tag
 	int died;
 	int kill;
 	int skip;
+    int wait_for_critical;
+
 	struct buffer_queue *queue;
+
 	struct _instance_tag *next;
 } instance_t;
 
