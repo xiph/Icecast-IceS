@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.11 2003/07/03 13:24:37 brendan Exp $
+ * $Id: ices.c,v 1.12 2003/07/09 02:45:22 karl Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -68,7 +68,10 @@ int main(int argc, char **argv)
     if(ices_config->log_stderr)
         log = log_open_file(stderr);
     else
+    {
         log = log_open(logpath);
+        log_set_trigger (log, 2048);
+    }
     /* Set the log level, if requested - defaults to 2 (WARN) otherwise */
     if (ices_config->loglevel)
         log_set_level(log, ices_config->loglevel);
