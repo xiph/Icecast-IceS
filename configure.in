@@ -156,5 +156,6 @@ AC_SUBST(LIBS)
 AC_SUBST(DEBUG)
 AC_SUBST(CFLAGS)
 AC_SUBST(PROFILE)
+AC_SUBST(XIPH_CFLAGS)
 
 AC_OUTPUT(Makefile conf/Makefile src/Makefile src/avl/Makefile src/thread/Makefile src/net/Makefile src/log/Makefile src/timing/Makefile)
