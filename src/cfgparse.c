@@ -109,10 +109,10 @@ static void _free_instances(instance_t *instance)
 
 void config_free_instance(instance_t *instance)
 {
-    if (instance->hostname) free(instance->hostname);
-    if (instance->password) free(instance->password);
-    if (instance->user) free(instance->user);
-    if (instance->mount) free(instance->mount);
+    if (instance->hostname) xmlFree(instance->hostname);
+    if (instance->password) xmlFree(instance->password);
+    if (instance->user) xmlFree(instance->user);
+    if (instance->mount) xmlFree(instance->mount);
     if (instance->queue) 
     {
         thread_mutex_destroy(&instance->queue->lock);
@@ -122,11 +122,11 @@ void config_free_instance(instance_t *instance)
 
 static void _set_instance_defaults(instance_t *instance)
 {
-    instance->hostname = strdup(DEFAULT_HOSTNAME);
+    instance->hostname = xmlStrdup(DEFAULT_HOSTNAME);
     instance->port = DEFAULT_PORT;
-    instance->password = strdup(DEFAULT_PASSWORD);
+    instance->password = xmlStrdup(DEFAULT_PASSWORD);
     instance->user = DEFAULT_USERNAME;
-    instance->mount = strdup(DEFAULT_MOUNT);
+    instance->mount = xmlStrdup(DEFAULT_MOUNT);
     instance->managed = DEFAULT_MANAGED;
     instance->min_br = DEFAULT_MIN_BITRATE;
     instance->nom_br = DEFAULT_NOM_BITRATE;
@@ -366,18 +366,18 @@ static void _set_defaults(config_t *c)
     instance_t *instance;
 
     c->background = DEFAULT_BACKGROUND;
-    c->logpath = strdup(DEFAULT_LOGPATH);
-    c->logfile = strdup(DEFAULT_LOGFILE);
+    c->logpath = xmlStrdup(DEFAULT_LOGPATH);
+    c->logfile = xmlStrdup(DEFAULT_LOGFILE);
     c->logsize = DEFAULT_LOGSIZE;
     c->loglevel = DEFAULT_LOGLEVEL;
     c->log_stderr = DEFAULT_LOG_STDERR;
 
-    c->stream_name = strdup(DEFAULT_STREAM_NAME);
-    c->stream_genre = strdup(DEFAULT_STREAM_GENRE);
-    c->stream_description = strdup(DEFAULT_STREAM_DESCRIPTION);
+    c->stream_name = xmlStrdup(DEFAULT_STREAM_NAME);
+    c->stream_genre = xmlStrdup(DEFAULT_STREAM_GENRE);
+    c->stream_description = xmlStrdup(DEFAULT_STREAM_DESCRIPTION);
     c->stream_url = NULL;
 
-    c->playlist_module = strdup(DEFAULT_PLAYLIST_MODULE);
+    c->playlist_module = xmlStrdup(DEFAULT_PLAYLIST_MODULE);
     
     c->module_params = NULL;
 
@@ -404,9 +404,9 @@ static void _free_params(module_param_t *param)
 void config_initialize(void)
 {
     ices_config = (config_t *)calloc(1, sizeof(config_t));
+    xmlInitParser();
     _set_defaults(ices_config);
     srand(time(NULL));
-    xmlInitParser();
 }
 
 void config_shutdown(void)

@@ -19,6 +19,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <libxml/parser.h>
+#include <libxml/xmlmemory.h>
+
 #include <thread/thread.h>
 
 #include "cfgparse.h"
