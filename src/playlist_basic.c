@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.6 2002/07/07 11:07:55 msmith Exp $
+ * $Id: playlist_basic.c,v 1.7 2002/08/10 04:26:52 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -84,6 +84,9 @@ static int load_playlist(basic_playlist *data)
 		if(buf[0]==0) break;
 
         if(buf[0]=='\n' || (buf[0]=='\r' && buf[1]=='\n'))
+            continue;
+
+        if(buf[0] == '#') /* Commented out entry */
             continue;
 
 		buf[strlen(buf)-1] = 0;
