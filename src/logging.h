@@ -1,7 +1,7 @@
 /* logging.h
  * - macros used for logging. #define MODULE before including
  *
- * $Id: logging.h,v 1.2 2001/09/25 12:04:22 msmith Exp $
+ * $Id: logging.h,v 1.3 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -38,6 +38,7 @@
 #define LOG_INFO2(x,a,b) log_write(ices_config->log_id,3, MODULE __FUNCTION__,x, a,b)
 #define LOG_INFO3(x,a,b,c) log_write(ices_config->log_id,3, MODULE __FUNCTION__,x, a,b,c)
 #define LOG_INFO4(x,a,b,c,d) log_write(ices_config->log_id,3, MODULE __FUNCTION__,x, a,b,c,d)
+#define LOG_INFO5(x,a,b,c,d,e) log_write(ices_config->log_id,3, MODULE __FUNCTION__,x, a,b,c,d,e)
 
 #define LOG_DEBUG0(x) log_write(ices_config->log_id,4, MODULE __FUNCTION__,x)
 #define LOG_DEBUG1(x,a) log_write(ices_config->log_id,4, MODULE __FUNCTION__,x, a)

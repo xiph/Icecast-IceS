@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.3 2001/10/21 16:22:40 jack Exp $
+ * $Id: config.c,v 1.4 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -38,7 +38,11 @@
 #define DEFAULT_PORT 8000
 #define DEFAULT_PASSWORD "password"
 #define DEFAULT_MOUNT "/stream.ogg"
-#define DEFAULT_BITRATE 128
+#define DEFAULT_MANAGED 0
+#define DEFAULT_MIN_BITRATE -1
+#define DEFAULT_NOM_BITRATE -1
+#define DEFAULT_MAX_BITRATE -1
+#define DEFAULT_QUALITY 3
 #define DEFAULT_REENCODE 0
 #define DEFAULT_RECONN_DELAY 2
 #define DEFAULT_RECONN_ATTEMPTS 10
@@ -58,6 +62,13 @@
 	do {\
 		char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
 		(x) = atoi(tmp);\
+		if (tmp) free(tmp);\
+	} while (0)
+
+#define SET_FLOAT(x) \
+	do {\
+		char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
+		(x) = atof(tmp);\
 		if (tmp) free(tmp);\
 	} while (0)
 
@@ -106,7 +117,11 @@ static void _set_instance_defaults(instance_t *instance)
 	instance->port = DEFAULT_PORT;
 	instance->password = strdup(DEFAULT_PASSWORD);
 	instance->mount = strdup(DEFAULT_MOUNT);
-	instance->bitrate = DEFAULT_BITRATE;
+    instance->managed = DEFAULT_MANAGED;
+	instance->min_br = DEFAULT_MIN_BITRATE;
+	instance->nom_br = DEFAULT_NOM_BITRATE;
+	instance->max_br = DEFAULT_MAX_BITRATE;
+    instance->quality = DEFAULT_QUALITY;
 	instance->encode = DEFAULT_REENCODE;
 	instance->reconnect_delay = DEFAULT_RECONN_DELAY;
 	instance->reconnect_attempts = DEFAULT_RECONN_ATTEMPTS;
@@ -127,13 +142,24 @@ static void _parse_encode(instance_t *instance,xmlDocPtr doc, xmlNodePtr node)
 		if (node == NULL) break;
 		if (xmlIsBlankNode(node)) continue;
 
-		if (strcmp(node->name, "bitrate") == 0)
-			SET_INT(instance->bitrate);
+        if (strcmp(node->name, "nominal-bitrate") == 0)
+			SET_INT(instance->nom_br);
+        else if (strcmp(node->name, "minimum-bitrate") == 0)
+			SET_INT(instance->min_br);
+        else if (strcmp(node->name, "maximum-bitrate") == 0)
+			SET_INT(instance->max_br);
+        else if (strcmp(node->name, "quality") == 0)
+			SET_FLOAT(instance->quality);
 		else if (strcmp(node->name, "samplerate") == 0)
 			SET_INT(instance->samplerate);
 		else if (strcmp(node->name, "channels") == 0)
 			SET_INT(instance->channels);
 	} while ((node = node->next));
+
+    if(instance->nom_br > 0 || instance->min_br > 0 || instance->max_br > 0)
+        instance->managed = 1;
+    else
+        instance->managed = 0;
 }
 
 
@@ -393,7 +419,11 @@ void config_dump(void)
 		fprintf(stderr, "port = %d\n", i->port);
 		fprintf(stderr, "password = %s\n", i->password);
 		fprintf(stderr, "mount = %s\n", i->mount);
-		fprintf(stderr, "bitrate = %d\n", i->bitrate);
+		fprintf(stderr, "minimum bitrate = %d\n", i->min_br);
+		fprintf(stderr, "nominal bitrate = %d\n", i->nom_br);
+		fprintf(stderr, "maximum bitrate = %d\n", i->max_br);
+		fprintf(stderr, "quality = %d\n", i->quality);
+		fprintf(stderr, "managed = %d\n", i->managed);
 		fprintf(stderr, "reencode = %d\n", i->encode);
 		fprintf(stderr, "reconnect: %d times at %d second intervals\n", 
 				i->reconnect_attempts, i->reconnect_delay);

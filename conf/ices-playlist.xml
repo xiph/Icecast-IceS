@@ -80,7 +80,7 @@
 				 restriction will be relaxed in the future.
 			-->
 			<encode>  
-				<bitrate>64000</bitrate> <!-- bps. e.g. 64000 for 64 kbps -->
+				<nominal-bitrate>64000</nominal-bitrate> <!-- bps. e.g. 64000 for 64 kbps -->
 				<samplerate>44100</samplerate>
 				<channels>2</channels>
 			</encode>

@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.10 2002/01/23 03:40:28 jack Exp $
+ * $Id: stream.c,v 1.11 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -123,7 +123,8 @@ void *ices_instance_stream(void *arg)
 		if(inmod->metadata_update)
 			inmod->metadata_update(inmod->internal, &sdsc->vc);
 		sdsc->enc = encode_initialise(stream->channels, stream->samplerate,
-				stream->bitrate, stream->serial++, &sdsc->vc);
+				stream->managed, stream->min_br, stream->nom_br, stream->max_br,
+                stream->quality, stream->serial++, &sdsc->vc);
 	}
 	else if(reencoding)
 		sdsc->reenc = reencode_init(stream);

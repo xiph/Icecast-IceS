@@ -24,7 +24,8 @@
 			<param name="rate">22050</param> <!-- samplerate -->
 			<param name="channels">1</param> <!-- number of channels -->
 			<param name="device">/dev/dsp</param> <!-- audio device -->
-			<param name="metadata">1</param> <!-- Read metadata from stdin? -->
+			<param name="metadata">1</param> <!-- Read metadata (from stdin by default, or filename defined below (if the latter, only on SIGUSR1) -->
+			<param name="metadatafilename">test</param>
 		</input>
 
 		<!-- Stream instance
@@ -56,7 +57,7 @@
 
 			-->
 			<encode>  
-				<bitrate>64000</bitrate>
+				<quality>3</quality>
 				<samplerate>22050</samplerate>
 				<channels>1</channels>
 			</encode>

@@ -1,7 +1,7 @@
 /* encode.h
  * - encoding functions
  *
- * $Id: encode.h,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: encode.h,v 1.3 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -29,7 +29,8 @@ typedef struct {
 	int in_header;
 } encoder_state;
 
-encoder_state *encode_initialise(int channels, int rate, int bitrate,
+encoder_state *encode_initialise(int channels, int rate, int managed,
+    int min_br, int nom_br, int max_br, float quality,
 	int serial, vorbis_comment *vc);
 void encode_clear(encoder_state *s);
 void encode_data_float(encoder_state *s, float **pcm, int samples);

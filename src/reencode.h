@@ -1,7 +1,7 @@
 /* reencode.h
  * - reencoding functions
  *
- * $Id: reencode.h,v 1.2 2001/09/25 12:04:22 msmith Exp $
+ * $Id: reencode.h,v 1.3 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -22,7 +22,11 @@
 #include "encode.h"
 
 typedef struct {
-	int out_bitrate;
+	int out_min_br;
+	int out_nom_br;
+	int out_max_br;
+    float quality;
+    int managed;
 
 	int out_samplerate;
 	int out_channels;

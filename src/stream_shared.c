@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.5 2002/01/23 03:40:28 jack Exp $
+ * $Id: stream_shared.c,v 1.6 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -148,7 +148,9 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
 			}
 
 			sdsc->enc = encode_initialise(sdsc->stream->channels,
-                    sdsc->stream->samplerate, sdsc->stream->bitrate, 
+                    sdsc->stream->samplerate, sdsc->stream->managed, 
+                    sdsc->stream->min_br, sdsc->stream->nom_br, 
+                    sdsc->stream->max_br, sdsc->stream->quality,
                     sdsc->stream->serial++, &sdsc->vc);
 		}
 

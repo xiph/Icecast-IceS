@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.8 2001/11/10 04:47:24 msmith Exp $
+ * $Id: config.h,v 1.9 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -41,7 +41,9 @@ typedef struct _instance_tag
 	char *savefilename;
 
 	/* Parameters for re-encoding */
-	int bitrate;
+    int managed;
+	int min_br, nom_br, max_br;
+    float quality;
 	int samplerate;
 	int channels;
 	

@@ -1,7 +1,7 @@
 /* reencode.c
  * - runtime reencoding of vorbis audio (usually to lower bitrates).
  *
- * $Id: reencode.c,v 1.3 2001/11/10 04:47:24 msmith Exp $
+ * $Id: reencode.c,v 1.4 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -30,7 +30,12 @@ reencode_state *reencode_init(instance_t *stream)
 {
 	reencode_state *new = calloc(1, sizeof(reencode_state));
 
-	new->out_bitrate = stream->bitrate;
+	new->out_min_br = stream->min_br;
+	new->out_nom_br = stream->nom_br;
+	new->out_max_br = stream->max_br;
+	new->quality = stream->quality;
+	new->managed = stream->managed;
+
 	new->out_samplerate = stream->samplerate;
 	new->out_channels = stream->channels;
 	new->current_serial = -1; /* FIXME: that's a valid serial */
@@ -144,8 +149,9 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
 					}
 					
 					s->encoder = encode_initialise(s->out_channels, 
-							s->out_samplerate, s->out_bitrate, 
-							s->current_serial, &s->vc);
+							s->out_samplerate, s->managed, 
+                            s->out_min_br, s->out_nom_br, s->out_max_br,
+							s->quality, s->current_serial, &s->vc);
 				}
 			}
 			else

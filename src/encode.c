@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.4 2002/01/27 23:45:32 msmith Exp $
+ * $Id: encode.c,v 1.5 2002/01/28 00:19:15 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -38,17 +38,27 @@ void encode_clear(encoder_state *s)
 	}
 }
 
-encoder_state *encode_initialise(int channels, int rate, int bitrate, 
+encoder_state *encode_initialise(int channels, int rate, int managed,
+        int min_br, int nom_br, int max_br, float quality,
 		int serial, vorbis_comment *vc)
 {
 	encoder_state *s = calloc(1, sizeof(encoder_state));
 	ogg_packet h1,h2,h3;
 
-	LOG_INFO3("Encoder initialising at %d channels, %d Hz, bitrate %d", 
-			channels, rate, bitrate);
+    if(managed)
+        LOG_INFO5("Encoder initialising with bitrate management: %d channels, "
+                 "%d Hz, minimum bitrate %d, nominal %d, maximum %d",
+                 channels, rate, min_br, nom_br, max_br);
+    else
+	    LOG_INFO3("Encoder initialising at %d channels, %d Hz, quality %f", 
+		    	channels, rate, quality);
 
 	vorbis_info_init(&s->vi);
-	vorbis_encode_init(&s->vi, channels, rate, -1, bitrate, -1);
+
+    if(managed)
+	    vorbis_encode_init(&s->vi, channels, rate, max_br, nom_br, min_br);
+    else
+        vorbis_encode_init_vbr(&s->vi, channels, rate, quality*0.1);
 
 	vorbis_analysis_init(&s->vd, &s->vi);
 	vorbis_block_init(&s->vd, &s->vb);
