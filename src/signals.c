@@ -1,0 +1,61 @@
+/* signals.c
+ * - signal handling/setup
+ *
+ * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
+ *
+ * This program is distributed under the terms of the GNU General
+ * Public License, version 2. You may use, modify, and redistribute
+ * it under the terms of this license. A copy should be included
+ * with this source.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+
+#include "thread.h"
+
+#include "config.h"
+#include "stream.h"
+#include "input.h"
+#include "inputmodule.h"
+#include "event.h"
+
+#define MODULE "signals/"
+#include "logging.h"
+
+void signal_hup_handler(int signum)
+{
+	LOG_INFO0("Flushing logs");
+	log_flush(ices_config->log_id);
+
+	/* Now, let's tell it to move to the next track */
+	ices_config->inmod->handle_event(ices_config->inmod,EVENT_NEXTTRACK,NULL);
+
+	/* Do we need to do this? */
+	signal(SIGHUP, signal_hup_handler);
+}
+
+void signal_int_handler(int signum)
+{
+	/* Is a mutex needed here? Probably */
+	if (!ices_config->shutdown) 
+	{
+		LOG_INFO0("Shutdown requested...");
+		ices_config->shutdown = 1;
+		thread_cond_broadcast(&ices_config->queue_cond);
+
+		/* If user gives a second sigint, just die. */
+		signal(SIGINT, SIG_DFL);
+	}
+}
+
+
+void signals_setup(void)
+{
+	signal(SIGHUP, signal_hup_handler);
+	signal(SIGINT, signal_int_handler);
+	signal(SIGPIPE, SIG_IGN);
+}
+
+

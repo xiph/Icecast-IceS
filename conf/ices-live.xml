@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<ices>
+
+	<background>0</background> <!-- run in background? (unimplemented) -->
+	<logpath>/tmp</logpath> <!-- where logs, etc go. -->
+	<logfile>ices.log</logfile>
+	<loglevel>4</loglevel> <!-- 1=error,2=warn,3=info,4=debug -->
+
+	<stream>
+		<!-- metadata used for stream listing (not currently used) -->
+		<metadata>
+			<name>Example stream name</name>
+			<genre>Example genre</genre>
+			<description>A short description of your stream</description>
+		</metadata>
+
+		<!-- input module
+			 This example uses the 'oss' module. It takes input from the
+			 oss audio device (i.e. line-in), and processes it for live
+			 encoding.
+		-->
+		<input>
+			<module>oss</module>
+			<param name="rate">22050</param> <!-- samplerate -->
+			<param name="channels">1</param> <!-- number of channels -->
+			<param name="device">/dev/dsp</param> <!-- audio device -->
+			<param name="metadata">1</param> <!-- Read metadata from stdin? -->
+		</input>
+
+		<!-- Stream instance
+			 You may have one or more instances here. This allows you to 
+			 send the same input data to one or more servers (or to different
+			 mountpoints on the same server). Each of them can have different
+			 parameters. This is primarily useful for a) relaying to multiple
+			 independent servers, and b) encoding/reencoding to multiple
+			 bitrates.
+			 If one instance fails (for example, the associated server goes
+			 down, etc), the others will continue to function correctly.
+			 This example defines a single instance doing live encoding at
+			 low bitrate.
+		-->
+		<instance>
+			<!-- Server details:
+				 You define hostname and port for the server here, along with
+				 the source password and mountpoint. 
+			-->
+			<hostname>localhost</hostname>
+			<port>8000</port>
+			<password>hackme</password>
+			<mount>/example1.ogg</mount>
+
+			<!-- Live encoding/reencoding:
+				 channels and samplerate currently MUST match the channels
+				 and samplerate given in the parameters to the oss input
+				 module above.
+
+			-->
+			<encode>  
+				<bitrate>64000</bitrate>
+				<samplerate>22050</samplerate>
+				<channels>1</channels>
+			</encode>
+		</instance>
+
+	</stream>
+</ices>
