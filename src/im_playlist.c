@@ -1,7 +1,7 @@
 /* playlist.c
  * - Basic playlist functionality
  *
- * $Id: im_playlist.c,v 1.10 2003/03/22 02:27:55 karl Exp $
+ * $Id: im_playlist.c,v 1.11 2003/03/28 01:12:59 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <ogg/ogg.h>
 
-#include "thread.h"
+#include <thread/thread.h>
 
 #include "cfgparse.h"
 #include "stream.h"
