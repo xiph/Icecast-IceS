@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.13 2002/08/03 08:14:54 msmith Exp $
+ * $Id: stream.c,v 1.14 2002/08/03 12:11:57 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -137,6 +137,11 @@ void *ices_instance_stream(void *arg)
 		sdsc->enc = encode_initialise(stream->channels, stream->samplerate,
 				stream->managed, stream->min_br, stream->nom_br, stream->max_br,
                 stream->quality, stream->serial++, &sdsc->vc);
+        if(!sdsc->enc) {
+            LOG_ERROR0("Failed to configure encoder");
+		    stream->died = 1;
+            return NULL; /* FIXME: probably leaking some memory here */
+        }
 	}
 	else if(reencoding)
 		sdsc->reenc = reencode_init(stream);

@@ -1,7 +1,7 @@
 /* logging.h
  * - macros used for logging. #define MODULE before including
  *
- * $Id: logging.h,v 1.4 2002/08/03 08:14:54 msmith Exp $
+ * $Id: logging.h,v 1.5 2002/08/03 12:11:57 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -26,6 +26,7 @@
 #define LOG_ERROR2(x,a,b) log_write(ices_config->log_id,1, MODULE, __FUNCTION__,x, a,b)
 #define LOG_ERROR3(x,a,b,c) log_write(ices_config->log_id,1, MODULE, __FUNCTION__,x, a,b,c)
 #define LOG_ERROR4(x,a,b,c,d) log_write(ices_config->log_id,1, MODULE, __FUNCTION__,x, a,b,c,d)
+#define LOG_ERROR5(x,a,b,c,d,e) log_write(ices_config->log_id,1, MODULE, __FUNCTION__,x, a,b,c,d,e)
 
 #define LOG_WARN0(x) log_write(ices_config->log_id,2, MODULE, __FUNCTION__,x)
 #define LOG_WARN1(x,a) log_write(ices_config->log_id,2, MODULE, __FUNCTION__,x, a)
@@ -45,6 +46,7 @@
 #define LOG_DEBUG2(x,a,b) log_write(ices_config->log_id,4, MODULE, __FUNCTION__,x, a,b)
 #define LOG_DEBUG3(x,a,b,c) log_write(ices_config->log_id,4, MODULE, __FUNCTION__,x, a,b,c)
 #define LOG_DEBUG4(x,a,b,c,d) log_write(ices_config->log_id,4, MODULE, __FUNCTION__,x, a,b,c,d)
+#define LOG_DEBUG5(x,a,b,c,d,e) log_write(ices_config->log_id,4, MODULE, __FUNCTION__,x, a,b,c,d,e)
 
 
 #endif /* __LOGGING_H */

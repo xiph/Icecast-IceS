@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.9 2002/08/03 08:14:54 msmith Exp $
+ * $Id: encode.c,v 1.10 2002/08/03 12:11:57 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -45,26 +45,42 @@ encoder_state *encode_initialise(int channels, int rate, int managed,
 	encoder_state *s = calloc(1, sizeof(encoder_state));
 	ogg_packet h1,h2,h3;
 
-    if(managed)
+    // FIXME: These messages are wrong in some cases, and this mode setup
+    // is generally pretty broken.
+    if(min_br < 0 && max_br < 0 && nom_br < 0)
+	    LOG_INFO3("Encoder initialising at %d channel(s), %d Hz, quality %f", 
+		    	channels, rate, quality);
+    else
         LOG_INFO5("Encoder initialising with bitrate management: %d channels, "
                  "%d Hz, minimum bitrate %d, nominal %d, maximum %d",
                  channels, rate, min_br, nom_br, max_br);
-    else
-	    LOG_INFO3("Encoder initialising at %d channels, %d Hz, quality %f", 
-		    	channels, rate, quality);
 
 	vorbis_info_init(&s->vi);
 
-    if(min_br < 0 && max_br < 0 && nom_br < 0)
-        vorbis_encode_setup_vbr(&s->vi, channels, rate, quality*0.1);
-    else
-        vorbis_encode_setup_managed(&s->vi, channels, rate, max_br, nom_br, 
-                min_br);
+    if(min_br < 0 && max_br < 0 && nom_br < 0) {
+        if(vorbis_encode_setup_vbr(&s->vi, channels, rate, quality*0.1)) {
+            LOG_ERROR3("Failed to configure VBR encoding for %d channel(s), "
+                    "at %d Hz, quality level %f", channels, rate, quality);
+            free(s);
+            return NULL;
+        }
+    }
+    else {
+        if(vorbis_encode_setup_managed(&s->vi, channels, rate, max_br, nom_br, 
+                    min_br)) {
+            LOG_ERROR5("Failed to configure encoding mode for %d channel(s), "
+                "at %d Hz, with bitrates %d max %d nominal, %d min", 
+                channels, rate, max_br, nom_br, min_br);
+            free(s);
+            return NULL;
+        }
+    }
 
     if(managed && nom_br < 0)
         vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_AVG, NULL);
-    else if(!managed)
+    else if(!managed) {
         vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, NULL);
+    }
     
     vorbis_encode_setup_init(&s->vi);
 
