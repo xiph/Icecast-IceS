@@ -1,7 +1,7 @@
 /* im_stdinpcm.c
  * - Raw PCM input from stdin
  *
- * $Id: im_stdinpcm.c,v 1.8 2003/03/28 01:07:37 karl Exp $
+ * $Id: im_stdinpcm.c,v 1.9 2003/07/06 06:20:34 brendan Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -26,6 +26,7 @@
 #include "cfgparse.h"
 #include "stream.h"
 
+#include "metadata.h"
 #include "inputmodule.h"
 #include "input.h"
 #include "im_stdinpcm.h"
@@ -35,20 +36,45 @@
 
 #define BUFSIZE 32768
 
+static void close_module(input_module_t *mod)
+{
+    if(mod)
+    {
+        if(mod->internal)
+        {
+            stdinpcm_state *s = mod->internal;
+            thread_mutex_destroy(&s->metadatalock);
+            free(s);
+        }
+        free(mod);
+    }
+}
+
 static int event_handler(input_module_t *mod, enum event_type ev, void *param)
 {
+    stdinpcm_state *s = mod->internal;
+
     switch(ev)
     {
         case EVENT_SHUTDOWN:
-            if(mod)
-            {
-                if(mod->internal)
-                    free(mod->internal);
-                free(mod);
-            }
+	    close_module(mod);
             break;
         case EVENT_NEXTTRACK:
             ((stdinpcm_state *)mod->internal)->newtrack = 1;
+            break;
+        case EVENT_METADATAUPDATE:
+            thread_mutex_lock(&s->metadatalock);
+            if(s->metadata)
+            {
+                char **md = s->metadata;
+                while(*md)
+                    free(*md++);
+                free(s->metadata);
+            }
+
+            s->metadata = (char **)param;
+            s->newtrack = 1;
+            thread_mutex_unlock(&s->metadatalock);
             break;
         default:
             LOG_WARN1("Unhandled event %d", ev);
@@ -56,6 +82,24 @@ static int event_handler(input_module_t *mod, enum event_type ev, void *param)
     }
 
     return 0;
+}
+
+static void metadata_update(void *self, vorbis_comment *vc)
+{
+    stdinpcm_state *s = self;
+    char **md;
+
+    thread_mutex_lock(&s->metadatalock);
+
+    md = s->metadata;
+
+    if(md)
+    {
+        while(*md)
+            vorbis_comment_add(vc, *md++);
+    }
+
+    thread_mutex_unlock(&s->metadatalock);
 }
 
 /* Core streaming function for this module
@@ -101,17 +145,21 @@ input_module_t *stdin_open_module(module_param_t *params)
     input_module_t *mod = calloc(1, sizeof(input_module_t));
     stdinpcm_state *s;
     module_param_t *current;
+    int use_metadata = 1; /* Default to on */
 
     mod->type = ICES_INPUT_PCM;
     mod->getdata = stdin_read;
     mod->handle_event = event_handler;
-    mod->metadata_update = NULL;
+    mod->metadata_update = metadata_update;
 
     mod->internal = malloc(sizeof(stdinpcm_state));
     s = mod->internal;
 
     s->rate = 44100; /* Defaults */
     s->channels = 2; 
+    s->metadata = NULL;
+
+    thread_mutex_create(&s->metadatalock);
 
     current = params;
 
@@ -121,13 +169,23 @@ input_module_t *stdin_open_module(module_param_t *params)
             s->rate = atoi(current->value);
         else if(!strcmp(current->name, "channels"))
             s->channels = atoi(current->value);
+        else if(!strcmp(current->name, "metadata"))
+            use_metadata = atoi(current->value);
+        else if(!strcmp(current->name, "metadatafilename"))
+            ices_config->metadata_filename = current->value;
         else
             LOG_WARN1("Unknown parameter %s for stdinpcm module", current->name);
 
         current = current->next;
     }
+    if(use_metadata)
+    {
+        if(ices_config->metadata_filename) {
+            thread_create("im_stdinpcm-metadata", metadata_thread_signal, mod, 1);
+	    LOG_INFO0("Started metadata update thread");
+	}
+    }
 
     return mod;
 }
-
 
