@@ -1,7 +1,7 @@
 /* playlist.c
  * - Basic playlist functionality
  *
- * $Id: im_playlist.c,v 1.14 2003/08/25 19:56:55 karl Exp $
+ * $Id: im_playlist.c,v 1.15 2004/01/12 23:39:39 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -164,6 +164,17 @@ static int playlist_read(void *self, ref_buffer *rb)
             LOG_WARN1("Corrupt or missing data in file (%s)", pl->filename);
         else if(result > 0)
         {
+            if (ogg_page_bos (&og))
+            {
+               if (ogg_page_serialno (&og) == pl->current_serial)
+               {
+                   LOG_WARN1 ("Skipping \"%s\" as the serial number is the same as previous", pl->filename);
+                   pl->nexttrack = 1;
+                   pl->errors++;
+                   return 0;
+               }
+               pl->current_serial = ogg_page_serialno (&og);
+            }
             if (input_calculate_ogg_sleep (&og) < 0)
             {
                 pl->nexttrack = 1;
