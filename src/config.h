@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.5 2001/09/25 12:04:21 msmith Exp $
+ * $Id: config.h,v 1.6 2001/10/20 22:42:47 jack Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -13,6 +13,8 @@
 
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
+
+#define ICES_DEFAULT_STACKSIZE 32768
 
 #include "stream.h"
 #include "inputmodule.h"

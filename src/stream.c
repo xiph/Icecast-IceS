@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.6 2001/10/20 22:07:16 jack Exp $
+ * $Id: stream.c,v 1.7 2001/10/20 22:42:47 jack Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -11,13 +11,14 @@
  * with this source.
  */
 
-#include <shout/shout.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
+
+#include <shout/shout.h>
 
 #include "config.h"
 #include "input.h"
