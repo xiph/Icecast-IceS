@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.10 2002/08/03 12:11:57 msmith Exp $
+ * $Id: encode.c,v 1.11 2002/08/09 04:20:27 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -45,42 +45,63 @@ encoder_state *encode_initialise(int channels, int rate, int managed,
 	encoder_state *s = calloc(1, sizeof(encoder_state));
 	ogg_packet h1,h2,h3;
 
-    // FIXME: These messages are wrong in some cases, and this mode setup
-    // is generally pretty broken.
-    if(min_br < 0 && max_br < 0 && nom_br < 0)
-	    LOG_INFO3("Encoder initialising at %d channel(s), %d Hz, quality %f", 
-		    	channels, rate, quality);
-    else
-        LOG_INFO5("Encoder initialising with bitrate management: %d channels, "
-                 "%d Hz, minimum bitrate %d, nominal %d, maximum %d",
-                 channels, rate, min_br, nom_br, max_br);
+	/* If none of these are set, it's obviously not supposed to be managed */
+	if (nom_br < 0 && min_br < 0 && max_br < 0) {
+		managed = 0;
+	}
 
+	if (managed) {
+		LOG_INFO5("Encoder initialising with bitrate management: %d "
+				"channels, %d Hz, minimum bitrate %d, nominal %d, "
+				"maximum %d", channels, rate, min_br, nom_br, max_br);
+	} else {
+		if (min_br > 0 || max_br > 0) {
+			LOG_INFO5("Encoder initialising with constrained VBR: %d "
+					"channels, %d Hz, quality %f, minimum bitrate %d, "
+					"maximum %d", channels, rate, quality, min_br, max_br);
+		} else {
+			LOG_INFO3("Encoder initialising with VBR: %d channel(s), %d Hz, "
+					"quality %f", channels, rate, quality);
+		}
+	}
+
+	/* Have vorbisenc choose a mode for us */
 	vorbis_info_init(&s->vi);
 
-    if(min_br < 0 && max_br < 0 && nom_br < 0) {
-        if(vorbis_encode_setup_vbr(&s->vi, channels, rate, quality*0.1)) {
-            LOG_ERROR3("Failed to configure VBR encoding for %d channel(s), "
-                    "at %d Hz, quality level %f", channels, rate, quality);
-            free(s);
-            return NULL;
-        }
-    }
-    else {
-        if(vorbis_encode_setup_managed(&s->vi, channels, rate, max_br, nom_br, 
-                    min_br)) {
-            LOG_ERROR5("Failed to configure encoding mode for %d channel(s), "
-                "at %d Hz, with bitrates %d max %d nominal, %d min", 
-                channels, rate, max_br, nom_br, min_br);
-            free(s);
-            return NULL;
-        }
-    }
+	if (managed) {
+		if (vorbis_encode_setup_managed(&s->vi, channels, rate,
+					max_br>0?max_br:-1, nom_br, min_br>0?min_br:-1)) {
+			LOG_ERROR5("Failed to configure managed encoding for "
+					"%d channel(s), at %d Hz, with bitrates %d max %d "
+					"nominal, %d min", channels, rate, max_br, nom_br, min_br);
+			vorbis_info_clear(&s->vi);
+			free(s);
+			return NULL;
+		}
+	} else {
+		if (vorbis_encode_setup_vbr(&s->vi, channels, rate, quality*0.1)) {
+			LOG_ERROR3("Failed to configure VBR encoding for %d channel(s), "
+					"at %d Hz, quality level %f", channels, rate, quality);
+			vorbis_info_clear(&s->vi);
+			free(s);
+			return NULL;
+		}
 
-    if(managed && nom_br < 0)
-        vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_AVG, NULL);
-    else if(!managed) {
-        vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, NULL);
-    }
+		if (max_br > 0 || min_br > 0) {
+			struct ovectl_ratemanage_arg ai;
+			vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_GET, &ai);
+			ai.bitrate_hard_min = min_br;
+			ai.bitrate_hard_max = max_br;
+			ai.management_active = 1;
+			vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, &ai);
+		}
+	}
+
+	if (managed && nom_br < 0) {
+		vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_AVG, NULL);
+	} else if (!managed) {
+		vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, NULL);
+	}
     
     vorbis_encode_setup_init(&s->vi);
 
