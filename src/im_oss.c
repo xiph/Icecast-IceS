@@ -1,7 +1,7 @@
 /* im_oss.c
  * - Raw PCM input from OSS devices
  *
- * $Id: im_oss.c,v 1.6 2002/08/03 15:05:38 msmith Exp $
+ * $Id: im_oss.c,v 1.7 2002/08/09 13:52:56 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -128,7 +128,7 @@ static int oss_read(void *self, ref_buffer *rb)
 		s->newtrack = 0;
 	}
 
-	if(result == -1 && errno == EINTR)
+	if(result == -1 && (errno == EINTR || errno == ERESTART))
 	{
 		return 0; /* Non-fatal error */
 	}
