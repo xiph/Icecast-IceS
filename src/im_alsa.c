@@ -1,7 +1,7 @@
 /* im_alsa.c
  * - Raw PCM input from ALSA devices
  *
- * $Id: im_alsa.c,v 1.7 2004/01/17 04:24:10 karl Exp $
+ * $Id: im_alsa.c,v 1.8 2004/03/01 20:58:02 karl Exp $
  *
  * by Jason Chu <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -159,7 +159,8 @@ input_module_t *alsa_open_module(module_param_t *params)
     int format = AFMT_S16_LE;
     int channels, rate;
     int use_metadata = 1; /* Default to on */
-    unsigned int buffered_time;
+    unsigned int buffered_time, exact_rate;
+    int dir;
 
     snd_pcm_stream_t stream = SND_PCM_STREAM_CAPTURE;
     snd_pcm_hw_params_t *hwparams;
@@ -178,6 +179,8 @@ input_module_t *alsa_open_module(module_param_t *params)
     s->fd = NULL; /* Set it to something invalid, for now */
     s->rate = 44100; /* Defaults */
     s->channels = 2; 
+    s->buffer_time = 500000;
+    s->periods = 2;
 
     thread_mutex_create(&s->metadatalock);
 
@@ -195,6 +198,10 @@ input_module_t *alsa_open_module(module_param_t *params)
             use_metadata = atoi(current->value);
         else if(!strcmp(current->name, "metadatafilename"))
             ices_config->metadata_filename = current->value;
+        else if(!strcmp(current->name, "buffer-time"))
+            s->buffer_time = atoi (current->value) * 1000;
+        else if(!strcmp(current->name, "periods"))
+            s->periods = atoi (current->value);
         else
             LOG_WARN1("Unknown parameter %s for alsa module", current->name);
 
@@ -224,9 +231,17 @@ input_module_t *alsa_open_module(module_param_t *params)
         LOG_ERROR1("Couldn't set sample format to SND_PCM_FORMAT_S16_LE: %s", snd_strerror(err));
         goto fail;
     }
-    if ((err = snd_pcm_hw_params_set_rate_near(s->fd, hwparams, &s->rate, 0)) < 0)
+    exact_rate = s->rate;
+    err = snd_pcm_hw_params_set_rate_near(s->fd, hwparams, &exact_rate, 0);
+    if (err < 0)
     {
-        LOG_ERROR1("Error setting rate: %s", snd_strerror(err));
+        LOG_ERROR2("Could not set sample rate to %d: %s", exact_rate, snd_strerror(err));
+        goto fail;
+    }
+    if (exact_rate != s->rate)
+    {
+        LOG_WARN2("samplerate %d Hz not supported by your hardware try using "
+                "%d instead", s->rate, exact_rate);
         goto fail;
     }
     if ((err = snd_pcm_hw_params_set_channels(s->fd, hwparams, s->channels)) < 0)
@@ -234,15 +249,14 @@ input_module_t *alsa_open_module(module_param_t *params)
         LOG_ERROR1("Error setting channels: %s", snd_strerror(err));
         goto fail;
     }
-    if ((err = snd_pcm_hw_params_set_periods(s->fd, hwparams, 2, 0)) < 0)
+    if ((err = snd_pcm_hw_params_set_buffer_time_near(s->fd, hwparams, &s->buffer_time, &dir)) < 0)
     {
-        LOG_ERROR1("Error setting periods: %s", snd_strerror(err));
+        LOG_ERROR2("Error setting buffer time %u: %s", s->buffer_time, snd_strerror(err));
         goto fail;
     }
-    buffered_time = 500000;
-    if ((err = snd_pcm_hw_params_set_buffer_time_near(s->fd, hwparams, &buffered_time, 0)) < 0)
+    if ((err = snd_pcm_hw_params_set_periods(s->fd, hwparams, s->periods, 0)) < 0)
     {
-        LOG_ERROR1("Error setting buffersize: %s", snd_strerror(err));
+        LOG_ERROR2("Error setting %u periods: %s", s->periods, snd_strerror(err));
         goto fail;
     }
     if ((err = snd_pcm_hw_params(s->fd, hwparams)) < 0)
@@ -252,8 +266,9 @@ input_module_t *alsa_open_module(module_param_t *params)
     }
 
     /* We're done, and we didn't fail! */
-    LOG_INFO3("Opened audio device %s at %d channel(s), %d Hz", 
-            device, s->channels, s->rate);
+    LOG_INFO1 ("Opened audio device %s", device);
+    LOG_INFO4 ("using %d channel(s), %d Hz, buffer %u ms (%u periods)",
+            s->channels, s->rate, s->buffer_time/1000, s->periods);
 
     if(use_metadata)
     {

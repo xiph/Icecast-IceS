@@ -1,7 +1,7 @@
 /* im_alsa.h
  * - read pcm data from oss devices
  *
- * $Id: im_alsa.h,v 1.4 2004/01/11 03:11:05 karl Exp $
+ * $Id: im_alsa.h,v 1.5 2004/03/01 20:58:02 karl Exp $
  *
  * by Jason Chu  <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -25,6 +25,8 @@ typedef struct
 {
     unsigned int rate;
     int channels;
+    unsigned buffer_time;
+    unsigned periods;
 
     snd_pcm_t *fd;
     char **metadata;
