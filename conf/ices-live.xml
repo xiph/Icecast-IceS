@@ -6,6 +6,8 @@
     <!-- where logs go. -->
     <logpath>/var/log/ices</logpath>
     <logfile>ices.log</logfile>
+    <!-- size in kilobytes -->
+    <logsize>2048</logsize>
     <!-- 1=error, 2=warn, 3=infoa ,4=debug -->
     <loglevel>4</loglevel>
     <!-- logfile is ignored if this is set to 1 -->

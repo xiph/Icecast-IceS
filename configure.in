@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([IceS], 2.0-Beta4, [icecast@xiph.org])
+AC_INIT([IceS], [2.0.0], [icecast@xiph.org])
 AC_PREREQ(2.54)
 AC_CONFIG_SRCDIR(src/ices.c)
 
