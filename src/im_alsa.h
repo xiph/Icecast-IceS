@@ -1,7 +1,7 @@
 /* im_alsa.h
  * - read pcm data from oss devices
  *
- * $Id: im_alsa.h,v 1.3 2003/03/28 01:07:37 karl Exp $
+ * $Id: im_alsa.h,v 1.4 2004/01/11 03:11:05 karl Exp $
  *
  * by Jason Chu  <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -23,7 +23,7 @@
 
 typedef struct
 {
-    int rate;
+    unsigned int rate;
     int channels;
 
     snd_pcm_t *fd;

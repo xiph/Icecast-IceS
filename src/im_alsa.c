@@ -1,7 +1,7 @@
 /* im_alsa.c
  * - Raw PCM input from ALSA devices
  *
- * $Id: im_alsa.c,v 1.5 2003/03/28 01:07:37 karl Exp $
+ * $Id: im_alsa.c,v 1.6 2004/01/11 03:11:05 karl Exp $
  *
  * by Jason Chu <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -35,12 +35,13 @@
 #include "metadata.h"
 #include "inputmodule.h"
 
+#define ALSA_PCM_NEW_HW_PARAMS_API
 #include "im_alsa.h"
 
 #define MODULE "input-alsa/"
 #include "logging.h"
 
-#define BUFSIZE 8192
+#define SAMPLES 8192
 
 static void close_module(input_module_t *mod)
 {
@@ -120,10 +121,10 @@ static int alsa_read(void *self, ref_buffer *rb)
     int result;
     im_alsa_state *s = self;
 
-    rb->buf = malloc(BUFSIZE*2*s->channels);
+    rb->buf = malloc(SAMPLES*2*s->channels);
     if(!rb->buf)
         return -1;
-    result = snd_pcm_readi(s->fd, rb->buf, BUFSIZE>>2);
+    result = snd_pcm_readi(s->fd, rb->buf, SAMPLES);
 
     rb->len = result*4;
     rb->aux_data = s->rate*s->channels*2;
@@ -158,6 +159,7 @@ input_module_t *alsa_open_module(module_param_t *params)
     int format = AFMT_S16_LE;
     int channels, rate;
     int use_metadata = 1; /* Default to on */
+    unsigned int buffered_time;
 
     snd_pcm_stream_t stream = SND_PCM_STREAM_CAPTURE;
     snd_pcm_hw_params_t *hwparams;
@@ -222,24 +224,23 @@ input_module_t *alsa_open_module(module_param_t *params)
         LOG_ERROR1("Couldn't set sample format to SND_PCM_FORMAT_S16_LE: %s", snd_strerror(err));
         goto fail;
     }
-    if ((err = snd_pcm_hw_params_set_rate_near(s->fd, hwparams, s->rate, 0)) < 0)
+    if ((err = snd_pcm_hw_params_set_rate_near(s->fd, hwparams, &s->rate, 0)) < 0)
     {
         LOG_ERROR1("Error setting rate: %s", snd_strerror(err));
         goto fail;
     }
-    s->rate = snd_pcm_hw_params_get_rate(hwparams, 0);
     if ((err = snd_pcm_hw_params_set_channels(s->fd, hwparams, s->channels)) < 0)
     {
         LOG_ERROR1("Error setting channels: %s", snd_strerror(err));
         goto fail;
     }
-    s->channels = snd_pcm_hw_params_get_channels(hwparams);
     if ((err = snd_pcm_hw_params_set_periods(s->fd, hwparams, 2, 0)) < 0)
     {
         LOG_ERROR1("Error setting periods: %s", snd_strerror(err));
         goto fail;
     }
-    if ((err = snd_pcm_hw_params_set_buffer_size_near(s->fd, hwparams, (BUFSIZE * 2)>>2)) < 0)
+    buffered_time = 500000;
+    if ((err = snd_pcm_hw_params_set_buffer_time_near(s->fd, hwparams, &buffered_time, 0)) < 0)
     {
         LOG_ERROR1("Error setting buffersize: %s", snd_strerror(err));
         goto fail;
