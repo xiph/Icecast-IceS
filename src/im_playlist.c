@@ -1,7 +1,7 @@
 /* playlist.c
  * - Basic playlist functionality
  *
- * $Id: im_playlist.c,v 1.13 2003/08/13 00:58:01 karl Exp $
+ * $Id: im_playlist.c,v 1.14 2003/08/25 19:56:55 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -137,11 +137,11 @@ static int playlist_read(void *self, ref_buffer *rb)
             pl->current_file = fopen(pl->filename, "rb");
             if (!pl->current_file) 
             {
-                LOG_WARN2("Error opening file %s: %s",pl->filename, strerror(errno));
+                LOG_WARN2("Error opening file \"%s\": %s",pl->filename, strerror(errno));
                 pl->errors++;
                 return 0;
             }
-            LOG_INFO1("Currently playing %s", pl->filename);
+            LOG_INFO1("Currently playing \"%s\"", pl->filename);
         }
         else
         {
@@ -192,8 +192,7 @@ static int playlist_read(void *self, ref_buffer *rb)
             } 
             else 
             {
-                LOG_ERROR2("Read error from %s: %s", 
-                        pl->filename, strerror(errno));
+                LOG_ERROR2("Read error from \"%s\": %s", pl->filename, strerror(errno));
                 fclose(pl->current_file);
                 pl->current_file=NULL;
                 pl->errors++;
