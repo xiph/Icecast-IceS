@@ -124,4 +124,4 @@ AC_SUBST(DEBUG)
 AC_SUBST(CFLAGS)
 AC_SUBST(PROFILE)
 
-AC_OUTPUT(Makefile src/Makefile src/avl/Makefile src/thread/Makefile src/net/Makefile src/log/Makefile src/timing/Makefile)
+AC_OUTPUT(Makefile conf/Makefile src/Makefile src/avl/Makefile src/thread/Makefile src/net/Makefile src/log/Makefile src/timing/Makefile)
