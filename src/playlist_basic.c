@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.10 2003/03/22 02:27:55 karl Exp $
+ * $Id: playlist_basic.c,v 1.11 2003/07/06 14:50:19 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -46,21 +46,14 @@ static void shuffle(char **buf, int len)
         buf[n-1] = temp;
         --n;
     }
+    LOG_DEBUG0("Playlist has been shuffled");
 }
 
 static int load_playlist(basic_playlist *data)
 {
     FILE *file;
-    struct stat st;
     char buf[1024];
     int buflen;
-
-    if(stat(data->file, &st)) 
-    {
-        LOG_ERROR2("Couldn't stat file \"%s\": %s", data->file, strerror(errno));
-        return -1;
-    }
-    data->mtime = st.st_mtime;
 
     file = fopen(data->file, "rb");
 
@@ -70,7 +63,6 @@ static int load_playlist(basic_playlist *data)
                 data->file, strerror(errno));
         return -1;
     }
-
 
     if(data->pl) 
     {
@@ -111,7 +103,6 @@ static int load_playlist(basic_playlist *data)
     if(data->random)
         shuffle(data->pl, data->len);
 
-
     return 0;
 }
 
@@ -134,42 +125,61 @@ void playlist_basic_clear(void *data)
 char *playlist_basic_get_next_filename(void *data)
 {
     basic_playlist *pl = (basic_playlist *)data;
+    char *ptr = NULL, *dest = NULL;
+    int reload_playlist = 0;
     struct stat st;
 
-    if (!pl->pl) return NULL;
-
-    if(stat(pl->file, &st)) 
+    if (stat(pl->file, &st)) 
     {
         LOG_ERROR2("Couldn't stat file \"%s\": %s", pl->file, strerror(errno));
         return NULL;
     }
 
-    if(st.st_mtime != pl->mtime)
+    if (pl->pl)
     {
-        LOG_INFO1("Reloading playlist after file \"%s\" changed", pl->file);
-        if(load_playlist(pl) < 0)
+        if (st.st_mtime != pl->mtime)
+        {
+            reload_playlist = 1;
+            LOG_INFO1("Reloading playlist after file \"%s\" changed", pl->file);
+            pl->mtime = st.st_mtime;
+        }
+    }
+    else
+    {
+        LOG_INFO1("Loading playlist from file \"%s\"", pl->file);
+        reload_playlist = 1;
+        pl->mtime = st.st_mtime;
+    }
+
+    if (reload_playlist)
+    {
+        if (load_playlist(pl) < 0)
             return NULL;
-        if(pl->restartafterreread)
+        if (pl->restartafterreread)
             pl->pos = 0;
     }
 
-    if (pl->pos < pl->len) 
+    if (pl->pos >= pl->len)  /* reached the end of the potentially updated list */
     {
-        return pl->pl[pl->pos++];
-    } 
-    else if(!pl->once)
-    {
-        if(pl->random)
+        if (pl->once) 
+            return NULL;
+
+        pl->pos = 0;
+        if (pl->random)
             shuffle(pl->pl, pl->len);
-        pl->pos = 1;
-        return pl->pl[0];
     }
-    else
-        return NULL; /* Once-through mode, at end */
+
+    ptr = pl->pl [pl->pos++];
+
+    if ((dest = malloc (strlen (ptr))) == NULL)
+        return NULL;
+    strcpy (dest, ptr);
+    return dest;
 }
 
 void playlist_basic_free_filename(void *data, char *fn)
 {
+   free (fn);
 }
 
 int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
@@ -212,6 +222,6 @@ int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
         return -1;
     }
 
-    return load_playlist(data);
+    return 0;
 }
 
