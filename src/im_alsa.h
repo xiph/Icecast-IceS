@@ -27,6 +27,7 @@ typedef struct
     int channels;
     unsigned buffer_time;
     int periods;
+    int frame_bytes;
 
     snd_pcm_t *fd;
     char **metadata;

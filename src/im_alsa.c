@@ -126,28 +126,28 @@ static int alsa_read(void *self, ref_buffer *rb)
         return -1;
     result = snd_pcm_readi(s->fd, rb->buf, SAMPLES);
 
-    rb->len = result*4;
-    rb->aux_data = s->rate*s->channels*2;
-
-    if(s->newtrack)
+    if (result >= 0)
     {
-        rb->critical = 1;
-        s->newtrack = 0;
+        rb->len = result*s->frame_bytes;
+        rb->aux_data = s->rate*s->channels*2;
+        if (s->newtrack)
+        {
+            rb->critical = 1;
+            s->newtrack = 0;
+        }
+        return rb->len;
     }
 
+    free (rb->buf);
+    if (result == -EINTR)
+        return 0;
     if (result == -EPIPE)
     {
         snd_pcm_prepare(s->fd);
         return 0;
     }
-    else if (result == -EBADFD)
-    {
-        LOG_ERROR0("Bad descriptor passed to snd_pcm_readi");
-        free(rb->buf);
-        return -1;
-    }
-
-    return rb->len;
+    LOG_ERROR1("snd_pcm_readi failed: %s", snd_strerror (result));
+    return -1;
 }
 
 input_module_t *alsa_open_module(module_param_t *params)
@@ -156,7 +156,7 @@ input_module_t *alsa_open_module(module_param_t *params)
     im_alsa_state *s;
     module_param_t *current;
     char *device = "plughw:0,0"; /* default device */
-    int format = AFMT_S16_LE;
+    snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
     int channels, rate;
     int use_metadata = 1; /* Default to on */
     unsigned int buffered_time, exact_rate;
@@ -226,9 +226,9 @@ input_module_t *alsa_open_module(module_param_t *params)
         LOG_ERROR1("Error setting access: %s", snd_strerror(err));
         goto fail;
     }
-    if ((err = snd_pcm_hw_params_set_format(s->fd, hwparams, SND_PCM_FORMAT_S16_LE)) < 0)
+    if ((err = snd_pcm_hw_params_set_format(s->fd, hwparams, format)) < 0)
     {
-        LOG_ERROR1("Couldn't set sample format to SND_PCM_FORMAT_S16_LE: %s", snd_strerror(err));
+        LOG_ERROR1("Sample format not available: %s", snd_strerror(err));
         goto fail;
     }
     exact_rate = s->rate;
@@ -274,6 +274,7 @@ input_module_t *alsa_open_module(module_param_t *params)
     LOG_INFO3 ("using %d channel(s), %d Hz, buffer %u ms ",
             s->channels, s->rate, s->buffer_time/1000);
 
+    s->frame_bytes = s->channels * (snd_pcm_format_width(format) / 8);
     if(use_metadata)
     {
         LOG_INFO0("Starting metadata update thread");
