@@ -1,7 +1,7 @@
 /* im_oss.c
  * - Raw PCM input from OSS devices
  *
- * $Id: im_oss.c,v 1.8 2002/12/29 10:55:46 msmith Exp $
+ * $Id: im_oss.c,v 1.9 2003/03/02 21:10:13 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -192,7 +192,7 @@ input_module_t *oss_open_module(module_param_t *params)
 		else if(!strcmp(current->name, "metadatafilename"))
 			ices_config->metadata_filename = current->value;
 		else
-			LOG_WARN1("Unknown parameter %s for stdinpcm module", current->name);
+			LOG_WARN1("Unknown parameter %s for oss module", current->name);
 
 		current = current->next;
 	}
