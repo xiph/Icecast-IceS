@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.10 2002/08/03 08:14:54 msmith Exp $
+ * $Id: config.c,v 1.11 2002/08/10 03:31:27 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -17,8 +17,8 @@
 #include <time.h>
 
 /* these might need tweaking for other systems */
-#include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
+#include <libxml/xmlmemory.h>
 
 #include "thread.h"
 
@@ -365,6 +365,7 @@ void config_initialize(void)
 	ices_config = (config_t *)calloc(1, sizeof(config_t));
 	_set_defaults(ices_config);
 	srand(time(NULL));
+    xmlInitParser();
 }
 
 void config_shutdown(void)
@@ -385,6 +386,7 @@ void config_shutdown(void)
 
 	free(ices_config);
 	ices_config = NULL;
+    xmlCleanupParser();
 }
 
 int config_read(const char *fn)

@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.15 2002/08/09 15:02:33 msmith Exp $
+ * $Id: stream.c,v 1.16 2002/08/10 03:31:27 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -214,8 +214,8 @@ void *ices_instance_stream(void *arg)
             /* Non-fatal shout error */
             else if(ret == 0)
 			{
-				LOG_ERROR1("Send error: %s", 
-                        shout_get_error(sdsc->shout));
+				LOG_ERROR2("Send error: %s (%s)", 
+                        shout_get_error(sdsc->shout), strerror(errno));
 				if(shout_get_errno(sdsc->shout) == SHOUTERR_SOCKET)
 				{
 					int i=0;
