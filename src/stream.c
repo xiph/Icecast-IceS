@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.17 2002/08/10 04:50:00 msmith Exp $
+ * $Id: stream.c,v 1.18 2002/08/11 09:45:34 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -245,6 +245,16 @@ void *ices_instance_stream(void *arg)
 							LOG_INFO3("Connected to server: %s:%d%s", 
                                     shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), 
                                     shout_get_mount(sdsc->shout));
+                            /* This stream can't restart until the next
+                             * logical stream comes along, since the
+                             * server won't have any cached headers for
+                             * this source/connection. So, don't continue
+                             * yet.
+                             */
+                            thread_mutex_lock(&ices_config->flush_lock);
+                            stream->wait_for_critical = 1;
+                            input_flush_queue(stream->queue, 0);
+                            thread_mutex_unlock(&ices_config->flush_lock);
 							break;
 						}
 						else

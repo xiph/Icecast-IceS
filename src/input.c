@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.16 2002/08/10 04:50:00 msmith Exp $
+ * $Id: input.c,v 1.17 2002/08/11 09:45:34 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -225,6 +225,7 @@ void input_loop(void)
 	int current_module = 0;
     int valid_stream = 1;
     int inc_count;
+    int not_waiting_for_critical;
 
 	while(ices_config->playlist_module && modules[current_module].open)
 	{
@@ -386,13 +387,22 @@ void input_loop(void)
         }
 
         inc_count = 0;
+        not_waiting_for_critical = 0;
 
         if(valid_stream) 
         {
     		while(instance)
 	    	{
-		    	if(instance->skip || 
-                        (instance->wait_for_critical && !chunk->critical))
+                if(instance->wait_for_critical && !chunk->critical)
+                {
+                    instance = instance->next;
+                    continue;
+
+                }
+
+                not_waiting_for_critical = 1;
+
+                if(instance->skip)
 	    		{
 		    		instance = instance->next;
 			    	continue;
@@ -424,6 +434,22 @@ void input_loop(void)
 
     			instance = instance->next;
 	    	}
+        }
+
+        /* If everything is waiting for a critical buffer, force one
+         * early. (This will take effect on the next pass through)
+         */
+        if(valid_stream && !not_waiting_for_critical) {
+	        ices_config->inmod->handle_event(ices_config->inmod,
+                    EVENT_NEXTTRACK,NULL);
+		    instance = ices_config->instances;
+            while(instance) {
+			    thread_mutex_lock(&ices_config->flush_lock);
+			    input_flush_queue(instance->queue, 0);
+                instance->wait_for_critical = 0;
+			    thread_mutex_unlock(&ices_config->flush_lock);
+			    instance = instance->next;
+            }
         }
 
 		/* Make sure we don't end up with a 0-refcount buffer that 
