@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.6 2002/01/28 12:52:59 msmith Exp $
+ * $Id: encode.c,v 1.7 2002/07/05 07:40:47 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -197,13 +197,16 @@ int encode_dataout(encoder_state *s, ogg_page *og)
 
 void encode_finish(encoder_state *s)
 {
+    int ret;
 	ogg_packet op;
 	vorbis_analysis_wrote(&s->vd, 0);
 
 	while(vorbis_analysis_blockout(&s->vd, &s->vb)==1)
 	{
-		vorbis_analysis(&s->vb, &op);
-		ogg_stream_packetin(&s->os, &op);
+        vorbis_analysis(&s->vb, NULL);
+        vorbis_bitrate_addblock(&s->vb);
+        while(vorbis_bitrate_flushpacket(&s->vd, &op))
+		    ogg_stream_packetin(&s->os, &op);
 	}
 
 }
