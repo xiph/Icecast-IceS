@@ -2,7 +2,10 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-EXTRA_DIST = ices-live.xml ices-playlist.xml
+docdir = $(datadir)/doc/$(PACKAGE)-$(VERSION)
+doc_DATA = ices-live.xml ices-playlist.xml
+
+EXTRA_DIST = $(doc_DATA)
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
