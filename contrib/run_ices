@@ -2,56 +2,147 @@
 
 # script to help automate generation of config file and startup of ices2,
 # mostly useful for people trying to do things like run ices2 from cron.
-# use with template.xml.
 
 # contributed by Ciaran Anscomb <ciarana@rd.bbc.co.uk>
 # distributed under GPL, see LICENSE
 
+# You will probably want to leave this commented out - I need it tho...
+#LD_LIBRARY_PATH=/usr/local/ogg/lib
+#export LD_LIBRARY_PATH
+#PATH=/usr/local/ogg/bin:/usr/ucb:/usr/bin:/usr/etc
+#cd /usr/local/ogg/bin
+#tmpdir=/tmp
+
+# Some moderately sensible defaults
 samplerate=44100
 channels=2
 bitrate=64000
-module=sun
-server=192.168.200.5
-port=8001
-password=changeme
+module=oss
+server=localhost
+port=8000
+password=hackme
 
-LD_LIBRARY_PATH=/usr/local/ogg/lib
-export LD_LIBRARY_PATH
-PATH=/usr/local/ogg/bin:/usr/ucb:/usr/bin:/usr/etc
-cd /usr/local/ogg/bin
+start_wgets() {
+	while [ "x$1" != "x" ]; do
+		mount=$1; shift
+		outfile=$1; shift
+		wget -q http://$server:$port/$mount -O $outfile &
+	done
+}
+
+cleanup() {
+	rm -f $mdfile
+}
+
+trap cleanup 2 15
+
+if [ "x$1" = "x" -o "x$1" = "x--help" -o "x$1" = "x-h" ]; then
+	cat << EOF
+run_ices, a script to start ices2 from the command line.
+Usage: $0 [OPTION] mountpoint [-o filename] ...
+Example: $0 -S localhost -P 8000 -p hackme -b 64000 path/low.ogg
+		-o low.ogg -b 128000 path/high.ogg -o high.ogg
+
+General configuration:
+  -sr n		Set sample rate of audio device [$samplerate]
+  -c n		Set number of channels [$channels]
+  -m module	Use named ices module (oss,sun) [$module]
+  -S server	Server to stream to [$server]
+  -P port	Port to connect to [$port]
+  -p pass	Server password
+  -t n		Finish encoding after n seconds [don't stop]
+
+Per-instance encoding configuration:
+  -b n		Set bitrate [$bitrate]
+  -o filename	Spawn a wget process to write this encoding to file
+
+When listing more than one mountpoint, you only need to override the
+parameters that need changing since the last one.  Multiple encodings
+come at the expense of CPU.  If you use -o, always specify it AFTER the
+mountpoint, and make sure you have the GNU wget application installed.
+
+EOF
+	exit 0
+fi
 
 while [ "x$1" != "x" ]; do
-	opt=$1
-	shift
+	opt=$1; shift
 	case $opt in
-	-o) outfile=$1; shift; ;;
-	-t) time=$1; shift; ;;
 	-sr) samplerate=$1; shift; ;;
 	-c) channels=$1; shift; ;;
-	-b) bitrate=$1; shift; ;;
+	-m) module=$1; shift; ;;
 	-S) server=$1; shift; ;;
 	-P) port=$1; shift; ;;
 	-p) password=$1; shift; ;;
-	-m) module=$1; shift; ;;
-	*) mount=$opt; ;;
+	-T) title=$1; shift; ;;
+	-A) artist=$1; shift; ;;
+	-o) outdata="$mount $1 $outdata"; shift; ;;
+	-t) time=$1; shift; ;;
+	-b) bitrate=$1; shift; ;;
+	*) mount=$opt;
+		if [ "x$init" = "x" ]; then
+			cat > live.xml << EOF
+<?xml version="1.0"?>
+<ices>
+	<background>0</background>
+	<logpath>/usr/local/ogg/tmp</logpath>
+	<logfile>ices.log</logfile>
+	<loglevel>1</loglevel>
+
+	<stream>
+		<metadata>
+			<name>Radio X</name>
+			<genre>Nothing</genre>
+			<description>Blah</description>
+		</metadata>
+		<input>
+			<module>$module</module>
+			<param name="rate">$samplerate</param>
+			<param name="channels">$channels</param>
+			<param name="device">/dev/audio</param>
+			<param name="metadata">0</param>
+		</input>
+EOF
+			init=1
+		fi
+		cat >> live.xml << EOF
+		<instance>
+			<hostname>$server</hostname>
+			<port>$port</port>
+			<password>$password</password>
+			<mount>/$mount</mount>
+			<encode>  
+				<bitrate>$bitrate</bitrate>
+				<samplerate>$samplerate</samplerate>
+				<channels>$channels</channels>
+			</encode>
+		</instance>
+EOF
+	;;
 	esac
 done
 
-sed "s#@MODULE@#$module#g;s#@SAMPLERATE@#$samplerate#g;s#@CHANNELS@#$channels#g;s#@SERVER@#$server#g;s#@PORT@#$port#g;s#@PASSWORD@#$password#g;s#@MOUNT@#$mount#g;s#@BITRATE@#$bitrate#g" < template.xml > live.xml
+cat >> live.xml << EOF
+	</stream>
+</ices>
+EOF
 
+#mdfile=$tmpdir/metadata.$$
+#mkfifo $mdfile
+#ices live.xml < $mdfile &
 ices live.xml &
 icespid=$!
-if [ "x$outfile" != "x" ]; then
-	sleep 1
-	wget -q http://$server:$port$mount -O $outfile &
-	wgetpid=$!
+#echo "ARTIST=$artist" >> $mdfile
+#echo "TITLE=$title" >> $mdfile
+#echo >> $mdfile
+if [ "x$outdata" != "x" ]; then
+	sleep 2
+	start_wgets $outdata
 fi
 if [ "x$time" != "x" ]; then
 	sleep $time
-	if [ "x$wgetpid" != "x" ]; then
-		kill -INT $wgetpid
-	fi
 	kill -INT $icespid
 else
 	wait $icespid
 fi
+cleanup
