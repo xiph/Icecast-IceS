@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.10 2003/04/01 14:30:42 msmith Exp $
+ * $Id: ices.c,v 1.11 2003/07/03 13:24:37 brendan Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -19,8 +19,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-
-#include <net/resolver.h>
 #include <thread/thread.h>
 
 #include "cfgparse.h"
@@ -50,8 +48,8 @@ int main(int argc, char **argv)
 
     log_initialize();
     thread_initialize();
-    resolver_initialize();
     config_initialize();
+    shout_init();
 
     signals_setup();
 
@@ -87,8 +85,8 @@ int main(int argc, char **argv)
     log_close(log);
 
  fail:
+    shout_shutdown();
     config_shutdown();
-    resolver_shutdown();
     thread_shutdown();
     log_shutdown();
 
