@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.17 2002/08/11 09:45:34 msmith Exp $
+ * $Id: input.c,v 1.18 2002/11/22 13:01:34 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -89,7 +89,13 @@ static void _sleep(timing_control *control)
 	sleep = ((double)control->senttime / 1000) - 
 		(timing_get_time() - control->starttime);
 
-	if(sleep > 0) timing_sleep((uint64_t)sleep);
+    if(sleep > 1000) {
+        LOG_WARN1("Extended sleep requested (%ld ms), sleeping for one second",
+                sleep);
+        timing_sleep(1000);
+    }
+    else if(sleep > 0) 
+        timing_sleep((uint64_t)sleep);
 }
 
 static int _calculate_pcm_sleep(ref_buffer *buf, timing_control *control)
@@ -297,10 +303,7 @@ void input_loop(void)
 				next = instance->next;
 
 				if (prev)
-				{
 					prev->next = next;
-					prev = instance;
-				}
 				else
 					ices_config->instances = next;
 

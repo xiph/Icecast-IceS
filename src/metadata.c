@@ -1,7 +1,7 @@
 /* metadata.c
  * - Metadata manipulation
  *
- * $Id: metadata.c,v 1.6 2002/07/20 12:52:06 msmith Exp $
+ * $Id: metadata.c,v 1.7 2002/11/22 13:01:34 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -83,10 +83,11 @@ void *metadata_thread_signal(void *arg)
         metadata_update_signalled = 0;
 
         file = fopen(ices_config->metadata_filename, "r");
-        LOG_WARN2("Failed to open file %s for metadata update: %s", 
-                ices_config->metadata_filename, strerror(errno));
-        if(!file) 
+        if(!file) {
+            LOG_WARN2("Failed to open file %s for metadata update: %s", 
+                    ices_config->metadata_filename, strerror(errno));
             continue;
+        }
 
 		while(fgets(buf, 1024, file))
 		{

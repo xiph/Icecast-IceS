@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.22 2002/08/17 05:17:57 msmith Exp $
+ * $Id: stream.c,v 1.23 2002/11/22 13:01:34 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -23,7 +23,6 @@
 #include "config.h"
 #include "input.h"
 #include "im_playlist.h"
-#include "net/resolver.h"
 #include "signals.h"
 #include "thread/thread.h"
 #include "reencode.h"
@@ -49,7 +48,6 @@ void *ices_instance_stream(void *arg)
 {
 	int ret, shouterr;
 	ref_buffer *buffer;
-	char *connip;
 	stream_description *sdsc = arg;
 	instance_t *stream = sdsc->stream;
 	input_module_t *inmod = sdsc->input;
@@ -69,18 +67,8 @@ void *ices_instance_stream(void *arg)
 
     signal(SIGPIPE, signal_hup_handler);
 
-	connip = malloc(16);
-	if(!resolver_getip(stream->hostname, connip, 16))
-	{
-		LOG_ERROR1("Could not resolve hostname \"%s\"", stream->hostname);
-		free(connip);
-		stream->died = 1;
-		return NULL;
-	}
-
-	if (!(shout_set_host(sdsc->shout, connip)) == SHOUTERR_SUCCESS) {
+	if (!(shout_set_host(sdsc->shout, stream->hostname)) == SHOUTERR_SUCCESS) {
 		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		free(connip);
 		stream->died = 1;
 		return NULL;
 	}
@@ -88,7 +76,6 @@ void *ices_instance_stream(void *arg)
 	shout_set_port(sdsc->shout, stream->port);
 	if (!(shout_set_password(sdsc->shout, stream->password)) == SHOUTERR_SUCCESS) {
 		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		free(connip);
 		stream->died = 1;
 		return NULL;
 	}
@@ -99,21 +86,18 @@ void *ices_instance_stream(void *arg)
 
     if(shout_set_user(sdsc->shout, user) != SHOUTERR_SUCCESS) {
 		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		free(connip);
 		stream->died = 1;
 		return NULL;
     }
 
 	if (!(shout_set_agent(sdsc->shout, VERSIONSTRING)) == SHOUTERR_SUCCESS) {
 		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		free(connip);
 		stream->died = 1;
 		return NULL;
 	}
 
 	if (!(shout_set_mount(sdsc->shout, stream->mount)) == SHOUTERR_SUCCESS) {
 		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-		free(connip);
 		stream->died = 1;
 		return NULL;
 	}
@@ -137,21 +121,18 @@ void *ices_instance_stream(void *arg)
     if(stream_name)
 		if (!(shout_set_name(sdsc->shout, stream_name)) == SHOUTERR_SUCCESS) {
 			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-			free(connip);
 			stream->died = 1;
 			return NULL;
 		}
 	if (stream_genre)
 		if (!(shout_set_genre(sdsc->shout, stream_genre)) == SHOUTERR_SUCCESS) {
 			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-			free(connip);
 			stream->died = 1;
 			return NULL;
 		}
 	if (stream_description)
 		if (!(shout_set_description(sdsc->shout, stream_description)) == SHOUTERR_SUCCESS) {
 			LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
-			free(connip);
 			stream->died = 1;
 			return NULL;
 		}

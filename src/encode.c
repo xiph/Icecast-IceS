@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.12 2002/08/17 05:17:57 msmith Exp $
+ * $Id: encode.c,v 1.13 2002/11/22 13:01:34 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -56,11 +56,11 @@ encoder_state *encode_initialise(int channels, int rate, int managed,
 				"maximum %d", channels, rate, min_br, nom_br, max_br);
 	} else {
 		if (min_br > 0 || max_br > 0) {
-			LOG_INFO5("Encoder initialising with constrained VBR: %d "
+			LOG_INFO5("Encoder initialising in constrained VBR mode: %d "
 					"channels, %d Hz, quality %f, minimum bitrate %d, "
 					"maximum %d", channels, rate, quality, min_br, max_br);
 		} else {
-			LOG_INFO3("Encoder initialising with VBR: %d channel(s), %d Hz, "
+			LOG_INFO3("Encoder initialising in VBR mode: %d channel(s), %d Hz, "
 					"quality %f", channels, rate, quality);
 		}
 	}
