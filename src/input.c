@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.13 2002/08/03 15:05:39 msmith Exp $
+ * $Id: input.c,v 1.14 2002/08/04 03:00:34 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -81,7 +81,7 @@ static module modules[] = {
 /* This is identical to shout_sync(), really. */
 static void _sleep(timing_control *control)
 {
-	uint64_t sleep;
+	int64_t sleep;
 
 	/* no need to sleep if we haven't sent data */
 	if (control->senttime == 0) return;
@@ -89,7 +89,7 @@ static void _sleep(timing_control *control)
 	sleep = ((double)control->senttime / 1000) - 
 		(timing_get_time() - control->starttime);
 
-	if(sleep > 0) timing_sleep(sleep);
+	if(sleep > 0) timing_sleep((uint64_t)sleep);
 }
 
 static int _calculate_pcm_sleep(ref_buffer *buf, timing_control *control)
