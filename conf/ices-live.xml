@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <ices>
 
-	<background>0</background> <!-- run in background? (unimplemented) -->
+	<background>0</background> <!-- run in background  -->
 	<logpath>/tmp</logpath> <!-- where logs, etc go. -->
 	<logfile>ices.log</logfile>
 	<loglevel>4</loglevel> <!-- 1=error,2=warn,3=info,4=debug -->
-    <consolelog>1</consolelog> <!-- logfile is ignored if this is set to 1 -->
+    <consolelog>0</consolelog> <!-- logfile is ignored if this is set to 1 -->
 
     <!-- optional filename to write process id to -->
     <!-- <pidfile>/home/ices/ices.pid</pidfile> -->

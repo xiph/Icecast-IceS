@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ices>
 
-	<background>0</background> <!-- run in background? (unimplemented) -->
+	<background>0</background> <!-- run in background -->
 	<logpath>/tmp</logpath> <!-- where logs, etc go. -->
 	<logfile>ices.log</logfile>
 	<loglevel>4</loglevel> <!-- 1=error,2=warn,3=info,4=debug -->
@@ -28,7 +28,7 @@
 		-->
 		<input>
 			<module>playlist</module>
-			<param name="type">basic</param><!-- Only 'basic' implemented -->
+			<param name="type">basic</param>
 			<param name="file">playlist.txt</param> <!-- be sure this exists -->
 			<param name="random">0</param> <!-- random play -->
 			<param name="once">0</param> <!-- if set to 1 , plays once through,

@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.14 2003/12/22 14:01:09 karl Exp $
+ * $Id: ices.c,v 1.15 2003/12/28 21:49:22 karl Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -46,23 +46,44 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    log_initialize();
-    thread_initialize();
     config_initialize();
-    shout_init();
-    encode_init();
 
-    signals_setup();
-
-    /* right now you must have a config file, but we should probably
-    ** make it so you can specify all parameters on the commandline
-    ** too.
-    */
     if (config_read(argv[1]) <= 0) 
     {
         fprintf(stderr, "Failed to read config file \"%s\"\n", argv[1]);
         goto fail;
     }
+    if (ices_config->background)
+    {
+        int ret = 0;
+        /* Start up new session, to lose old session and process group */
+        switch (fork())
+        {
+        case 0: break; /* child continues */
+        case -1: perror ("fork"); ret = -1;
+        default:
+            exit (ret);
+        }
+
+        /* Disassociate process group and controlling terminal */ 
+        setsid();
+
+        /* Become a NON-session leader so that a */
+        /* control terminal can't be reacquired */
+        switch (fork())
+        {
+        case 0: break; /* child continues */
+        case -1: perror ("fork"); ret = -1;
+        default:
+            exit (ret);
+        }
+    }
+    
+    log_initialize();
+    thread_initialize();
+    shout_init();
+    encode_init();
+    signals_setup();
 
     snprintf(logpath, FILENAME_MAX, "%s/%s", ices_config->logpath, 
             ices_config->logfile);
