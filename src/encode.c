@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.17 2003/12/19 03:27:31 karl Exp $
+ * $Id: encode.c,v 1.18 2003/12/22 01:53:20 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -65,25 +65,23 @@ encoder_state *encode_initialise(int channels, int rate, int managed,
                     "channels, %d Hz, minimum bitrate %d, nominal %d, "
                     "maximum %d", channels, rate, min_br, nom_br, max_br);
 
-            if (vorbis_encode_setup_managed (&s->vi, channels, rate, max_br, nom_br, min_br) ||
-                    vorbis_encode_setup_init(&s->vi))
+            if (vorbis_encode_setup_managed (&s->vi, channels,
+                        rate, max_br, nom_br, min_br))
                 break;
         }
         else
         {
             if (nom_br < 0)
             {
-                if (min_br > 0 || max_br > 0) {
-                    LOG_INFO5("Encoder initialising in constrained VBR mode: %d "
-                            "channels, %d Hz, quality %f, minimum bitrate %d, "
-                            "maximum %d", channels, rate, quality, min_br, max_br);
-                } else {
-                    LOG_INFO3("Encoder initialising in VBR mode: %d channel(s), %d Hz, "
-                            "quality %f", channels, rate, quality);
-                }
+                LOG_INFO3("Encoder initialising in VBR mode: %d channel(s), "
+                        "%d Hz, quality %f", channels, rate, quality);
+                if (min_br > 0 || max_br > 0)
+                    LOG_INFO0("ignoring min/max bitrate, not supported in VBR "
+                            "mode, use nominal-bitrate instead");
                 if (vorbis_encode_setup_vbr(&s->vi, channels, rate, quality*0.1))
                     break;
 
+#if 0
                 if (max_br > 0 || min_br > 0)
                 {
                     struct ovectl_ratemanage_arg ai;
@@ -95,19 +93,21 @@ encoder_state *encode_initialise(int channels, int rate, int managed,
                     if (vorbis_encode_ctl(&s->vi, OV_ECTL_RATEMANAGE_SET, &ai))
                         break;
                 }
-                if (vorbis_encode_setup_init(&s->vi))
-                    break;
+#endif
             }
             else
             {
                 LOG_INFO3("Encoder initialising in VBR mode: %d "
                         "channels, %d Hz, nominal %d", channels, rate, nom_br);
-                if (vorbis_encode_setup_managed (&s->vi, channels, rate, max_br, nom_br, max_br) ||
-                        vorbis_encode_ctl (&s->vi, OV_ECTL_RATEMANAGE_AVG, NULL) ||
-                        vorbis_encode_setup_init(&s->vi))
+                if (vorbis_encode_setup_managed (&s->vi, channels,
+                            rate, max_br, nom_br, max_br))
+                    break;
+                if (vorbis_encode_ctl (&s->vi, OV_ECTL_RATEMANAGE_SET, NULL))
                     break;
             }
         }
+        if (vorbis_encode_setup_init(&s->vi))
+            break;
 
         vorbis_analysis_init(&s->vd, &s->vi);
         vorbis_block_init(&s->vd, &s->vb);
