@@ -26,7 +26,8 @@ dist_noinst_HEADERS = cfgparse.h input.h inputmodule.h im_playlist.h signals.h s
 
 ices_SOURCES = input.c cfgparse.c stream.c ices.c signals.c im_playlist.c reencode.c encode.c playlist_basic.c im_stdinpcm.c stream_shared.c metadata.c playlist_script.c audio.c resample.c $(oss) $(sun) $(alsa)
 
-ices_LDADD = log/libicelog.la @ALSA_LIBS@
+ices_LDADD = log/libicelog.la thread/libicethread.la \
+    avl/libiceavl.la timing/libicetiming.la @ALSA_LIBS@
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
