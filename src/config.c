@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.5 2002/01/28 12:52:58 msmith Exp $
+ * $Id: config.c,v 1.6 2002/01/29 09:20:27 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -30,6 +30,7 @@
 #define DEFAULT_LOGPATH "/tmp"
 #define DEFAULT_LOGFILE "ices.log"
 #define DEFAULT_LOGLEVEL 1
+#define DEFAULT_LOG_STDERR 1
 #define DEFAULT_STREAM_NAME "unnamed ices stream"
 #define DEFAULT_STREAM_GENRE "ices unset"
 #define DEFAULT_STREAM_DESCRIPTION "no description set"
@@ -294,6 +295,8 @@ static void _parse_root(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 			SET_STRING(config->logfile);
 		else if (strcmp(node->name, "loglevel") == 0)
 			SET_INT(config->loglevel);
+        else if (strcmp(node->name, "consolelog") == 0)
+            SET_INT(config->log_stderr);
 		else if (strcmp(node->name, "stream") == 0)
 			_parse_stream(config, doc, node->xmlChildrenNode);
 	} while ((node = node->next));
@@ -307,6 +310,7 @@ static void _set_defaults(config_t *c)
 	c->logpath = strdup(DEFAULT_LOGPATH);
 	c->logfile = strdup(DEFAULT_LOGFILE);
 	c->loglevel = DEFAULT_LOGLEVEL;
+    c->log_stderr = DEFAULT_LOG_STDERR;
 
 	c->stream_name = strdup(DEFAULT_STREAM_NAME);
 	c->stream_genre = strdup(DEFAULT_STREAM_GENRE);

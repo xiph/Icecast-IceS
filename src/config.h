@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.9 2002/01/28 00:19:15 msmith Exp $
+ * $Id: config.h,v 1.10 2002/01/29 09:20:27 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -67,6 +67,7 @@ typedef struct _config_tag
 	char *logpath;
 	char *logfile;
 	int loglevel;
+    int log_stderr;
 
 	/* <stream> */
 

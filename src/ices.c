@@ -1,9 +1,9 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.3 2001/11/09 08:14:50 msmith Exp $
+ * $Id: ices.c,v 1.4 2002/01/29 09:20:27 msmith Exp $
  *
- * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
+ * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 	if (argc != 2) 
 	{
 		fprintf(stderr, "IceS version 2.0beta1\n"
-				"  (c) Copyright 2001 Michael Smith <msmith@icecast.org>\n"
+				"  (c) Copyright 2001-2002 Michael Smith <msmith@icecast.org>\n"
 				"\n"
 				"Usage: \"ices config.xml\"\n");
 		return 1;
@@ -60,7 +60,10 @@ int main(int argc, char **argv)
 
 	snprintf(logpath, FILENAME_MAX, "%s/%s", ices_config->logpath, 
 			ices_config->logfile);
-	log = log_open(logpath);
+    if(ices_config->log_stderr)
+        log = log_open_file(stderr);
+    else
+	    log = log_open(logpath);
 	/* Set the log level, if requested - defaults to 2 (WARN) otherwise */
 	if (ices_config->loglevel)
 		log_set_level(log, ices_config->loglevel);
@@ -73,8 +76,8 @@ int main(int argc, char **argv)
 	input_loop();
 
 	LOG_INFO0("Shutdown complete");
-	log_close(log);
 
+	log_close(log);
 
  fail:
 	config_shutdown();
@@ -84,12 +87,5 @@ int main(int argc, char **argv)
 
 	return 0;
 }
-
-
-
-
-
-
-
 
 

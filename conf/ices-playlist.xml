@@ -5,6 +5,8 @@
 	<logpath>/tmp</logpath> <!-- where logs, etc go. -->
 	<logfile>ices.log</logfile>
 	<loglevel>4</loglevel> <!-- 1=error,2=warn,3=info,4=debug -->
+    <consolelog>0</consolelog> <!-- set this to 1 to log to the console instead
+                                    of to the file above -->
 
 	<stream>
 		<!-- metadata used for stream listing (not currently used) -->
