@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.9 2001/10/20 22:42:47 jack Exp $
+ * $Id: input.c,v 1.10 2001/10/21 02:10:08 jack Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -250,9 +250,9 @@ void input_loop(void)
 		arg->input = inmod;
         /*
 		if(instance->savefilename != NULL)
-			thread_create("savefile", savefile_stream, arg, ICES_DEFAULT_STACKSIZE, 1);
+			thread_create("savefile", savefile_stream, arg, 1);
          */
-		thread_create("stream", ices_instance_stream, arg, ICES_DEFAULT_STACKSIZE, 1);
+		thread_create("stream", ices_instance_stream, arg, 1);
 
 		instance = instance->next;
 	}
