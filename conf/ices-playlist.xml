@@ -96,17 +96,12 @@
 			<port>8000</port>
 			<password>hackme</password>
 			<mount>/example2.ogg</mount>
+		    <!-- Stream saving. Save the outgoing stream to the specified file
+    			 This is commented out since we don't want it by default -->
+			<!--
+            <savefile>streamdump.ogg</savefile>
+             -->
 		</instance>
-
-		<!-- Stream saving. Save the outgoing stream to the specified file
-			(saves the raw data, if you're doing live encoding).
-			This is commented out since we don't want it by default -->
-		<!--
-		<instance>
-			<savefile>streamdump.ogg</savefile>
-		</instance>
-		-->
-
 
 	</stream>
 </ices>
