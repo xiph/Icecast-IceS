@@ -1,7 +1,7 @@
 /* reencode.h
  * - reencoding functions
  *
- * $Id: reencode.h,v 1.5 2003/03/16 14:21:49 msmith Exp $
+ * $Id: reencode.h,v 1.6 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -17,7 +17,7 @@
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 
-#include "config.h"
+#include "cfgparse.h"
 #include "stream.h"
 #include "encode.h"
 #include "audio.h"

@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.25 2003/03/16 14:21:49 msmith Exp $
+ * $Id: stream.c,v 1.26 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -20,7 +20,7 @@
 
 #include <shout/shout.h>
 
-#include "config.h"
+#include "cfgparse.h"
 #include "input.h"
 #include "im_playlist.h"
 #include "signals.h"

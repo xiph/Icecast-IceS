@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.25 2003/03/16 14:21:48 msmith Exp $
+ * $Id: input.c,v 1.26 2003/03/22 01:14:35 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -22,8 +22,8 @@
 #include <vorbis/codec.h>
 #include <string.h>
 
+#include "cfgparse.h"
 #include "thread/thread.h"
-#include "config.h"
 #include "stream.h"
 #include "timing.h"
 #include "input.h"

@@ -1,7 +1,7 @@
 /* stream.h
  * - Core streaming functions/main loop.
  *
- * $Id: stream.h,v 1.3 2003/03/16 14:21:49 msmith Exp $
+ * $Id: stream.h,v 1.4 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -18,7 +18,7 @@
 #include <shout/shout.h>
 
 #include "thread/thread.h"
-#include "config.h"
+#include "cfgparse.h"
 
 typedef struct {
     unsigned char *buf;

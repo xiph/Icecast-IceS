@@ -1,7 +1,7 @@
 /* output.c
  * - Manage output instances
  *
- * $Id: output.c,v 1.3 2003/03/16 14:21:48 msmith Exp $
+ * $Id: output.c,v 1.4 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -17,7 +17,7 @@
 #include <signal.h>
 
 #include <thread/thread.h>
-#include "config.h"
+#include "cfgparse.h"
 #include "input.h"
 #include "stream.h"
 #include "process.h"

@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.8 2003/03/16 14:21:48 msmith Exp $
+ * $Id: playlist_basic.c,v 1.9 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "config.h"
+#include "cfgparse.h"
 #include "inputmodule.h"
 #include "im_playlist.h"
 #include "playlist_basic.h"

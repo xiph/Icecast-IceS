@@ -1,7 +1,7 @@
 /* encode.c
  * - runtime encoding of PCM data.
  *
- * $Id: encode.c,v 1.14 2003/03/16 14:21:48 msmith Exp $
+ * $Id: encode.c,v 1.15 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -19,7 +19,7 @@
 #include <vorbis/codec.h>
 #include <vorbis/vorbisenc.h>
 
-#include "config.h"
+#include "cfgparse.h"
 #include "encode.h"
 
 #define MODULE "encode/"

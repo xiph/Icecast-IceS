@@ -1,7 +1,7 @@
 /* stream_shared.c
  * - Stream utility functions.
  *
- * $Id: stream_shared.c,v 1.13 2003/03/16 14:21:49 msmith Exp $
+ * $Id: stream_shared.c,v 1.14 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -16,7 +16,7 @@
 #include <unistd.h>
 
 #include <thread/thread.h>
-#include "config.h"
+#include "cfgparse.h"
 #include "input.h"
 #include "inputmodule.h"
 #include "stream_shared.h"

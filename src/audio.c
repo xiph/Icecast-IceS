@@ -2,7 +2,7 @@
  * stereo->mono downmixing
  * resampling
  *
- * $Id: audio.c,v 1.7 2003/03/20 01:02:48 karl Exp $
+ * $Id: audio.c,v 1.8 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "config.h"
+#include "cfgparse.h"
 #include "audio.h"
 
 #include "resample.h"

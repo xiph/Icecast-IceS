@@ -1,7 +1,7 @@
 /* stream.h
  * - Core streaming functions/main loop.
  *
- * $Id: stream_shared.h,v 1.3 2001/09/25 12:04:22 msmith Exp $
+ * $Id: stream_shared.h,v 1.4 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -15,7 +15,7 @@
 #define __STREAM_SHARED_H
 
 #include "stream.h"
-#include "config.h"
+#include "cfgparse.h"
 #include "input.h"
 
 ref_buffer *stream_wait_for_data(instance_t *stream);

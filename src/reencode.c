@@ -1,7 +1,7 @@
 /* reencode.c
  * - runtime reencoding of vorbis audio (usually to lower bitrates).
  *
- * $Id: reencode.c,v 1.7 2003/03/16 14:21:49 msmith Exp $
+ * $Id: reencode.c,v 1.8 2003/03/22 01:14:35 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -19,7 +19,7 @@
 #include <vorbis/codec.h>
 
 #include "reencode.h"
-#include "config.h"
+#include "cfgparse.h"
 #include "stream.h"
 #include "encode.h"
 #include "audio.h"
