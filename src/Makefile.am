@@ -37,8 +37,8 @@ INCLUDES = -Inet -Ithread -Iavl -Ilog -Itiming $(OSS_CFLAGS) $(SUN_CFLAGS)
 GET = true
 
 debug:
-        $(MAKE) all CFLAGS="@DEBUG@"
+        $(MAKE) all CFLAGS="@DEBUG@ @XML_CFLAGS@ @OGG_CFLAGS@ @VORBIS_CFLAGS@ @SHOUT_CFLAGS@"
 
 profile:
-        $(MAKE) all CFLAGS="@PROFILE@"
+        $(MAKE) all CFLAGS="@PROFILE@ @XML_CFLAGS@ @OGG_CFLAGS@ @VORBIS_CFLAGS@ @SHOUT_CFLAGS@"
 

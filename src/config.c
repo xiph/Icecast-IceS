@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: config.c,v 1.3 2001/10/21 16:22:40 jack Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -17,8 +17,8 @@
 #include <time.h>
 
 /* these might need tweaking for other systems */
-#include <gnome-xml/xmlmemory.h>
-#include <gnome-xml/parser.h>
+#include <xmlmemory.h>
+#include <parser.h>
 
 #include "thread.h"
 
