@@ -1,7 +1,7 @@
 /* config.c
  * - config file reading code, plus default settings.
  *
- * $Id: config.c,v 1.12 2002/08/11 13:09:59 msmith Exp $
+ * $Id: config.c,v 1.13 2002/08/16 14:23:43 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -38,6 +38,7 @@
 #define DEFAULT_HOSTNAME "localhost"
 #define DEFAULT_PORT 8000
 #define DEFAULT_PASSWORD "password"
+#define DEFAULT_USERNAME NULL
 #define DEFAULT_MOUNT "/stream.ogg"
 #define DEFAULT_MANAGED 0
 #define DEFAULT_MIN_BITRATE -1
@@ -106,6 +107,7 @@ void config_free_instance(instance_t *instance)
 {
 	if (instance->hostname) free(instance->hostname);
 	if (instance->password) free(instance->password);
+	if (instance->user) free(instance->user);
 	if (instance->mount) free(instance->mount);
 	if (instance->queue) 
 	{
@@ -119,6 +121,7 @@ static void _set_instance_defaults(instance_t *instance)
 	instance->hostname = strdup(DEFAULT_HOSTNAME);
 	instance->port = DEFAULT_PORT;
 	instance->password = strdup(DEFAULT_PASSWORD);
+	instance->user = DEFAULT_USERNAME;
 	instance->mount = strdup(DEFAULT_MOUNT);
     instance->managed = DEFAULT_MANAGED;
 	instance->min_br = DEFAULT_MIN_BITRATE;
@@ -226,6 +229,8 @@ static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
 			SET_INT(instance->port);
 		else if (strcmp(node->name, "password") == 0)
 			SET_STRING(instance->password);
+		else if (strcmp(node->name, "username") == 0)
+			SET_STRING(instance->user);
 		else if (strcmp(node->name, "savefile") == 0)
 			SET_STRING(instance->savefilename);
 		else if (strcmp(node->name, "mount") == 0)

@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.19 2002/08/11 13:09:59 msmith Exp $
+ * $Id: stream.c,v 1.20 2002/08/16 14:23:43 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -56,6 +56,7 @@ void *ices_instance_stream(void *arg)
 	int reencoding = (inmod->type == ICES_INPUT_VORBIS) && stream->encode;
 	int encoding = (inmod->type == ICES_INPUT_PCM) && stream->encode;
     char *stream_name = NULL, *stream_genre = NULL, *stream_description = NULL;
+    char *user = NULL;
 	
 	vorbis_comment_init(&sdsc->vc);
 
@@ -63,7 +64,8 @@ void *ices_instance_stream(void *arg)
 
 	/* we only support the ice protocol and vorbis streams currently */
 	shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
-	shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_ICE);
+	//shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_ICE);
+	shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_HTTP);
 
     signal(SIGPIPE, signal_hup_handler);
 
@@ -90,6 +92,18 @@ void *ices_instance_stream(void *arg)
 		stream->died = 1;
 		return NULL;
 	}
+    if (stream->user)
+        user = stream->user;
+    else
+        user = "source";
+
+    if(shout_set_user(sdsc->shout, user) != SHOUTERR_SUCCESS) {
+		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+		free(connip);
+		stream->died = 1;
+		return NULL;
+    }
+
 	if (!(shout_set_mount(sdsc->shout, stream->mount)) == SHOUTERR_SUCCESS) {
 		LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
 		free(connip);

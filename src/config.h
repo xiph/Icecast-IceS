@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.13 2002/08/11 13:09:59 msmith Exp $
+ * $Id: config.h,v 1.14 2002/08/16 14:23:43 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -33,6 +33,7 @@ typedef struct _instance_tag
 	char *hostname;
 	int port;
 	char *password;
+    char *user;
 	char *mount;
 	int reconnect_delay;
 	int reconnect_attempts;
