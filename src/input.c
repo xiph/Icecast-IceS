@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.30 2004/01/17 04:24:10 karl Exp $
+ * $Id: input.c,v 1.31 2004/03/11 17:00:44 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -128,6 +128,7 @@ int input_calculate_ogg_sleep(ogg_page *page)
     static vorbis_info vi;
     static vorbis_comment vc;
     static int need_start_pos, need_headers, state_in_use = 0;
+    static int serialno = 0;
     static uint64_t offset;
     static uint64_t first_granulepos;
 
@@ -143,6 +144,7 @@ int input_calculate_ogg_sleep(ogg_page *page)
         if (state_in_use)
             ogg_stream_clear (&os);
         ogg_stream_init (&os, ogg_page_serialno (page));
+        serialno = ogg_page_serialno (page);
         state_in_use = 1;
         vorbis_info_init (&vi);
         vorbis_comment_init (&vc);
@@ -192,6 +194,11 @@ int input_calculate_ogg_sleep(ogg_page *page)
         vorbis_info_clear (&vi);
         ogg_stream_clear (&os);
         state_in_use = 0;
+    }
+    if (serialno != ogg_page_serialno (page))
+    {
+        LOG_ERROR0 ("Found page which does not belong to current logical stream");
+        return -1;
     }
     control.samples = ogg_page_granulepos (page) - control.oldsamples;
     control.oldsamples = ogg_page_granulepos (page);
