@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.14 2002/08/04 03:00:34 msmith Exp $
+ * $Id: input.c,v 1.15 2002/08/09 13:59:02 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -94,9 +94,6 @@ static void _sleep(timing_control *control)
 
 static int _calculate_pcm_sleep(ref_buffer *buf, timing_control *control)
 {
-	if(control->starttime == 0)
-		control->starttime = timing_get_time();
-
 	control->senttime += ((double)buf->len * 1000000.)/((double)buf->aux_data);
 
     return 0;
@@ -111,9 +108,6 @@ static int _calculate_ogg_sleep(ref_buffer *buf, timing_control *control)
 	vorbis_info vi;
 	vorbis_comment vc;
     int ret = 0;
-
-	if(control->starttime == 0)
-		control->starttime = timing_get_time();
 
 	og.header_len = buf->aux_data;
 	og.body_len = buf->len - buf->aux_data;
@@ -336,6 +330,13 @@ void input_loop(void)
 			free(chunk);
 			continue;
 		}
+        
+        /* If this is the first time through, set initial time. This should
+         * be done before the call to inmod->getdata() below, in order to
+         * properly keep time if this input module blocks.
+         */
+	    if(control->starttime == 0)
+		    control->starttime = timing_get_time();
 
 		/* get a chunk of data from the input module */
 		ret = inmod->getdata(inmod->internal, chunk);

@@ -2,7 +2,7 @@
  * - Gets a filename to play back based on output from a program/shell script
  *   run each time.
  *
- * $Id: playlist_script.c,v 1.3 2002/07/07 11:07:55 msmith Exp $
+ * $Id: playlist_script.c,v 1.4 2002/08/09 13:59:02 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -39,6 +39,9 @@ char *playlist_script_get_filename(void *data) {
     FILE *pipe;
     char *buf = calloc(1,1024);
 
+    if(!buf)
+        return NULL;
+
     pipe = popen(prog, "r");
 
     if(!pipe) {
@@ -48,17 +51,25 @@ char *playlist_script_get_filename(void *data) {
 
     if(fgets(buf, 1024, pipe) == NULL) {
         LOG_ERROR1("Couldn't read filename from pipe to program \"%s\"", prog);
+        free(buf);
+        pclose(pipe);
         return NULL;
     }
 
+    pclose(pipe);
+
     if(buf[0] == '\n' || (buf[0] == '\r' && buf[1] == '\n')) {
         LOG_ERROR1("Got newlines instead of filename from program \"%s\"", prog);
+        free(buf);
         return NULL;
     }
 
     if(buf[strlen(buf)-1] == '\n')
         buf[strlen(buf)-1] = 0;
-    /* De-fuck windows files. */
+    else
+        LOG_WARN1("Retrieved overly long filename \"%s\" from script, this may fail", buf);
+
+    /* De-fuck windows filenames. */
     if(strlen(buf) > 0 && buf[strlen(buf)-1] == '\r')
         buf[strlen(buf)-1] = 0;
 
@@ -81,6 +92,8 @@ int playlist_script_initialise(module_param_t *params, playlist_state_t *pl)
     pl->free_filename = playlist_script_free_filename;
 
     pl->data = calloc(1, sizeof(script_playlist));
+    if(!pl->data)
+        return -1;
 
     data = (script_playlist *)pl->data;
 
