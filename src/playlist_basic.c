@@ -1,7 +1,7 @@
 /* playlist_basic.c
  * - Simple built-in unscripted playlist
  *
- * $Id: playlist_basic.c,v 1.11 2003/07/06 14:50:19 karl Exp $
+ * $Id: playlist_basic.c,v 1.12 2003/07/09 23:47:01 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -171,7 +171,7 @@ char *playlist_basic_get_next_filename(void *data)
 
     ptr = pl->pl [pl->pos++];
 
-    if ((dest = malloc (strlen (ptr))) == NULL)
+    if ((dest = malloc (strlen (ptr)+1)) == NULL)
         return NULL;
     strcpy (dest, ptr);
     return dest;

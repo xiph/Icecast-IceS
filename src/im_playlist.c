@@ -1,7 +1,7 @@
 /* playlist.c
  * - Basic playlist functionality
  *
- * $Id: im_playlist.c,v 1.11 2003/03/28 01:12:59 karl Exp $
+ * $Id: im_playlist.c,v 1.12 2003/07/09 23:47:01 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -109,47 +109,53 @@ static int playlist_read(void *self, ref_buffer *rb)
     {
         pl->nexttrack = 0;
 
-        if(pl->current_file) 
+        if (pl->current_file && strcmp (pl->filename, "-"))
         {
             fclose(pl->current_file);
             pl->current_file = NULL;
         }
 
         newfn = pl->get_filename(pl->data);
-        if(!newfn)
-            return -1; /* No more files available */
-
-        if(pl->filename && !strcmp(pl->filename, newfn))
-        {
-            LOG_ERROR0("Cannot play same file twice in a row, skipping");
-            pl->errors++;
-            return 0;
-        }
-
-        pl->free_filename(pl->data, pl->filename);
-        pl->filename = newfn;
-
-        if(!pl->filename)
+        if (!newfn)
         {
             LOG_INFO0("No more filenames available, end of playlist");
-            return -1;
+            return -1; /* No more files available */
         }
-        
-        pl->current_file = fopen(pl->filename, "rb");
 
-        LOG_INFO1("Currently playing %s", pl->filename);
-
-        if (!pl->current_file) 
+        if (strcmp (newfn, "-"))
         {
-            LOG_WARN2("Error opening file %s: %s",pl->filename, strerror(errno));
-            pl->errors++;
-            return 0;
+            if (pl->filename && !strcmp(pl->filename, newfn))
+            {
+                LOG_ERROR0("Cannot play same file twice in a row, skipping");
+                pl->errors++;
+                pl->free_filename (pl->data, newfn);
+                return 0;
+            }
+            pl->free_filename(pl->data, pl->filename);
+            pl->filename = newfn;
+
+            pl->current_file = fopen(pl->filename, "rb");
+            if (!pl->current_file) 
+            {
+                LOG_WARN2("Error opening file %s: %s",pl->filename, strerror(errno));
+                pl->errors++;
+                return 0;
+            }
+            LOG_INFO1("Currently playing %s", pl->filename);
+        }
+        else
+        {
+            LOG_INFO0("Currently playing from stdin");
+            pl->current_file = stdin;
+            pl->free_filename(pl->data, pl->filename);
+            pl->filename = newfn;
         }
 
         /* Reinit sync, so that dead data from previous file is discarded */
         ogg_sync_clear(&pl->oy);
         ogg_sync_init(&pl->oy);
     }
+    input_sleep ();
 
     while(1)
     {
@@ -199,7 +205,6 @@ static int playlist_read(void *self, ref_buffer *rb)
     }
 
     pl->errors=0;
-    input_sleep ();
 
     return rb->len;
 }
