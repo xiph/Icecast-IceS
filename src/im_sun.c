@@ -1,7 +1,7 @@
 /* im_sun.c
  * - Raw PCM input from Solaris audio devices
  *
- * $Id: im_sun.c,v 1.5 2001/10/21 02:10:08 jack Exp $
+ * $Id: im_sun.c,v 1.6 2001/10/21 10:20:31 msmith Exp $
  *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
@@ -181,6 +181,8 @@ input_module_t *sun_open_module(module_param_t *params)
 			device = current->value;
 		else if (!strcmp(current->name, "metadata"))
 			use_metadata = atoi(current->value);
+		else if(!strcmp(current->name, "metadatafilename"))
+			ices_config->metadata_filename = current->value;
 		else
 			LOG_WARN1("Unknown parameter %s for sun module", current->name);
 		current = current->next;
