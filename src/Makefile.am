@@ -2,9 +2,10 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = avl log net thread timing
+SUBDIRS = log
 
 bin_PROGRAMS = ices
+AM_CPPFLAGS = @XIPH_CPPFLAGS@
 AM_CFLAGS = @XIPH_CFLAGS@
 
 EXTRA_ices_SOURCES = im_oss.c im_sun.c im_alsa.c
@@ -25,8 +26,7 @@ dist_noinst_HEADERS = cfgparse.h input.h inputmodule.h im_playlist.h signals.h s
 
 ices_SOURCES = input.c cfgparse.c stream.c ices.c signals.c im_playlist.c reencode.c encode.c playlist_basic.c im_stdinpcm.c stream_shared.c metadata.c playlist_script.c audio.c resample.c $(oss) $(sun) $(alsa)
 
-ices_LDADD = log/libicelog.la thread/libicethread.la \
-    avl/libiceavl.la timing/libicetiming.la @ALSA_LIBS@
+ices_LDADD = log/libicelog.la @ALSA_LIBS@ @XIPH_LIBS@
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
