@@ -62,12 +62,20 @@ fi
 
 dnl Check for Sun audio
 
-AC_CHECK_HEADER(sys/audioio.h, have_sun_audio=yes, have_sun_audio=no)
-AM_CONDITIONAL(HAVE_SUN_AUDIO,test "$have_sun_audio" = yes)
+AC_ARG_ENABLE(sun-audio,
+    AC_HELP_STRING([--enable-sun-audio],
+                   [Enable sun audio input (default autodetect)]),
+    enable_sun="$enableval",
+    enable_sun=yes
+)
+if test x$enable_sun = xyes; then
+   AC_CHECK_HEADER(sys/audioio.h, have_sun_audio=yes, have_sun_audio=no)
 
-if test "$have_sun_audio" = yes; then
-    AC_DEFINE(HAVE_SUN_AUDIO,,[Define to enable sun audio input module])
+   if test "$have_sun_audio" = yes; then
+       AC_DEFINE(HAVE_SUN_AUDIO,,[Define to enable sun audio input module])
+   fi
 fi
+AM_CONDITIONAL(HAVE_SUN_AUDIO,test "$have_sun_audio" = yes)
 
 dnl Check for ALSA audio
 
@@ -96,7 +104,6 @@ dnl don't trick the check
 ACX_PTHREAD([
      LIBS="$PTHREAD_LIBS $LIBS"
      XIPH_CFLAGS="$XIPH_CFLAGS $PTHREAD_CFLAGS"
-     CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
      CC="$PTHREAD_CC"
 ])
 
@@ -143,9 +150,13 @@ AM_PATH_VORBIS(, AC_MSG_ERROR(must have Vorbis installed!))
 LIBS="$VORBIS_LIBS $VORBISENC_LIBS $LIBS"
 XIPH_CFLAGS="$XIPH_CFLAGS $VORBIS_CFLAGS $VORBISENC_CFLAGS"
 
+dnl we expect thread support in libshout
+save_CFLAGS=$CFLAGS
+CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
 AM_PATH_SHOUT(, AC_MSG_ERROR(must have libshout installed!))
 LIBS="$SHOUT_LIBS $LIBS"
 XIPH_CFLAGS="$XIPH_CFLAGS $SHOUT_CFLAGS"
+CFLAGS=$save_CFLAGS
 
 dnl Make substitutions
 

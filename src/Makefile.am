@@ -2,44 +2,33 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-if HAVE_OSS
-
-ossheaders = im_oss.h
-osssources = im_oss.c
-
-endif
-
-if HAVE_SUN_AUDIO
-
-sunheaders = im_sun.h
-sunsources = im_sun.c
-
-endif
-
-if HAVE_ALSA
-
-alsaheaders = im_alsa.h
-alsasources = im_alsa.c
-
-endif
-
-SUBDIRS = avl thread net log timing
+SUBDIRS = log
 
 bin_PROGRAMS = ices
 AM_CFLAGS = @XIPH_CFLAGS@
 
-noinst_HEADERS = cfgparse.h input.h inputmodule.h im_playlist.h signals.h stream.h reencode.h encode.h playlist_basic.h logging.h im_stdinpcm.h $(ossheaders) $(sunheaders) $(alsaheaders) event.h stream_shared.h metadata.h audio.h resample.h
-ices_SOURCES = input.c cfgparse.c stream.c ices.c signals.c im_playlist.c reencode.c encode.c playlist_basic.c im_stdinpcm.c $(osssources) $(sunsources) $(alsasources) stream_shared.c metadata.c playlist_script.c audio.c resample.c
+EXTRA_DIST = thread net timing avl
+EXTRA_ices_SOURCES = im_oss.c im_sun.c im_alsa.c
 
-ices_LDADD = net/libicenet.la thread/libicethread.la log/libicelog.la\
-	avl/libiceavl.la timing/libicetiming.la @ALSA_LIBS@
+if HAVE_OSS
+oss = im_oss.c
+endif
 
-## LIBS = @LIBS@ @SOCKET_LIBS@ @XML_LIBS@ @OGG_LIBS@ @VORBIS_LIBS@\
-##       @VORBISENC_LIBS@ @SHOUT_LIBS@ @ALSA_LIBS@
+if HAVE_SUN_AUDIO
+sun = im_sun.c
+endif
 
-## CFLAGS = @CFLAGS@ @XML_CFLAGS@ @OGG_CFLAGS@ @VORBIS_CFLAGS@ @SHOUT_CFLAGS@
+if HAVE_ALSA
+alsa = im_alsa.c
+endif
 
-INCLUDES = -Inet -Ithread -Iavl -Ilog -Itiming $(OSS_CFLAGS) $(SUN_CFLAGS) $(ALSA_CFLAGS)
+dist_noinst_HEADERS = cfgparse.h input.h inputmodule.h im_playlist.h signals.h stream.h reencode.h encode.h playlist_basic.h logging.h im_stdinpcm.h event.h stream_shared.h metadata.h audio.h resample.h im_sun.h im_oss.h im_alsa.h
+
+ices_SOURCES = input.c cfgparse.c stream.c ices.c signals.c im_playlist.c reencode.c encode.c playlist_basic.c im_stdinpcm.c stream_shared.c metadata.c playlist_script.c audio.c resample.c $(oss) $(sun) $(alsa)
+
+ices_LDADD = log/libicelog.la @ALSA_LIBS@
+
+INCLUDES = -Inet -Ithread -Iavl -Ilog -Itiming
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
