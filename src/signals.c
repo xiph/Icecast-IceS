@@ -1,7 +1,7 @@
 /* signals.c
  * - signal handling/setup
  *
- * $Id: signals.c,v 1.7 2003/03/22 02:27:55 karl Exp $
+ * $Id: signals.c,v 1.8 2003/03/28 01:07:37 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <signal.h>
 
-#include "thread.h"
+#include <thread/thread.h>
 
 #include "cfgparse.h"
 #include "stream.h"

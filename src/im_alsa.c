@@ -1,7 +1,7 @@
 /* im_alsa.c
  * - Raw PCM input from ALSA devices
  *
- * $Id: im_alsa.c,v 1.4 2003/03/22 02:27:55 karl Exp $
+ * $Id: im_alsa.c,v 1.5 2003/03/28 01:07:37 karl Exp $
  *
  * by Jason Chu <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -29,7 +29,7 @@
 #include <fcntl.h>
 
 
-#include "thread.h"
+#include <thread/thread.h>
 #include "cfgparse.h"
 #include "stream.h"
 #include "metadata.h"

@@ -1,7 +1,7 @@
 /* im_oss.h
  * - read pcm data from oss devices
  *
- * $Id: im_oss.h,v 1.3 2003/03/16 14:21:48 msmith Exp $
+ * $Id: im_oss.h,v 1.4 2003/03/28 01:07:37 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -14,9 +14,9 @@
 #ifndef __IM_OSS_H__
 #define __IM_OSS_H__
 
-#include "inputmodule.h"
-#include "thread.h"
+#include <thread/thread.h>
 #include <ogg/ogg.h>
+#include "inputmodule.h"
 
 typedef struct
 {

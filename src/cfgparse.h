@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: cfgparse.h,v 1.1 2003/03/22 01:14:35 karl Exp $
+ * $Id: cfgparse.h,v 1.2 2003/03/28 01:07:37 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -16,8 +16,6 @@
 
 #include "stream.h"
 #include "inputmodule.h"
-
-#define VERSIONSTRING "IceS 2.0beta2"
 
 typedef struct _module_param_tag
 {

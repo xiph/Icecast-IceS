@@ -1,7 +1,7 @@
 /* im_oss.c
  * - Raw PCM input from OSS devices
  *
- * $Id: im_oss.c,v 1.12 2003/03/22 02:27:55 karl Exp $
+ * $Id: im_oss.c,v 1.13 2003/03/28 01:07:37 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -27,7 +27,7 @@
 #include <fcntl.h>
 
 
-#include "thread.h"
+#include <thread/thread.h>
 #include "cfgparse.h"
 #include "stream.h"
 #include "metadata.h"

@@ -1,7 +1,7 @@
 /* im_alsa.h
  * - read pcm data from oss devices
  *
- * $Id: im_alsa.h,v 1.2 2003/03/16 14:21:48 msmith Exp $
+ * $Id: im_alsa.h,v 1.3 2003/03/28 01:07:37 karl Exp $
  *
  * by Jason Chu  <jchu@uvic.ca>, based
  * on im_oss.c which is...
@@ -17,9 +17,9 @@
 #define __IM_ALSA_H__
 
 #include <alsa/asoundlib.h>
-#include "inputmodule.h"
-#include "thread.h"
+#include <thread/thread.h>
 #include <ogg/ogg.h>
+#include "inputmodule.h"
 
 typedef struct
 {
