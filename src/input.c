@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.21 2003/03/02 19:14:46 karl Exp $
+ * $Id: input.c,v 1.22 2003/03/02 21:16:27 karl Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -284,6 +284,8 @@ void input_loop(void)
 
 		instance = instance->next;
 	}
+    /* treat as if a signal has arrived straight away */
+    signal_usr1_handler (0);
 
 	/* now we go into the main loop
 	 * We shut down the main thread ONLY once all the instances
