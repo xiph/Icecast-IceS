@@ -12,13 +12,22 @@
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
+#include <shout/shout.h>
+#include <vorbis/codec.h>
+
 #include "config.h"
 #include "inputmodule.h"
 #include "stream.h"
+#include "reencode.h"
+#include "encode.h"
 
 typedef struct {
 	instance_t *stream;
 	input_module_t *input;
+    reencode_state *reenc;
+    encoder_state *enc;
+    shout_conn_t conn;
+    vorbis_comment vc;
 } stream_description;
 
 

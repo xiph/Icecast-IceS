@@ -43,61 +43,55 @@
  */
 void *ices_instance_stream(void *arg)
 {
-	shout_conn_t conn;
 	int ret;
 	int errors=0;
 	ref_buffer *buffer;
 	stream_description *sdsc = arg;
 	instance_t *stream = sdsc->stream;
 	input_module_t *inmod = sdsc->input;
-	queue_item *old;
-	reencode_state *reenc=NULL;
 	int reencoding = (inmod->type == ICES_INPUT_VORBIS) && stream->encode;
 	int encoding = (inmod->type == ICES_INPUT_PCM) && stream->encode;
-	encoder_state *enc=NULL;
-	vorbis_comment vc;
 	
-	vorbis_comment_init(&vc);
+	vorbis_comment_init(&sdsc->vc);
 
-
-	shout_init_connection(&conn);
+	shout_init_connection(&sdsc->conn);
 	signal(SIGPIPE, signal_hup_handler);
 
-	conn.ip = malloc(16);
-	if(!resolver_getip(stream->hostname, conn.ip, 16))
+	sdsc->conn.ip = malloc(16);
+	if(!resolver_getip(stream->hostname, sdsc->conn.ip, 16))
 	{
 		LOG_ERROR1("Could not resolve hostname \"%s\"", stream->hostname);
-		free(conn.ip);
+		free(sdsc->conn.ip);
 		stream->died = 1;
 		return NULL;
 	}
 
-	conn.port = stream->port;
-	conn.password = strdup(stream->password);
-	conn.mount = strdup(stream->mount);
+	sdsc->conn.port = stream->port;
+	sdsc->conn.password = strdup(stream->password);
+	sdsc->conn.mount = strdup(stream->mount);
 
 	/* set the metadata for the stream */
 	if (ices_config->stream_name)
-		conn.name = strdup(ices_config->stream_name);
+		sdsc->conn.name = strdup(ices_config->stream_name);
 	if (ices_config->stream_genre)
-		conn.genre = strdup(ices_config->stream_genre);
+		sdsc->conn.genre = strdup(ices_config->stream_genre);
 	if (ices_config->stream_description)
-		conn.description = strdup(ices_config->stream_description);
+		sdsc->conn.description = strdup(ices_config->stream_description);
 
 	if(encoding)
 	{
 		if(inmod->metadata_update)
-			inmod->metadata_update(inmod->internal, &vc);
-		enc = encode_initialise(stream->channels, stream->samplerate,
-				stream->bitrate, stream->serial++, &vc);
+			inmod->metadata_update(inmod->internal, &sdsc->vc);
+		sdsc->enc = encode_initialise(stream->channels, stream->samplerate,
+				stream->bitrate, stream->serial++, &sdsc->vc);
 	}
 	else if(reencoding)
-		reenc = reencode_init(stream);
+		sdsc->reenc = reencode_init(stream);
 
-	if(shout_connect(&conn))
+	if(shout_connect(&sdsc->conn))
 	{
 		LOG_INFO3("Connected to server: %s:%d%s", 
-				conn.ip, conn.port, conn.mount);
+				sdsc->conn.ip, sdsc->conn.port, sdsc->conn.mount);
 
 		while(1)
 		{
@@ -127,74 +121,20 @@ void *ices_instance_stream(void *arg)
 				continue; 
 			}
 
-			if(encoding)
+            ret = process_and_send_buffer(sdsc, buffer);
+
+            if(ret == -1)
+                continue;
+            else if(ret == -2)
+            {
+                errors = MAX_ERRORS+1;
+                continue;
+            }
+            else if(ret == 0)
 			{
-				ogg_page og;
-				int be = (inmod->subtype == INPUT_PCM_BE_16)?1:0;
-
-				/* We use critical as a flag to say 'start a new stream' */
-				if(buffer->critical)
-				{
-					encode_finish(enc);
-					while(encode_flush(enc, &og) != 0)
-					{
-						ret = shout_send_data(&conn, og.header, og.header_len);
-						ret = shout_send_data(&conn, og.body, og.body_len);
-					}
-					encode_clear(enc);
-
-
-					if(inmod->metadata_update)
-					{
-						vorbis_comment_clear(&vc);
-						vorbis_comment_init(&vc);
-
-						inmod->metadata_update(inmod->internal, &vc);
-					}
-
-					enc = encode_initialise(stream->channels,stream->samplerate,
-							stream->bitrate, stream->serial++, &vc);
-				}
-
-				encode_data(enc, (signed char *)(buffer->buf), buffer->len, be);
-
-				while(encode_dataout(enc, &og) > 0)
-				{
-					/* FIXME: This is wrong. Get the return values right. */
-					ret=shout_send_data(&conn, og.header, og.header_len);
-					ret=shout_send_data(&conn, og.body, og.body_len);
-				}
-			}
-			else if(reencoding)
-			{
-				unsigned char *buf;
-				int buflen,ret2;
-
-				ret2 = reencode_page(reenc, buffer, &buf, &buflen);
-				if(ret2 > 0) 
-				{
-					ret = shout_send_data(&conn, buf, buflen);
-					free(buf);
-				}
-				else if(ret2==0)
-				{
-					ret = -1; /* This way we don't enter the error handling 
-								 code */
-				}
-				else
-				{
-					LOG_ERROR0("Fatal reencoding error encountered");
-					errors = MAX_ERRORS+1;
-					continue;
-				}
-			}
-			else	
-				ret = shout_send_data(&conn, buffer->buf, buffer->len);
-
-			if(!ret)
-			{
-				LOG_ERROR1("Send error: %s", shout_strerror(&conn, conn.error));
-				if(conn.error == SHOUTERR_SOCKET)
+				LOG_ERROR1("Send error: %s", 
+                        shout_strerror(&sdsc->conn, sdsc->conn.error));
+				if(sdsc->conn.error == SHOUTERR_SOCKET)
 				{
 					int i=0;
 
@@ -214,18 +154,19 @@ void *ices_instance_stream(void *arg)
 					{
 						i++;
 						LOG_WARN0("Trying reconnect after server socket error");
-						shout_disconnect(&conn);
-						if(shout_connect(&conn))
+						shout_disconnect(&sdsc->conn);
+						if(shout_connect(&sdsc->conn))
 						{
 							LOG_INFO3("Connected to server: %s:%d%s", 
-								conn.ip, conn.port, conn.mount);
+                                    sdsc->conn.ip, sdsc->conn.port, 
+                                    sdsc->conn.mount);
 							break;
 						}
 						else
 						{
 							LOG_ERROR3("Failed to reconnect to %s:%d (%s)",
-								conn.ip,conn.port,
-								shout_strerror(&conn,conn.error));
+								sdsc->conn.ip,sdsc->conn.port,
+								shout_strerror(&sdsc->conn,sdsc->conn.error));
 							if(i==stream->reconnect_attempts)
 							{
 								LOG_ERROR0("Reconnect failed too many times, "
@@ -250,20 +191,18 @@ void *ices_instance_stream(void *arg)
 	else
 	{
 		LOG_ERROR3("Failed initial connect to %s:%d (%s)", 
-				conn.ip,conn.port,shout_strerror(&conn,conn.error));
+				sdsc->conn.ip,sdsc->conn.port,
+                shout_strerror(&sdsc->conn,sdsc->conn.error));
 	}
 	
-	shout_disconnect(&conn);
+	shout_disconnect(&sdsc->conn);
 
-	free(conn.ip);
-	encode_clear(enc);
-	reencode_clear(reenc);
-	vorbis_comment_clear(&vc);
+	free(sdsc->conn.ip);
+	encode_clear(sdsc->enc);
+	reencode_clear(sdsc->reenc);
+	vorbis_comment_clear(&sdsc->vc);
 
 	stream->died = 1;
 	return NULL;
 }
-
-
-
 

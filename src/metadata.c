@@ -18,6 +18,7 @@
 #include "config.h"
 #include "inputmodule.h"
 #include "event.h"
+#include "thread/thread.h"
 
 #define MODULE "metadata/"
 #include "logging.h"
@@ -74,7 +75,7 @@ void *metadata_thread_signal(void *arg)
         FILE *file;
 
         while(metadata_update_signalled == 0)
-            sleep(1);
+            thread_cond_wait(&ices_config->event_pending_cond);
 
         metadata_update_signalled = 0;
 

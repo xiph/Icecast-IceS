@@ -14,9 +14,11 @@
 
 #include "stream.h"
 #include "config.h"
+#include "input.h"
 
 ref_buffer *stream_wait_for_data(instance_t *stream);
 void stream_release_buffer(ref_buffer *buf);
+int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer);
 
 #endif
 

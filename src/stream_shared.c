@@ -19,6 +19,8 @@
 #include "inputmodule.h"
 #include "stream_shared.h"
 #include "stream.h"
+#include "reencode.h"
+#include "encode.h"
 
 #define MODULE "stream-shared/"
 #include "logging.h"
@@ -77,8 +79,75 @@ ref_buffer *stream_wait_for_data(instance_t *stream)
 	return buffer;
 }
 
+/* Process a buffer (including reencoding or encoding, if desired).
+ * Returns: >0 - success
+ *           0 - shout error occurred
+ *          -1 - no data produced
+ *          -2 - fatal error occurred
+ */
+int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
+{
+	if(sdsc->reenc)
+	{
+		unsigned char *buf;
+		int buflen,ret;
 
+		ret = reencode_page(sdsc->reenc, buffer, &buf, &buflen);
+		if(ret > 0) 
+		{
+			ret = shout_send_data(&sdsc->conn, buf, buflen);
+			free(buf);
+            return ret;
+		}
+		else if(ret==0)
+            return -1;
+		else
+		{
+			LOG_ERROR0("Fatal reencoding error encountered");
+            return -2;
+		}
+	}
+    else if (sdsc->enc)
+    {
+		ogg_page og;
+		int be = (sdsc->input->subtype == INPUT_PCM_BE_16)?1:0;
+        int ret=1;
 
+		/* We use critical as a flag to say 'start a new stream' */
+		if(buffer->critical)
+		{
+			encode_finish(sdsc->enc);
+			while(encode_flush(sdsc->enc, &og) != 0)
+			{
+				ret = shout_send_data(&sdsc->conn, og.header, og.header_len);
+				ret = shout_send_data(&sdsc->conn, og.body, og.body_len);
+			}
+			encode_clear(sdsc->enc);
 
+			if(sdsc->input->metadata_update)
+            {
+				vorbis_comment_clear(&sdsc->vc);
+				vorbis_comment_init(&sdsc->vc);
 
+				sdsc->input->metadata_update(sdsc->input->internal, &sdsc->vc);
+			}
+
+			sdsc->enc = encode_initialise(sdsc->stream->channels,
+                    sdsc->stream->samplerate, sdsc->stream->bitrate, 
+                    sdsc->stream->serial++, &sdsc->vc);
+		}
+
+		encode_data(sdsc->enc, (signed char *)(buffer->buf), buffer->len, be);
+
+		while(encode_dataout(sdsc->enc, &og) > 0)
+		{
+			ret = shout_send_data(&sdsc->conn, og.header, og.header_len);
+			ret = shout_send_data(&sdsc->conn, og.body, og.body_len);
+		}
+                        
+        return ret;
+	}
+	else	
+		return shout_send_data(&sdsc->conn, buffer->buf, buffer->len);
+}
 

@@ -83,6 +83,7 @@ typedef struct _config_tag
 	int shutdown;
     char *metadata_filename;
 	cond_t queue_cond;
+	cond_t event_pending_cond;
 	mutex_t refcount_lock;
 	mutex_t flush_lock;
 	input_module_t *inmod;

@@ -215,6 +215,7 @@ void input_loop(void)
 	ices_config->inmod = inmod;
 
 	thread_cond_create(&ices_config->queue_cond);
+	thread_cond_create(&ices_config->event_pending_cond);
 	thread_mutex_create(&ices_config->refcount_lock);
 	thread_mutex_create(&ices_config->flush_lock);
 
@@ -227,7 +228,7 @@ void input_loop(void)
 
 	while(instance) 
 	{
-		stream_description *arg = malloc(sizeof(stream_description));
+		stream_description *arg = calloc(1, sizeof(stream_description));
 		arg->stream = instance;
 		arg->input = inmod;
 		if(instance->savefilename != NULL)
@@ -392,6 +393,7 @@ void input_loop(void)
 	LOG_DEBUG0("All instances removed, shutting down control thread.");
 
 	thread_cond_destroy(&ices_config->queue_cond);
+	thread_cond_destroy(&ices_config->event_pending_cond);
 	thread_mutex_destroy(&ices_config->flush_lock);
 	thread_mutex_destroy(&ices_config->refcount_lock);
 

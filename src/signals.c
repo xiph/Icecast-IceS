@@ -30,6 +30,7 @@ void signal_usr1_handler(int signum)
 {
 	LOG_INFO0("Metadata update requested");
     metadata_update_signalled = 1;
+    thread_cond_broadcast(&ices_config->event_pending_cond);
 
 	signal(SIGUSR1, signal_usr1_handler);
 }
@@ -42,7 +43,6 @@ void signal_hup_handler(int signum)
 	/* Now, let's tell it to move to the next track */
 	ices_config->inmod->handle_event(ices_config->inmod,EVENT_NEXTTRACK,NULL);
 
-	/* Do we need to do this? */
 	signal(SIGHUP, signal_hup_handler);
 }
 
