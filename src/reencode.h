@@ -1,7 +1,7 @@
 /* reencode.h
  * - reencoding functions
  *
- * $Id: reencode.h,v 1.3 2002/01/28 00:19:15 msmith Exp $
+ * $Id: reencode.h,v 1.4 2002/08/03 14:41:10 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -20,6 +20,7 @@
 #include "config.h"
 #include "stream.h"
 #include "encode.h"
+#include "audio.h"
 
 typedef struct {
 	int out_min_br;
@@ -44,6 +45,8 @@ typedef struct {
 	vorbis_block vb;
 
 	encoder_state *encoder;
+    downmix_state *downmix;
+    resample_state *resamp;
 
 } reencode_state;
 

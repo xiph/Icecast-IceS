@@ -2,7 +2,7 @@
  * stereo->mono downmixing
  * resampling
  *
- * $Id: audio.c,v 1.1 2002/08/03 08:21:33 msmith Exp $
+ * $Id: audio.c,v 1.2 2002/08/03 14:41:10 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -27,7 +27,7 @@
 downmix_state *downmix_initialise(void) {
     downmix_state *state = calloc(1, sizeof(downmix_state));
 
-    LOG_INFO0("Enabling mono->stereo downmixing");
+    LOG_INFO0("Enabling stereo->mono downmixing");
 
     return state;
 }
@@ -38,6 +38,22 @@ void downmix_clear(downmix_state *s) {
         free(s);
     }
 }
+
+void downmix_buffer_float(downmix_state *s, float **buf, int samples)
+{
+    int i;
+
+    if(samples > s->buflen) {
+        s->buffer = realloc(s->buffer, samples * sizeof(float));
+        s->buflen = samples;
+    }
+
+    for(i=0; i < samples; i++) {
+        s->buffer[i] = (buf[0][i] + buf[1][i])*0.5;
+    }
+    
+}
+
 
 void downmix_buffer(downmix_state *s, signed char *buf, int len, int be)
 {

@@ -1,7 +1,7 @@
 /* reencode.c
  * - runtime reencoding of vorbis audio (usually to lower bitrates).
  *
- * $Id: reencode.c,v 1.5 2002/08/03 12:11:57 msmith Exp $
+ * $Id: reencode.c,v 1.6 2002/08/03 14:41:10 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -22,6 +22,7 @@
 #include "config.h"
 #include "stream.h"
 #include "encode.h"
+#include "audio.h"
 
 #define MODULE "reencode/"
 #include "logging.h"
@@ -83,6 +84,11 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
 
 		if(s->encoder)
 		{
+            if(s->resamp) {
+                resample_finish(s->resamp);
+                encode_data_float(s->encoder, s->resamp->buffers, 
+                        s->resamp->buffill);
+            }
 			encode_finish(s->encoder);
 			while(encode_flush(s->encoder, &encog) != 0)
 			{
@@ -96,6 +102,10 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
 		}
 		encode_clear(s->encoder);
         s->encoder = NULL;
+        resample_clear(s->resamp);
+        s->resamp = NULL;
+        downmix_clear(s->downmix);
+        s->downmix = NULL;
 
 		ogg_stream_clear(&s->os);
 		ogg_stream_init(&s->os, s->current_serial);
@@ -137,25 +147,35 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
 				{
 					vorbis_block_init(&s->vd, &s->vb);
 					vorbis_synthesis_init(&s->vd, &s->vi);
-					if(s->vi.channels != s->out_channels
-						|| s->vi.rate != s->out_samplerate)
-					{
-						/* FIXME: Implement this. In the shorter term, at
-						 * least free all the memory that's lying around.
-						 */
-						LOG_ERROR0("Converting channels or sample rate NOT "
-								"currently supported.");
-						return -1;
-					}
 					
 					s->encoder = encode_initialise(s->out_channels, 
 							s->out_samplerate, s->managed, 
                             s->out_min_br, s->out_nom_br, s->out_max_br,
 							s->quality, s->current_serial, &s->vc);
+
                     if(!s->encoder) {
                         LOG_ERROR0("Failed to configure encoder for reencoding");
                         return -1;
                     }
+                    if(s->vi.rate != s->out_samplerate) {
+                        s->resamp = resample_initialise(s->out_channels,
+                                s->vi.rate, s->out_samplerate);
+                    }
+                    else
+                        s->resamp = NULL;
+
+                    if(s->vi.channels != s->out_channels) {
+                        if(s->vi.channels == 2 && s->out_channels == 1)
+                            s->downmix = downmix_initialise();
+                        else {
+                            LOG_ERROR2("Converting from %d to %d channels is not"
+                                    " currently supported", s->vi.channels,
+                                    s->out_channels);
+                            return -1;
+                        }
+                    }
+                    else
+                        s->downmix = NULL;
 				}
 			}
 			else
@@ -171,7 +191,25 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
 
 				while((samples = vorbis_synthesis_pcmout(&s->vd, &pcm))>0)
 				{
-					encode_data_float(s->encoder, pcm, samples);
+                    if(s->downmix) {
+                        downmix_buffer_float(s->downmix, pcm, samples);
+                        if(s->resamp) {
+                            resample_buffer_float(s->resamp, &s->downmix->buffer,
+                                    samples);
+                            encode_data_float(s->encoder, s->resamp->buffers,
+                                    s->resamp->buffill);
+                        }
+                        else 
+                            encode_data_float(s->encoder, &s->downmix->buffer,
+                                    samples);
+                    }
+                    else if(s->resamp) {
+                        resample_buffer_float(s->resamp, pcm, samples);
+                        encode_data_float(s->encoder, s->resamp->buffers,
+                                s->resamp->buffill);
+                    }
+                    else
+					    encode_data_float(s->encoder, pcm, samples);
 					vorbis_synthesis_read(&s->vd, samples);
 				}
 
