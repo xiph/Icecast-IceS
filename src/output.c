@@ -1,7 +1,7 @@
 /* output.c
  * - Manage output instances
  *
- * $Id: output.c,v 1.1 2002/02/07 09:11:12 msmith Exp $
+ * $Id: output.c,v 1.2 2002/02/09 03:55:37 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -84,10 +84,8 @@ void *ices_instance_output(void *arg)
     while(1) {
         in = instance_wait_for_data(instance);
 
-        if(!in) {
-            LOG_DEBUG0("null buffer from feeder");
+        if(!in)
             break;
-        }
 
         if(!in->buf || in->len <= 0) {
             LOG_WARN0("Bad buffer dequeued.");

@@ -2,7 +2,7 @@
  * - Processing chains - data sources, sinks, processing effects, reencoding,
  *   etc.
  *
- * $Id: process.c,v 1.1 2002/02/07 09:11:12 msmith Exp $
+ * $Id: process.c,v 1.2 2002/02/09 03:55:37 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -29,9 +29,9 @@
 
 
 /* Return a newly allocate buffer, with refcount initialised to 1. */
-ref_buffer *new_ref_buffer(media_type media, void *data, int len)
+ref_buffer *new_ref_buffer(media_type media, void *data, int len, int aux)
 {
-    ref_buffer *new = calloc(1, sizeof(ref_buffer));
+    ref_buffer *new = calloc(1, sizeof(ref_buffer) + (sizeof(int)*(aux-1)));
     new->type = media;
     new->buf = data;
     new->len = len;
