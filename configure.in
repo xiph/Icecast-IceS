@@ -11,7 +11,14 @@ AM_PROG_LIBTOOL
 
 dnl Set some options based on environment
 
-AC_DEFINE(_XOPEN_SOURCE, 500, [Define if you have POSIX and XPG specifications])
+dnl openbsd headers break when _XOPEN_SOURCE is defined but without it seems
+dnl to be fine
+case "$ac_cv_host" in
+   *openbsd*)
+   ;;
+   *) AC_DEFINE(_XOPEN_SOURCE, 500, [Define if you have POSIX and XPG specifications])
+   ;;
+esac
 case $host in 
 *-*-irix*)
         DEBUG="-g -signed -D_REENTRANT" 
