@@ -2,7 +2,7 @@
  * stereo->mono downmixing
  * resampling
  *
- * $Id: audio.c,v 1.6 2003/03/15 02:24:18 karl Exp $
+ * $Id: audio.c,v 1.7 2003/03/20 01:02:48 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -34,7 +34,8 @@ downmix_state *downmix_initialise(void) {
 
 void downmix_clear(downmix_state *s) {
     if(s) {
-        free(s->buffer);
+        if (s->buffer)
+            free(s->buffer);
         free(s);
     }
 }
@@ -44,7 +45,10 @@ void downmix_buffer_float(downmix_state *s, float **buf, int samples)
     int i;
 
     if(samples > s->buflen) {
-        s->buffer = realloc(s->buffer, samples * sizeof(float));
+        void *tmp = realloc(s->buffer, samples * sizeof(float));
+        if (tmp==NULL)
+            return;
+        s->buffer = tmp;
         s->buflen = samples;
     }
 
@@ -61,7 +65,10 @@ void downmix_buffer(downmix_state *s, signed char *buf, int len, int be)
     int i;
 
     if(samples > s->buflen) {
-        s->buffer = realloc(s->buffer, samples * sizeof(float));
+        void *tmp = realloc(s->buffer, samples * sizeof(float));
+        if (tmp==NULL)
+            return;
+        s->buffer = tmp;
         s->buflen = samples;
     }
 
@@ -82,14 +89,31 @@ void downmix_buffer(downmix_state *s, signed char *buf, int len, int be)
 resample_state *resample_initialise(int channels, int infreq, int outfreq)
 {
     resample_state *state = calloc(1, sizeof(resample_state));
+    int failed = 1;
 
-    if(resampler_init(&state->resampler, channels, outfreq, infreq, RES_END)) {
-        LOG_ERROR0("Couldn't initialise resampler to specified frequency\n");
+    do 
+    {
+        if (state==NULL)
+            break;
+        if (resampler_init(&state->resampler, channels, outfreq, infreq, RES_END)) {
+            LOG_ERROR0("Couldn't initialise resampler to specified frequency");
+            return NULL;
+        }
+
+        if ((state->buffers = calloc(channels, sizeof(float *))) == NULL)
+            break;
+        if ((state->convbuf = calloc(channels, sizeof(float *))) == NULL)
+            break;
+        failed = 0;
+    }
+    while (0); /* not a loop */
+        
+    if (failed)
+    {
+        LOG_ERROR0("Couldn't initialise resampler due to memory allocation failure");
+        resample_clear (state);
         return NULL;
     }
-
-    state->buffers = calloc(channels, sizeof(float *));
-    state->convbuf = calloc(channels, sizeof(float *));
     state->channels = channels;
 
     LOG_INFO3("Initialised resampler for %d channels, from %d Hz to %d Hz",
@@ -105,12 +129,14 @@ void resample_clear(resample_state *s)
     if(s) {
         if(s->buffers) {
             for(c=0; c<s->channels; c++)
-                free(s->buffers[c]);
+                if (s->buffers[c])
+                    free(s->buffers[c]);
             free(s->buffers);
         }
         if(s->convbuf) {
             for(c=0; c<s->channels; c++)
-                free(s->convbuf[c]);
+                if (s->buffers[c])
+                    free(s->convbuf[c]);
             free(s->convbuf);
         }
         resampler_clear(&s->resampler);
