@@ -2,7 +2,7 @@
  * stereo->mono downmixing
  * resampling
  *
- * $Id: audio.c,v 1.5 2002/08/17 05:17:57 msmith Exp $
+ * $Id: audio.c,v 1.6 2003/03/15 02:24:18 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -83,7 +83,7 @@ resample_state *resample_initialise(int channels, int infreq, int outfreq)
 {
     resample_state *state = calloc(1, sizeof(resample_state));
 
-    if(res_init(&state->resampler, channels, outfreq, infreq, RES_END)) {
+    if(resampler_init(&state->resampler, channels, outfreq, infreq, RES_END)) {
         LOG_ERROR0("Couldn't initialise resampler to specified frequency\n");
         return NULL;
     }
@@ -113,7 +113,7 @@ void resample_clear(resample_state *s)
                 free(s->convbuf[c]);
             free(s->convbuf);
         }
-        res_clear(&s->resampler);
+        resampler_clear(&s->resampler);
         free(s);
     }
 }
@@ -156,9 +156,9 @@ void resample_buffer_float(resample_state *s, float **buf, int buflen)
     int c;
     int res;
 
-    s->buffill = res_push_check(&s->resampler, buflen);
+    s->buffill = resampler_push_check(&s->resampler, buflen);
     if(s->buffill <= 0) {
-        LOG_ERROR1("Fatal reencoding error: res_push_check returned %d", 
+        LOG_ERROR1("Fatal reencoding error: resampler_push_check returned %d", 
                 s->buffill);
     }
 
@@ -168,7 +168,7 @@ void resample_buffer_float(resample_state *s, float **buf, int buflen)
             s->buffers[c] = realloc(s->buffers[c], s->bufsize * sizeof(float));
     }
 
-    if((res = res_push(&s->resampler, s->buffers, (float const **)buf, buflen))
+    if((res = resampler_push(&s->resampler, s->buffers, (float const **)buf, buflen))
             != s->buffill) {
         LOG_ERROR2("Internal error in resampling: returned number of samples %d"
                    ", expected %d", res, s->buffill);
@@ -185,7 +185,7 @@ void resample_finish(resample_state *s)
     if(!s->buffers[0])
         return;
 
-    ret = res_drain(&s->resampler, s->buffers);
+    ret = resampler_drain(&s->resampler, s->buffers);
 
     if(ret > s->bufsize) {
         LOG_ERROR0("Fatal error in resampler: buffers too small");

@@ -2,7 +2,7 @@
  * - stereo->mono downmixing
  * - resampling
  *
- * $Id: audio.h,v 1.2 2002/08/03 14:41:10 msmith Exp $
+ * $Id: audio.h,v 1.3 2003/03/15 02:24:18 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -23,7 +23,7 @@ typedef struct {
 } downmix_state;
 
 typedef struct {
-    res_state resampler;
+    resampler_state resampler;
     int channels;
 
     float **buffers;

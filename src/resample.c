@@ -125,7 +125,7 @@ static void win_kaiser(float *dest, int N, double alpha, int width)
 }
 
 
-int res_init(res_state *state, int channels, int outfreq, int infreq, res_parameter op1, ...)
+int resampler_init(resampler_state *state, int channels, int outfreq, int infreq, resampler_parameter op1, ...)
 {
 	double beta = 16.0,
 		cutoff = 0.80,
@@ -173,7 +173,7 @@ int res_init(res_state *state, int channels, int outfreq, int infreq, res_parame
 				assert("arglist" == "valid");
 				return -1;
 			}
-			op1 = va_arg(argp, res_parameter);
+			op1 = va_arg(argp, resampler_parameter);
 		} while (op1 != RES_END);
 		va_end(argp);
 	}
@@ -236,7 +236,7 @@ static SAMPLE sum(float const *scale, int count, SAMPLE const *source, SAMPLE co
 }
 
 
-static int push(res_state const * const state, SAMPLE *pool, int * const poolfill, int * const offset, SAMPLE *dest, int dststep, SAMPLE const *source, int srcstep, size_t srclen)
+static int push(resampler_state const * const state, SAMPLE *pool, int * const poolfill, int * const offset, SAMPLE *dest, int dststep, SAMPLE const *source, int srcstep, size_t srclen)
 {
 	SAMPLE	* const destbase = dest,
 		*poolhead = pool + *poolfill,
@@ -254,7 +254,7 @@ static int push(res_state const * const state, SAMPLE *pool, int * const poolfil
 
 	assert(state->poolfill != -1);
 	
-	lencheck = res_push_check(state, srclen);
+	lencheck = resampler_push_check(state, srclen);
 
 	/* fill the pool before diving in */
 	while (poolhead < poolend && srclen > 0)
@@ -315,13 +315,13 @@ static int push(res_state const * const state, SAMPLE *pool, int * const poolfil
 }
 
 
-int res_push_max_input(res_state const * const state, size_t maxoutput)
+int resampler_push_max_input(resampler_state const * const state, size_t maxoutput)
 {
 	return maxoutput * state->infreq / state->outfreq;
 }
 
 
-int res_push_check(res_state const * const state, size_t srclen)
+int resampler_push_check(resampler_state const * const state, size_t srclen)
 {
 	if (state->poolfill < state->taps)
 		srclen -= state->taps - state->poolfill;
@@ -330,7 +330,7 @@ int res_push_check(res_state const * const state, size_t srclen)
 }
 
 
-int res_push(res_state *state, SAMPLE **dstlist, SAMPLE const **srclist, size_t srclen)
+int resampler_push(resampler_state *state, SAMPLE **dstlist, SAMPLE const **srclist, size_t srclen)
 {
 	int result = -1, poolfill = -1, offset = -1, i;
 
@@ -352,7 +352,7 @@ int res_push(res_state *state, SAMPLE **dstlist, SAMPLE const **srclist, size_t 
 }
 
 
-int res_push_interleaved(res_state *state, SAMPLE *dest, SAMPLE const *source, size_t srclen)
+int resampler_push_interleaved(resampler_state *state, SAMPLE *dest, SAMPLE const *source, size_t srclen)
 {
 	int result = -1, poolfill = -1, offset = -1, i;
 	
@@ -374,7 +374,7 @@ int res_push_interleaved(res_state *state, SAMPLE *dest, SAMPLE const *source, s
 }
 
 
-int res_drain(res_state *state, SAMPLE **dstlist)
+int resampler_drain(resampler_state *state, SAMPLE **dstlist)
 {
 	SAMPLE *tail;
 	int result = -1, poolfill = -1, offset = -1, i;
@@ -401,7 +401,7 @@ int res_drain(res_state *state, SAMPLE **dstlist)
 }
 
 
-int res_drain_interleaved(res_state *state, SAMPLE *dest)
+int resampler_drain_interleaved(resampler_state *state, SAMPLE *dest)
 {
 	SAMPLE *tail;
 	int result = -1, poolfill = -1, offset = -1, i;
@@ -428,7 +428,7 @@ int res_drain_interleaved(res_state *state, SAMPLE *dest)
 }
 
 
-void res_clear(res_state *state)
+void resampler_clear(resampler_state *state)
 {
 	assert(state);
 	assert(state->table);
