@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>IceS v2.0 Documentation</title>
+  <link rel="STYLESHEET" type="text/css" href="style.css">
+ </head>
+ <body>
+  <div class=boxtest>
+   <h1>Config File</h1>
+   <table width="100%"><tr><td bgcolor="#007B79" height="10" align="center"></td></tr></table>
+   <h2>General layout</h2>
+   <pre>
+    &lt;?xml version="1.0"?&gt;
+    &lt;ices&gt;
+        general settings
+        stream section
+    &lt;/ices&gt;
+   </pre>
+   <h2>General settings</h2>
+   <p>These apply to IceS as a whole. The example below gives a useful example to work to</p>
+    <pre>
+     &lt;background&gt;0&lt;background&gt;
+     &lt;logpath&gt;/var/log/ices&lt;logpath&gt;
+     &lt;logfile&gt;ices.log&lt;logfile&gt;
+     &lt;loglevel&gt;3&lt;loglevel&gt;
+     &lt;consolelog&gt;0&lt;consolelog&gt;
+     &lt;pidfile&gt;/var/log/ices/ices.pid&lt;pidfile&gt;
+    </pre>
+    <h4>background</h4>
+    <div class=indentedbox>
+     Set to 1 if you want IceS to put itself into the background
+    </div>
+    <h4>logpath</h4>
+    <div class=indentedbox>
+     A directory that can be written to by the user that IceS runs as.  This
+     can be anywhere you want but as log files are created, write access to the
+     stated must be given.
+    </div>
+    <h4>logfile</h4>
+    <div class=indentedbox>
+     The name of the logfile created. On log re-opening the existing logfile is
+     renamed to &lt;logfile&gt;.1
+    </div>
+    <h4>loglevel</h4>
+    <div class=indentedbox>
+     A number that represents the amount of logging performed.
+     <ul>
+      <li>1 - Only error messages are logged
+      <li>2 - The above and warning messages are logged
+      <li>3 - The above and information messages are logged
+      <li>4 - The above and debug messages are logged
+     </ul>
+    </div>
+    <h4>consolelog</h4>
+    <div class=indentedbox>
+     A value of 1 will cause the log messages to appear on the console instead
+     of the log files. Setting this to 1 is generally discouraged as logs are
+     cycled and writing to screen can cause stalls in the application, which
+     is a problem for timing critical applications.
+    </div>
+    <h4>pidfile</h4>
+    <div class=indentedbox>
+     State a filename with path to be created at start time. This file will
+     then contain a single number which represents the process id of the
+     running IceS. This process id can then be used to signal the application
+     of certain events.
+    </div>
+    <h2>Stream section</h2>
+    <p>This describes how the input and outgoing streams are configured<p>
+    <pre>
+     &lt;stream&gt;
+         Metadata
+         Input
+         Instance
+     &lt;/stream&gt;
+    </pre>
+
+    <h3>Metadata</h3>
+    <pre>
+     &lt;metadata&gt;
+         &lt;name&gt;My Stream&lt;/name&gt;
+         &lt;genre&gt;Rock&lt;/genre&gt;
+         &lt;description&gt;A short description of your stream&lt;/description&gt;
+     &lt;/metadata&gt;
+    </pre>
+    <p>
+     This section describes what metadata information is passed in the headers
+     at connection time to icecast.  This applies to each instance defined within
+     the stream section but maybe overridden by a per-instance &lt;metadata&gt;
+     section
+    </p>
+    <h3>Input</h3>
+    <p>
+     This section deals with getting the audio data into IceS. There are a few
+     ways that can happen. Typically it's either from a playlist or via a soundcard
+    </p>
+    <p>
+     The layout is consistent between the different input modules. Within the
+     input section a module tag is needed to identify the module in question. The
+     rest are made up of param tags specific to the module. There can be several
+     param tags supplied to a module.  Details of the module parameters are
+     shown later
+    </p>
+    <h3>Instance</h3>
+    <p>
+     Multiple instances can be defined to allow for multiple encodings, this
+     is useful for encoding the same input to multiple bitrates. Each instance
+     defines a particular set actions that occur on the passed in audio. Any
+     modifications to the input data is isolated to the instance.
+    </p>
+    <pre>
+     &lt;instance&gt;
+        hostname
+        port
+        password
+        mount
+        yp
+        resample
+        downmix
+        savefile
+        encode
+     &lt;/instance&gt;
+    </pre>
+    <h4>hostname</h4>
+    <div class=indentedbox>
+     State the hostname of the icecast to contact, this can be a name or IP
+     address and can be ipv4 or ipv6 on systems that support IPv6. The default
+     is localhost.
+   </div>
+   <h4>port</h4>
+   <div class=indentedbox>
+    State the port to connect to, this will be the port icecast is listening on,
+    typically 8000 but can be any.
+   </div>
+   <h4>password</h4>
+   <div class=indentedbox>
+    For providing a stream, a username/password has to be provided, and must
+    match what icecast expects.
+   </div>
+   <h4>mount</h4>
+   <div class=indentedbox>
+    Mountpoints are used to identify a particular stream on a icecast server,
+    they must begin with / and for the sake of certain listening clients should
+    end in .ogg
+   </div>
+   <h4>yp</h4>
+   <div class=indentedbox>
+    By default streams will not be advertised on a YP server unless this is set,
+    and only then if the icecast if configured to talk to YP servers.
+   </div>
+   <h4>Resample</h4>
+   <pre>
+    &lt;resample&gt;
+        &lt;in-rate&gt;44100&lt;/in-rate&gt;
+        &lt;out-rate&gt;22050&lt;/out-rate&gt;
+    &lt;/resample&gt;
+   </pre>
+   <div class=indentedbox>
+    <p>
+     When encoding or re-encoding, there is a point where you take PCM audio
+     and encode to Ogg Vorbis. In some situations a particular encoded stream may
+     require a lower samplerate to achieve a lower bitrate. The resample will
+     modifiy the audio data before it enters the encoder, but does not affect
+     other instances.
+    </p>
+    <p>
+     The most common values used are 48000, 44100, 22050 and 11025, and is
+     really only used to resample to a lower samplerate, going to a higher rate
+     serves no purpose within IceS
+    </p>
+   </div>
+   <h4>Downmix</h4>
+   <pre>
+    &lt;downmix&gt;1&lt;/downmix&gt;
+   </pre>
+   <div class=indentedbox>
+    Some streams want to reduce the bitrate further, reducing the number of channels
+    used to just 1. Converting stereo to mono is fairly common and when this is set
+    to 1 the number of channels encoded is just 1. Like resample, this only affects
+    the one instance it's enabled in.
+   </div>
+   <h4>Savefile</h4>
+   <pre>
+    &lt;savefile&gt;/home/ices/dump/stream1.ogg&lt;/savefile&gt;
+   </pre>
+   <div class=indentedbox>
+    Sometimes the stream transmitted wants to be saved to disk. This can be useful
+    for live recordings.
+   </div>
+   <h4>encode</h4>
+   <pre>
+    &lt;encode&gt;  
+        &lt;quality&gt;0&lt;/quality&gt;
+        &lt;nominal-bitrate&gt;65536&lt;/nominal-bitrate&gt;
+        &lt;maximum-bitrate&gt;131072&lt;/maximum-bitrate&gt;
+        &lt;minimum-bitrate&gt;-1&lt;/minimum-bitrate&gt;
+        &lt;managed&gt;0&lt;/managed&gt;
+        &lt;samplerate&gt;22050&lt;/samplerate&gt;
+        &lt;channels&gt;1&lt;/channels&gt;
+    &lt;/encode&gt;
+   </pre>
+   <p>quality</p>
+   <div class=indentedbox>
+    State a quality measure for the encoder. The range goes from -1 to 10 where -1
+    is the lowest bitrate selection (default 3), and decimals can also be stated, so
+    for example 1.5 is valid.  The actual bitrate used will depend on the tuning in
+    the vorbis libs, the samplerate, channels and the audio to encode. A quality of 0
+    at 44100hz and 2 channels is typically around the 64kbps mark.
+   </div>
+   <p>nominal-bitrate</p>
+   <div class=indentedbox>
+    State a bitrate that the encoder should try to keep to. This can be used as an
+    alternative to selecting quality. 
+   </div>
+   <p>managed</p>
+   <div class=indentedbox>
+    State 1 to enable full bitrate management in the encoder. This is used with
+    nominal-bitrate, maximum-bitrate and minimum-bitrate to produce a stream with
+    more strict bitrate requirements. Enabling this currently leads to higher CPU
+    usage.
+   </div>
+   <p>maximum-bitrate</p>
+   <div class=indentedbox>
+    State bitrate in bits per second to limit max bandwidth used on a stream. Only
+    applies if managed is enabled.
+   </div>
+   <p>minimum-bitrate</p>
+   <div class=indentedbox>
+    State bitrate in bits per second to limit minimum bandwidth used on a stream.
+    Only applies if managed is enabled, this option has very little use so
+    shouldn't really be needed.
+   </div>
+   <p>samplerate</p>
+   <div class=indentedbox>
+    State the samplerate used for the encoding, this should be either the same as
+    the input or the result of the resample. Getting the samplerate wrong will
+    cause the audio to be represented wrong and therefore sound like it's running
+    too fast or too slow.
+   </div>
+   <p>channels</p>
+   <div class=indentedbox>
+    State the number of channels to use in the encoding. This will either be the
+    number of channels from the input or 1 due to downmix.
+   </div>
+  </div>
+ </body>
+</html>
+

@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>IceS v2.0 Documentation</title>
+  <link rel="STYLESHEET" type="text/css" href="style.css">
+ </head>
+ <body>
+  <div class=boxtest>
+   <h1>Basic setup</h1>
+   <table width="100%"><tr><td bgcolor="#007B79" height="10" align="center"></td></tr></table>
+   <br>
+   <h2>What does IceS require?</h2>
+   <p>
+    IceS v2 is not a graphical application, it's purpose is to stream
+    whatever it is given into a stream for feeding to the Icecast streaming
+    server.  It does however require the following
+   </p>
+   <ul>
+    <li>libogg available at <a HREF="http://www.vorbis.com">www.vorbis.com</a>
+    <li>libvorbis available at <a HREF="http://www.vorbis.com">www.vorbis.com</a>
+    <li>libxml2 available at <a HREF="http://xmlsoft.org">xmlsoft</a>
+    <li>libshout 2 available at <a HREF="http://www.icecast.org">The Icecast site</a>
+   </ul>
+   <p>
+    Please note that in many cases, pre-built packages are split into two,
+    a run-time package, typically consisting of the actual run-time library
+    and a development package, consisting of the support files needed to
+    compile and link the application.
+   </p>
+   <p>
+    The following are optional
+   </p>
+   <ul>
+    <li>ALSA. driver and libs available at <a HREF="http://www.alsa-project.org">The ALSA site</a>
+   </ul>
+   <br>
+   <h2>What does IceS do ?</h2>
+   <p>
+    IceS reads audio data from an input and sends the audio data to one or
+    more files or icecast servers. Before it's actually sent out, some
+    processing maybe performed, typically resampling and/or downmixing to
+    produce streams suited to various bandwidth requirements.
+   </p>
+   <p>
+    The streams produced are Ogg Vorbis streams so while icecast 2 is
+    capable of streaming these streams, other streaming servers may not be.
+   <p>
+   <br>
+   <h2>What input can IceS handle?</h2>
+   <p>
+    Several inputs current exist, but some maybe dependant on certain
+    platforms or if certain drivers or libraries are available.
+   </p>
+   <ul>
+    <li>OSS - Open Sound System. Typically used on linux based systems to
+    get live input from a soundcard.
+    <li>ALSA - Advanced Linux Sound Architecture. Like OSS but with various
+    improvements for linux based systems. 
+    <li>stdinpcm - Uses standard input to receive PCM audio.
+    <li>playlist - Uses a playlist to read audio files for processing.
+    <li>sun - like OSS, but for Sun Solaris, also works for OpenBSD
+   </ul>
+   <h2>How do you start IceS?</h2>
+   <p>
+    The configuration of IceS is done via an XML based config file. Which
+    you supply as an argument to the program at invocation time. For example
+   </p>
+   <BR>
+   ices /etc/ices.xml
+   <BR>
+  </div>
+ </body>
+</html>

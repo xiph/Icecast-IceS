@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>IceS v2.0 Documentation</title>
+  <link rel="STYLESHEET" type="text/css" href="style.css">
+ </head>
+ <body>
+  <div class=boxtest>
+   <h1>Available input modules</h1>
+   <table width="100%"><tr><td bgcolor="#007B79" height="10" align="center"></td></tr></table>
+   <p>
+    Several input modules are available, depending on the platform, drivers
+    and libraries available. The general layout is defined as 
+   </p>
+   <pre>
+    &lt;input&gt;
+	&lt;module&gt;module name&lt;/module&gt;
+	&lt;param name="name1"&gt;value&lt;/param&gt;
+	&lt;param name="name2"&gt;value&lt;/param&gt;
+	&lt;param name="name3"&gt;value&lt;/param&gt;
+    &lt;/input&gt;
+   </pre>
+   <h2>Open Sound</h2>
+   <pre>
+	&lt;module&gt;oss&lt;/module&gt;
+	&lt;param name="rate"&gt;44100&lt;/param&gt;
+	&lt;param name="channels"&gt;2&lt;/param&gt;
+	&lt;param name="device"&gt;/dev/dsp&lt;/param&gt;
+	&lt;param name="metadata"&gt;1&lt;/param&gt;
+	&lt;param name="metadatafilename"&gt;/home/ices/metadata&lt;/param&gt;
+   </pre>
+   <p>
+    This module is for reading live input from the Open Sound System drivers,
+    often found on linux systems but are available on others. This will read audio
+    from the DSP device in a format specified in the parameters provided.
+   </p>
+   <p>
+    The following can be used to configure the module
+   </p>
+   <h4>rate</h4>
+   <div class=indentedbox>
+    The value is in hertz, 44100 is the samplerate used on CD's, but some drivers
+    may prefer 48000 (DAT) or you may want to use something lower.
+   </div>
+   <h4>channels</h4>
+   <div class=indentedbox>
+    The number of channels to record. This is typically 2 for stereo or 1 for mono
+   </div>
+   <h4>device</h4>
+   <div class=indentedbox>
+    The device to read the audio samples from, it's typically /dev/dsp but
+    there maybe more than one card installed.
+   </div>
+   <h4>metadata</h4>
+   <div class=indentedbox>
+    Check for metadata arriving, if any are present then the data is marked
+    for an update. The metadata is in the form of tag=value, and while Ogg
+    Vorbis can handle any supplied tags, most players will only do anything
+    with artist and title.
+   </div>
+   <h4>metadatafilename</h4>
+   <div class=indentedbox>
+    <p>
+     The name of the file to open and read the metadata tags from, with this
+     parameter missing standard input is read. Using a file is often the better
+     approach. When using the file access the procedure is usually to populate
+     the file contents then send a SIGUSR1 to the IceS process.
+    </p>
+    <p>
+     The format of the file itself is a simple one comment per line format,
+     below is a trivial example of the file, other tags can be used but players
+     tend to only look for artist and title for displaying.
+    </p>
+   </div>
+   <pre>
+    artist=Queen
+    title=We Will Rock You
+   </pre>
+
+   <h2>ALSA</h2>
+   <p>
+    The Advanced Linux Sound Architecture (ALSA) is a completely different
+    sound system on linux but provides OSS compatability so the OSS driver
+    should work with it as well. To use ALSA natively a separate module is used
+   </p>
+   <pre>
+	&lt;module&gt;alsa&lt;/module&gt;
+	&lt;param name="rate"&gt;44100&lt;/param&gt;
+	&lt;param name="channels"&gt;2&lt;/param&gt;
+	&lt;param name="device"&gt;plughw:0,0&lt;/param&gt;
+	&lt;param name="metadata"&gt;1&lt;/param&gt;
+	&lt;param name="metadatafilename"&gt;/home/ices/metadata&lt;/param&gt;
+   </pre>
+   The parameters to ALSA are the same for OSS, as it performs the same task,
+   ie captures audio from the DSP.
+
+   <h2>Sun</h2>
+   <p>
+    The Sun Solaris DSP input is similar to OSS. It allows for reading from
+    a soundcard on a Sun Solaris UNIX. OpenBSD also has a sound driver that
+    is similar to solaris and as such should be able to use this module.
+   </p>
+   <pre>
+        &lt;module&gt;sun&lt;/module&gt;
+   </pre>
+   <p>
+    The parameters are the same as the OSS and ALSA modules.
+   </p>
+   <h2>StdinPCM</h2>
+   <pre>
+        &lt;module&gt;stdinpcm&lt;/module&gt;
+        &lt;param name="rate"&gt;44100&lt;/param&gt;
+        &lt;param name="channels"&gt;2&lt;/param&gt;
+        &lt;param name="metadata"&gt;1&lt;/param&gt;
+        &lt;param name="metadatafilename"&gt;/home/ices/metadata&lt;/param&gt;
+   </pre>
+   <p>
+    This module should always be available, and as you can see the parameters
+    are almost the same except for the device. The PCM audio comes from the
+    standard input so it can be generated from some external app feeding into
+    a pipe.
+   </p>
+   <p>
+    As it's raw PCM being fed in, it's impossible to determine the samplerate
+    and channels so make sure the stated parameters match the incoming PCM or
+    the audio will be encoded wrongly.
+   </p>
+   <h2>Playlist</h2>
+   <p>
+    The playlist module is used to get audio from some pre-encoded Ogg
+    Vorbis files. The method of file selection is determined by the playlist
+    type.  The current types are basic and script.
+   </p>
+
+   <h3>Basic</h3>
+   <pre>
+    &lt;param name="type"&gt;basic&lt;/param&gt;
+    &lt;param name="file"&gt;/path/to/playlist&lt;/param&gt;
+    &lt;param name="random"&gt;0&lt;/param&gt;
+    &lt;param name="once"&gt;0&lt;/param&gt;
+    &lt;param name="restart-after-reread"&gt;1&lt;/param&gt;
+   </pre>
+   <h4>file</h4>
+   <div class=indentedbox>
+    State a path to a file which will contain a list of Ogg Vorbis filenames
+    to play. One per line with lines beginning with '#' being treated as
+    comments.  If a line has a single '-' then standard input is read, which
+    provides a way of getting some external Ogg Vorbis stream into ices.
+   </div>
+   <h4>random</h4>
+   <div class=indentedbox>
+    When set to 1, the playlist will be randomised when the playlist is
+    loaded. By default random is off
+   </div>
+   <h4>once</h4>
+   <div class=indentedbox>
+    When set to 1, the playlist is gone through once and then ends, this will
+    cause ices to exit. By default once is off.
+   </div>
+   <h4>restart-after-reread</h4>
+   <div class=indentedbox>
+    If the playlist is re-read mid way through, which may occur if the
+    playlist was updated then this will restart at the beginning of the
+    playlist. By default it's off.
+   </div>
+   <h3>Script</h3>
+   <pre>
+        &lt;param name="type"&gt;basic&lt;/param&gt;
+        &lt;param name="program"&gt;/path/to/program&lt;/param&gt;
+   </pre>
+   <h4>Program</h4>
+   <div class=indentedbox>
+    State a path to a program which when run will write to it's standard
+    output a path to an Ogg Vorbis file. The program can be anything from
+    an executable to a shell script as long as it starts, writes the
+    filename to it's standard output and then exits.
+   </div>
+  </div>
+ </body>
+</html>
