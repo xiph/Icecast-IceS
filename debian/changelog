@@ -1,0 +1,100 @@
+ices2 (1.9+2.0beta2+20030802-1) unstable; urgency=low
+
+  * Added a 'watch' file to automate tracking of updates.
+  * Now uses dh-buildinfo to store information about the package build
+    environment.  Added a Build-Dependancy to dh-buildinfo.
+  * Removed cdbs/autotools-vars.mk, from cdbs CVS, because a new release
+    was made.
+  * Thanks to Jonas Smedegaard for sponsoring this package, and
+    providing many good suggestions.
+
+ -- Keegan Quinn <ice@thebasement.org>  Sat,  2 Aug 2003 21:12:59 -0700
+
+ices2 (1.9+2.0beta2+20030721-1.1) unstable; urgency=low
+
+  * NMU by sponsor (still closes: Bug#185650).
+  * Define manpage and example files within debian/rules.
+  * Add build-dependency on libasound2-dev.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Wed, 23 Jul 2003 06:25:51 +0200
+
+ices2 (1.9+2.0beta2+20030721-1) unstable; urgency=low
+
+  * New daily snapshot.
+  * Switch to cdbs; added Build-Dependancy to cdbs, and increased
+    debhelper version requirement as recommended by cdbs README.
+  * Use cdbs autotools-vars.mk from CVS to avoid cross-compiling on same
+    host.
+  * Updated to Standards-Version 3.6.0.  No changes required.
+  * Added a Suggests to icecast2.
+  * Thanks to Jonas Smedegaard for sponsoring this package.
+    Closes: #185650.
+
+ -- Keegan Quinn <ice@thebasement.org>  Mon, 21 Jul 2003 20:35:59 -0700
+
+ices2 (1.9+2.0beta2+20030714-0.1) unstable; urgency=low
+
+  * New daily snapshot build.
+  * Renamed source and binary packages to ices2 from ices, as well as
+    installed binary and manual page.
+  * Updated versioning scheme so the final 2.0 release can be numbered 
+    like 2.0-1, without an epoch.
+  * Conflicts: and Replaces: ices (2.0.cvs030704-0.1), hopefully 
+    facilitating automatic upgrades from the old package names.
+
+ -- Keegan Quinn <ice@thebasement.org>  Mon, 14 Jul 2003 16:20:53 -0700
+
+ices (2.0.cvs030704-0.1) unstable; urgency=low
+
+  * Constructed a build script to completely automate the construction
+    of the 'pristine' tarball from CVS.  This doesn't really effect the
+    contents of the package, just makes it easier for me to rebuild.
+  * New CVS source.
+
+ -- Keegan Quinn <ice@thebasement.org>  Fri,  4 Jul 2003 03:30:53 -0700
+
+ices (2.0.cvs030403-0.1) unstable; urgency=low
+
+  * New CVS source.
+
+ -- Keegan Quinn <ice@thebasement.org>  Thu,  3 Apr 2003 16:14:49 -0800
+
+ices (2.0.cvs030401-0.1) unstable; urgency=low
+
+  * New CVS source.
+
+ -- Keegan Quinn <ice@thebasement.org>  Tue,  1 Apr 2003 10:27:44 -0800
+
+ices (2.0.cvs030327-0.4) unstable; urgency=low
+
+  * Completed manual page.  Packages are now ready for public testing. 
+
+ -- Keegan Quinn <ice@thebasement.org>  Fri, 28 Mar 2003 12:43:07 -0800
+
+ices (2.0.cvs030327-0.3) unstable; urgency=low
+
+  * Next attempt at the manual page. 
+
+ -- Keegan Quinn <ice@thebasement.org>  Fri, 28 Mar 2003 11:40:35 -0800
+
+ices (2.0.cvs030327-0.2) unstable; urgency=low
+
+  * Included example configurations in packaging.
+  * Initial attempt at a manual page.
+
+ -- Keegan Quinn <ice@thebasement.org>  Fri, 28 Mar 2003 11:25:27 -0800
+
+ices (2.0.cvs030327-0.1) unstable; urgency=low
+
+  * New CVS source.
+  * Updated copyright file and control description, per suggestions from
+    Jack Moffitt <jack@xiph.org>.
+
+ -- Keegan Quinn <ice@thebasement.org>  Thu, 27 Mar 2003 12:05:51 -0800
+
+ices (2.0.cvs030320-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Keegan Quinn <ice@thebasement.org>  Thu, 20 Mar 2003 13:24:59 -0800
+

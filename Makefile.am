@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = foreign 1.6 dist-zip dist-bzip2
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src conf
+SUBDIRS = debian src conf
 
 EXTRA_DIST = README AUTHORS COPYING TODO m4/shout.m4 m4/vorbis.m4 m4/ogg.m4 m4/xiph_compiler.m4
 

@@ -1,0 +1,18 @@
+Source: ices2
+Section: sound
+Priority: optional
+Maintainer: Keegan Quinn <ice@thebasement.org>
+Build-Depends: cdbs, debhelper (>> 4.1.0), dh-buildinfo, libogg-dev (>> 1.0.0), libvorbis-dev (>> 1.0.0), libshout3-dev (>> 2.0), libxml2-dev
+Uploaders: Jonas Smedegaard <dr@jones.dk>
+Standards-Version: 3.6.0
+
+Package: ices2
+Architecture: any
+Depends: ${shlibs:Depends}
+Suggests: icecast2
+Description: Ogg Vorbis streaming source for Icecast 2
+ This software is used to source Icecast 2 streaming audio
+ servers with Ogg Vorbis audio streams.  It supports both
+ live audio input from a soundcard and re-encoding of Ogg
+ Vorbis files from a playlist.
+

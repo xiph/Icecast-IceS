@@ -1,0 +1,3 @@
+version=2
+
+http://www.icecast.org/download.html	files/ices2/ices-(.*)\.tar\.gz	debian	uupdate

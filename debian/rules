@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+
+binary-post-install/ices2::
+	# Live peacefully with ices0
+	mv $(DEB_DESTDIR)/usr/bin/ices $(DEB_DESTDIR)/usr/bin/ices2
+
+	# Store build information
+	dh_buildinfo
+
+DEB_INSTALL_EXAMPLES_ices2 = conf/ices-live.xml conf/ices-playlist.xml
+DEB_INSTALL_MANPAGES_ices2 = debian/ices2.1
+

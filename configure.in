@@ -129,6 +129,7 @@ AC_SUBST(XIPH_LIBS)
 AC_OUTPUT(
   Makefile
   conf/Makefile 
+  debian/Makefile
   src/Makefile 
    src/log/Makefile 
    src/timing/Makefile
