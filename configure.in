@@ -147,4 +147,10 @@ AC_SUBST(XIPH_CFLAGS)
 AC_SUBST(XIPH_CPPFLAGS)
 AC_SUBST(XIPH_LIBS)
 
-AC_OUTPUT(Makefile conf/Makefile src/Makefile src/log/Makefile)
+AC_OUTPUT(
+  Makefile
+  conf/Makefile 
+  src/Makefile 
+   src/log/Makefile 
+   src/timing/Makefile
+)
