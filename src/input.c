@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.18 2002/11/22 13:01:34 msmith Exp $
+ * $Id: input.c,v 1.19 2002/12/29 10:28:30 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -40,6 +40,10 @@
 #include "im_sun.h"
 #endif
 
+#ifdef HAVE_ALSA
+#include "im_alsa.h"
+#endif
+
 #ifdef _WIN32
 typedef __int64 int64_t
 typedef unsigned __int64 uint64_t
@@ -74,6 +78,9 @@ static module modules[] = {
 #endif
 #ifdef HAVE_SUN_AUDIO
 	{ "sun", sun_open_module},
+#endif
+#ifdef HAVE_ALSA
+	{ "alsa", alsa_open_module},
 #endif
 	{NULL,NULL}
 };

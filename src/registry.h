@@ -1,7 +1,7 @@
 /* registry.h
  * - Registry of input/output/processing modules.
  *
- * $Id: registry.h,v 1.2 2002/02/09 05:07:01 msmith Exp $
+ * $Id: registry.h,v 1.3 2002/12/29 10:28:30 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -23,6 +23,10 @@
 
 #ifdef HAVE_OSS
 #include "im_oss.h"
+#endif 
+
+#ifdef HAVE_ALSA
+#include "im_alsa.h"
 #endif 
 
 /*
@@ -50,6 +54,9 @@ static module registered_modules[] = {
 #endif
 #ifdef HAVE_SUN_AUDIO 
     { "sun", sun_open_module},
+#endif
+#ifdef HAVE_ALSA 
+    { "alsa", alsa_open_module},
 #endif
     {NULL,NULL}
 };
