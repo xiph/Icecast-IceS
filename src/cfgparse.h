@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: cfgparse.h,v 1.2 2003/03/28 01:07:37 karl Exp $
+ * $Id: cfgparse.h,v 1.3 2003/07/02 20:26:51 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -63,6 +63,7 @@ typedef struct _instance_tag
     int died;
     int kill;
     int skip;
+    int public_stream;
     int wait_for_critical;
 
     struct buffer_queue *queue;

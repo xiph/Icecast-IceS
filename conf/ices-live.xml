@@ -50,6 +50,7 @@
 			<port>8000</port>
 			<password>hackme</password>
 			<mount>/example1.ogg</mount>
+            <yp>1</yp>   <!-- allow stream to be advertised on YP, default 0 -->
 
 			<!-- Live encoding/reencoding:
 				 channels and samplerate currently MUST match the channels

@@ -1,7 +1,7 @@
 /* cfgparse.c
  * - cfgparse file reading code, plus default settings.
  *
- * $Id: cfgparse.c,v 1.3 2003/03/28 01:07:37 karl Exp $
+ * $Id: cfgparse.c,v 1.4 2003/07/02 20:26:51 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -234,6 +234,8 @@ static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
             SET_STRING(instance->password);
         else if (strcmp(node->name, "username") == 0)
             SET_STRING(instance->user);
+        else if (strcmp(node->name, "yp") == 0)
+            SET_INT(instance->public_stream);
         else if (strcmp(node->name, "savefile") == 0)
             SET_STRING(instance->savefilename);
         else if (strcmp(node->name, "mount") == 0)

@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.28 2003/03/28 00:45:54 karl Exp $
+ * $Id: stream.c,v 1.29 2003/07/02 20:26:51 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -102,6 +102,12 @@ void *ices_instance_stream(void *arg)
     }
 
     if (!(shout_set_mount(sdsc->shout, stream->mount)) == SHOUTERR_SUCCESS) {
+        LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+        stream->died = 1;
+        return NULL;
+    }
+    if (shout_set_public (sdsc->shout, stream->public_stream & 1) != SHOUTERR_SUCCESS)
+    {
         LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
         stream->died = 1;
         return NULL;
