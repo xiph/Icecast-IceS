@@ -151,4 +151,5 @@ AC_OUTPUT(
    src/log/Makefile 
    src/timing/Makefile
    src/thread/Makefile
+   src/avl/Makefile
 )
