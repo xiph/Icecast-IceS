@@ -11,7 +11,6 @@
 #export LD_LIBRARY_PATH
 #PATH=/usr/local/ogg/bin:/usr/ucb:/usr/bin:/usr/etc
 #cd /usr/local/ogg/bin
-#tmpdir=/tmp
 
 # Some moderately sensible defaults
 samplerate=44100
@@ -21,6 +20,7 @@ module=oss
 server=localhost
 port=8000
 password=hackme
+metadatafile=/var/tmp/metadata.$$
 
 start_wgets() {
 	while [ "x$1" != "x" ]; do
@@ -31,7 +31,7 @@ start_wgets() {
 }
 
 cleanup() {
-	rm -f $mdfile
+	rm -f $metadatafile
 }
 
 trap cleanup 2 15
@@ -50,6 +50,8 @@ General configuration:
   -S server	Server to stream to [$server]
   -P port	Port to connect to [$port]
   -p pass	Server password
+  -A title	Artist for encoding
+  -T title	Title for encoding
   -t n		Finish encoding after n seconds [don't stop]
 
 Per-instance encoding configuration:
@@ -85,22 +87,23 @@ while [ "x$1" != "x" ]; do
 <?xml version="1.0"?>
 <ices>
 	<background>0</background>
-	<logpath>/usr/local/ogg/tmp</logpath>
+	<logpath>/usr/local/ogg/log</logpath>
 	<logfile>ices.log</logfile>
 	<loglevel>1</loglevel>
 
 	<stream>
 		<metadata>
-			<name>Radio X</name>
-			<genre>Nothing</genre>
-			<description>Blah</description>
+			<name>Ogg stream</name>
+			<genre>misc</genre>
+			<description>No description</description>
 		</metadata>
 		<input>
 			<module>$module</module>
 			<param name="rate">$samplerate</param>
 			<param name="channels">$channels</param>
 			<param name="device">/dev/audio</param>
-			<param name="metadata">0</param>
+			<param name="metadata">1</param>
+			<param name="metadatafilename">$metadatafile</param>
 		</input>
 EOF
 			init=1
@@ -127,14 +130,13 @@ cat >> live.xml << EOF
 </ices>
 EOF
 
-#mdfile=$tmpdir/metadata.$$
-#mkfifo $mdfile
-#ices live.xml < $mdfile &
+cat > $metadatafile << EOF
+ARTIST=$artist
+TITLE=$title
+EOF
 ices live.xml &
 icespid=$!
-#echo "ARTIST=$artist" >> $mdfile
-#echo "TITLE=$title" >> $mdfile
-#echo >> $mdfile
+kill -USR1 $icespid
 if [ "x$outdata" != "x" ]; then
 	sleep 2
 	start_wgets $outdata
