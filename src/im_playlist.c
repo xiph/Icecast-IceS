@@ -1,7 +1,7 @@
 /* playlist.c
  * - Basic playlist functionality
  *
- * $Id: im_playlist.c,v 1.5 2002/07/07 11:07:55 msmith Exp $
+ * $Id: im_playlist.c,v 1.6 2002/08/03 15:05:38 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -111,6 +111,8 @@ static int playlist_read(void *self, ref_buffer *rb)
         }
 
 		newfn = pl->get_filename(pl->data);
+        if(!newfn)
+            return -1; /* No more files available */
 
 		if(pl->filename && !strcmp(pl->filename, newfn))
 		{

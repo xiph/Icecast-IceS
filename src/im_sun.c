@@ -1,7 +1,7 @@
 /* im_sun.c
  * - Raw PCM input from Solaris audio devices
  *
- * $Id: im_sun.c,v 1.6 2001/10/21 10:20:31 msmith Exp $
+ * $Id: im_sun.c,v 1.7 2002/08/03 15:05:39 msmith Exp $
  *
  * by Ciaran Anscomb <ciarana@rd.bbc.co.uk>, based
  * on im_oss.c which is...
@@ -119,6 +119,8 @@ static int sun_read(void *self, ref_buffer *rb)
 	unsigned char *i, j;
 
 	rb->buf = malloc(BUFSIZE*2*s->device_info.record.channels);
+    if(!rb->buf)
+        return -1;
 	result = read(s->fd, rb->buf, BUFSIZE*2*s->device_info.record.channels);
 
 	rb->len = result;

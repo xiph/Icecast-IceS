@@ -2,7 +2,7 @@
  *  - Main producer control loop. Fetches data from input modules, and controls
  *    submission of these to the instance threads. Timing control happens here.
  *
- * $Id: input.c,v 1.12 2002/01/23 03:40:28 jack Exp $
+ * $Id: input.c,v 1.13 2002/08/03 15:05:39 msmith Exp $
  * 
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -225,6 +225,7 @@ void input_loop(void)
 	int shutdown = 0;
 	int current_module = 0;
     int valid_stream = 1;
+    int inc_count;
 
 	while(ices_config->playlist_module && modules[current_module].open)
 	{
@@ -373,6 +374,8 @@ void input_loop(void)
         if(ret < 0)
             valid_stream = 0;
 
+        inc_count = 0;
+
         if(valid_stream) 
         {
     		while(instance)
@@ -389,9 +392,7 @@ void input_loop(void)
 	    		queued->buf = chunk;
     			current = instance->queue;
     
-	    		thread_mutex_lock(&ices_config->refcount_lock);
-		    	chunk->count++;
-			    thread_mutex_unlock(&ices_config->refcount_lock);
+                inc_count++;
     
 	    		thread_mutex_lock(&current->lock);
     
@@ -419,6 +420,7 @@ void input_loop(void)
 		 * if all threads are set to skip, for example).
 		 */
 		thread_mutex_lock(&ices_config->refcount_lock);
+        chunk->count += inc_count;
 		if(!chunk->count)
 		{
 			free(chunk->buf);

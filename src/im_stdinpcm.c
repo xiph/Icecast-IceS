@@ -1,7 +1,7 @@
 /* im_stdinpcm.c
  * - Raw PCM input from stdin
  *
- * $Id: im_stdinpcm.c,v 1.2 2001/09/25 12:04:21 msmith Exp $
+ * $Id: im_stdinpcm.c,v 1.3 2002/08/03 15:05:38 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -67,6 +67,9 @@ static int stdin_read(void *self, ref_buffer *rb)
 	stdinpcm_state *s = self;
 
 	rb->buf = malloc(BUFSIZE);
+    if(!rb->buf)
+        return -1;
+
 	result = fread(rb->buf, 1,BUFSIZE, stdin);
 
 	rb->len = result;

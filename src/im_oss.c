@@ -1,7 +1,7 @@
 /* im_oss.c
  * - Raw PCM input from OSS devices
  *
- * $Id: im_oss.c,v 1.5 2001/10/21 02:10:08 jack Exp $
+ * $Id: im_oss.c,v 1.6 2002/08/03 15:05:38 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -115,6 +115,8 @@ static int oss_read(void *self, ref_buffer *rb)
 	im_oss_state *s = self;
 
 	rb->buf = malloc(BUFSIZE*2*s->channels);
+    if(!rb->buf)
+        return -1;
 	result = read(s->fd, rb->buf, BUFSIZE*2*s->channels);
 
 	rb->len = result;
