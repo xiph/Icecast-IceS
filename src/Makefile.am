@@ -26,23 +26,24 @@ endif
 SUBDIRS = avl thread net log timing
 
 bin_PROGRAMS = ices
+AM_CFLAGS = @XIPH_CFLAGS@
 
 noinst_HEADERS = config.h input.h inputmodule.h im_playlist.h signals.h stream.h reencode.h encode.h playlist_basic.h logging.h im_stdinpcm.h $(ossheaders) $(sunheaders) $(alsaheaders) event.h stream_shared.h metadata.h audio.h resample.h
 ices_SOURCES = input.c config.c stream.c ices.c signals.c im_playlist.c reencode.c encode.c playlist_basic.c im_stdinpcm.c $(osssources) $(sunsources) $(alsasources) stream_shared.c savefile.c metadata.c stream_rewrite.c playlist_script.c audio.c resample.c
 
 ices_LDADD = net/libicenet.la thread/libicethread.la log/libicelog.la\
-	avl/libiceavl.la timing/libicetiming.la
+	avl/libiceavl.la timing/libicetiming.la @ALSA_LIBS@
 
-LIBS = @LIBS@ -lpthread @SOCKET_LIBS@ @XML_LIBS@ @OGG_LIBS@ @VORBIS_LIBS@\
-       @VORBISENC_LIBS@ @SHOUT_LIBS@ @ALSA_LIBS@
+## LIBS = @LIBS@ @SOCKET_LIBS@ @XML_LIBS@ @OGG_LIBS@ @VORBIS_LIBS@\
+##       @VORBISENC_LIBS@ @SHOUT_LIBS@ @ALSA_LIBS@
 
-CFLAGS = @CFLAGS@ @XML_CFLAGS@ @OGG_CFLAGS@ @VORBIS_CFLAGS@ @SHOUT_CFLAGS@
+## CFLAGS = @CFLAGS@ @XML_CFLAGS@ @OGG_CFLAGS@ @VORBIS_CFLAGS@ @SHOUT_CFLAGS@
 
 INCLUDES = -Inet -Ithread -Iavl -Ilog -Itiming $(OSS_CFLAGS) $(SUN_CFLAGS) $(ALSA_CFLAGS)
 
 debug:
-	$(MAKE) all CFLAGS="@DEBUG@ @XML_CFLAGS@ @OGG_CFLAGS@ @VORBIS_CFLAGS@ @SHOUT_CFLAGS@"
+	$(MAKE) all CFLAGS="@DEBUG@"
 
 profile:
-	$(MAKE) all CFLAGS="@PROFILE@ @XML_CFLAGS@ @OGG_CFLAGS@ @VORBIS_CFLAGS@ @SHOUT_CFLAGS@"
+	$(MAKE) all CFLAGS="@PROFILE@"
 
