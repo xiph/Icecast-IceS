@@ -1,7 +1,7 @@
 /* ices.c
  * - Main startup, thread launching, and cleanup code.
  *
- * $Id: ices.c,v 1.4 2002/01/29 09:20:27 msmith Exp $
+ * $Id: ices.c,v 1.5 2002/08/16 15:47:36 msmith Exp $
  *
  * Copyright (c) 2001-2002 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
 	if (argc != 2) 
 	{
-		fprintf(stderr, "IceS version 2.0beta1\n"
+		fprintf(stderr, VERSIONSTRING "\n"
 				"  (c) Copyright 2001-2002 Michael Smith <msmith@icecast.org>\n"
 				"\n"
 				"Usage: \"ices config.xml\"\n");

@@ -1,7 +1,7 @@
 /* config.h
  * - configuration, and global structures built from config
  *
- * $Id: config.h,v 1.14 2002/08/16 14:23:43 msmith Exp $
+ * $Id: config.h,v 1.15 2002/08/16 15:47:36 msmith Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -16,6 +16,8 @@
 
 #include "stream.h"
 #include "inputmodule.h"
+
+#define VERSIONSTRING "IceS 2.0beta2"
 
 typedef struct _module_param_tag
 {
