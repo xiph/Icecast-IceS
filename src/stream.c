@@ -1,7 +1,7 @@
 /* stream.c
  * - Core streaming functions/main loop.
  *
- * $Id: stream.c,v 1.31 2003/12/22 14:01:09 karl Exp $
+ * $Id: stream.c,v 1.32 2004/01/12 22:53:07 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
  *
@@ -326,7 +326,7 @@ void *ices_instance_stream(void *arg)
                                 stream->buffer_failures = MAX_ERRORS+1; 
                             }
                             else /* Don't try again too soon */
-                                sleep(stream->reconnect_delay); 
+                                thread_sleep (stream->reconnect_delay*1000000); 
                         }
                     }
                     stream->skip = 0;
