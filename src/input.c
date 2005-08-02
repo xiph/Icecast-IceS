@@ -280,6 +280,7 @@ void input_loop(void)
     int valid_stream = 1;
     int inc_count;
     int not_waiting_for_critical;
+    int foundmodule = 0;
 
     thread_cond_create(&ices_config->queue_cond);
     thread_cond_create(&ices_config->event_pending_cond);
@@ -292,6 +293,7 @@ void input_loop(void)
     {
         if(!strcmp(ices_config->playlist_module, modules[current_module].name))
         {
+            foundmodule = 1;
             inmod = modules[current_module].open(ices_config->module_params);
             break;
         }
@@ -300,8 +302,12 @@ void input_loop(void)
 
     if(!inmod)
     {
-        LOG_ERROR1("Couldn't initialise input module \"%s\"", 
-                ices_config->playlist_module);
+        if(foundmodule)
+            LOG_ERROR1("Couldn't initialise input module \"%s\"", 
+                    ices_config->playlist_module);
+        else
+            LOG_ERROR1("No input module named \"%s\" could be found", 
+                    ices_config->playlist_module);
         return;
     }
 
