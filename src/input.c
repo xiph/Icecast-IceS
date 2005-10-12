@@ -4,7 +4,7 @@
  *
  * $Id: input.c,v 1.32 2004/03/11 17:22:59 karl Exp $
  * 
- * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
+ * Copyright (c) 2001 Michael Smith <msmith@xiph.org>
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute

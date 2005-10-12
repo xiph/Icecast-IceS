@@ -4,7 +4,7 @@
  *
  * $Id: audio.c,v 1.10 2003/08/01 22:38:04 karl Exp $
  *
- * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
+ * Copyright (c) 2001 Michael Smith <msmith@xiph.org>
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute

@@ -3,7 +3,7 @@
  *
  * $Id: im_oss.c,v 1.14 2004/01/17 04:24:10 karl Exp $
  *
- * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
+ * Copyright (c) 2001 Michael Smith <msmith@xiph.org>
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute

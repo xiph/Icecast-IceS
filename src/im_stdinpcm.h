@@ -3,7 +3,7 @@
  *
  * $Id: im_stdinpcm.h,v 1.4 2003/07/06 06:20:34 brendan Exp $
  *
- * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
+ * Copyright (c) 2001 Michael Smith <msmith@xiph.org>
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute

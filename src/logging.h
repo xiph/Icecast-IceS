@@ -3,7 +3,7 @@
  *
  * $Id: logging.h,v 1.5 2002/08/03 12:11:57 msmith Exp $
  *
- * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
+ * Copyright (c) 2001 Michael Smith <msmith@xiph.org>
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute
