@@ -295,9 +295,10 @@ void *ices_instance_stream(void *arg)
                             stream->reconnect_attempts==-1) && 
                             !ices_config->shutdown)
                     {
-                        i++;
                         LOG_WARN0("Trying reconnect after server socket error");
-                        shout_close(sdsc->shout);
+                        if(i == 0)
+                            shout_close(sdsc->shout);
+                        i++;
                         if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
                         {
                             LOG_INFO3("Connected to server: %s:%d%s", 
@@ -329,6 +330,7 @@ void *ices_instance_stream(void *arg)
                             }
                             else /* Don't try again too soon */
                                 thread_sleep (stream->reconnect_delay*1000000); 
+                            sdsc->shout = NULL;
                         }
                     }
                     stream->skip = 0;
