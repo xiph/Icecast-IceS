@@ -291,13 +291,13 @@ void *ices_instance_stream(void *arg)
                     input_flush_queue(stream->queue, 1);
                     thread_mutex_unlock(&ices_config->flush_lock);
                     
+                    shout_close(sdsc->shout);
+
                     while((i < stream->reconnect_attempts ||
                             stream->reconnect_attempts==-1) && 
                             !ices_config->shutdown)
                     {
                         LOG_WARN0("Trying reconnect after server socket error");
-                        if(i == 0)
-                            shout_close(sdsc->shout);
                         i++;
                         if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
                         {
@@ -330,7 +330,6 @@ void *ices_instance_stream(void *arg)
                             }
                             else /* Don't try again too soon */
                                 thread_sleep (stream->reconnect_delay*1000000); 
-                            sdsc->shout = NULL;
                         }
                     }
                     stream->skip = 0;
