@@ -52,7 +52,7 @@ dnl Checks for libraries.
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stropts.h])
+AC_CHECK_HEADERS([stropts.h sys/timeb.h])
 
 dnl Check for OSS
 
@@ -98,6 +98,8 @@ dnl Check for types
 AC_CHECK_TYPES([uint64_t],,AC_ERROR([could not find a uint64_t type]))
 
 dnl Checks for library functions.
+
+AC_CHECK_FUNCS([gettimeofday ftime])
 
 XIPH_PATH_XML
 XIPH_VAR_APPEND([XIPH_CFLAGS], [$XML_CFLAGS])
