@@ -19,7 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#ifdef HAVE_STDINT_H
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#elif defined(HAVE_STDINT_H)
 # include <stdint.h>
 #endif
 #include <ogg/ogg.h>

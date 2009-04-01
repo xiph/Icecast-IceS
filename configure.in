@@ -14,12 +14,6 @@ dnl Set some options based on environment
 
 dnl BSD headers break when _XOPEN_SOURCE is defined but without it seems
 dnl to be fine
-case "$host" in
-    *bsd*|*irix*)
-    ;;
-    *) AC_DEFINE(_XOPEN_SOURCE, 600, [Define if you have POSIX and XPG specifications])
-    ;;
-esac
 if test -n "$GCC"; then
     AC_DEFINE(_GNU_SOURCE, ,[Define if you have POSIX and GNU specifications])
     XIPH_VAR_APPEND([XIPH_CPPFLAGS], [-ffast-math -fsigned-char])
@@ -52,7 +46,7 @@ dnl Checks for libraries.
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stropts.h sys/timeb.h])
+AC_CHECK_HEADERS([stropts.h sys/timeb.h sys/select.h])
 
 dnl Check for OSS
 
