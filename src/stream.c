@@ -293,6 +293,8 @@ void *ices_instance_stream(void *arg)
                     
                     shout_close(sdsc->shout);
 
+                    if (i >= stream->reconnect_attempts)
+                        break;
                     while((i < stream->reconnect_attempts ||
                             stream->reconnect_attempts==-1) && 
                             !ices_config->shutdown)
@@ -313,6 +315,7 @@ void *ices_instance_stream(void *arg)
                             thread_mutex_lock(&ices_config->flush_lock);
                             stream->wait_for_critical = 1;
                             input_flush_queue(stream->queue, 0);
+                            stream->skip = 0;
                             thread_mutex_unlock(&ices_config->flush_lock);
                             break;
                         }
@@ -332,7 +335,6 @@ void *ices_instance_stream(void *arg)
                                 thread_sleep (stream->reconnect_delay*1000000); 
                         }
                     }
-                    stream->skip = 0;
                 }
                 stream->buffer_failures++;
             }
