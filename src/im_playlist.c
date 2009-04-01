@@ -167,12 +167,8 @@ static int playlist_read(void *self, ref_buffer *rb)
             if (ogg_page_bos (&og))
             {
                if (ogg_page_serialno (&og) == pl->current_serial)
-               {
-                   LOG_WARN1 ("Skipping \"%s\" as the serial number is the same as previous", pl->filename);
-                   pl->nexttrack = 1;
-                   pl->errors++;
-                   return 0;
-               }
+                   LOG_WARN1 ("detected duplicate serial number reading \"%s\"", pl->filename);
+
                pl->current_serial = ogg_page_serialno (&og);
             }
             if (input_calculate_ogg_sleep (&og) < 0)
