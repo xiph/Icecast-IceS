@@ -38,6 +38,10 @@
 #include "im_playlist.h"
 #include "im_stdinpcm.h"
 
+#ifdef HAVE_ROARAUDIO
+#include "im_roar.h"
+#endif
+
 #ifdef HAVE_OSS
 #include "im_oss.h"
 #endif
@@ -79,6 +83,9 @@ typedef struct _module
 static module modules[] = {
     { "playlist", playlist_open_module},
     { "stdinpcm", stdin_open_module},
+#ifdef HAVE_ROARAUDIO
+    { "roar", roar_open_module},
+#endif
 #ifdef HAVE_OSS
     { "oss", oss_open_module},
 #endif
