@@ -125,7 +125,7 @@ void playlist_basic_clear(void *data)
 char *playlist_basic_get_next_filename(void *data)
 {
     basic_playlist *pl = (basic_playlist *)data;
-    char *ptr = NULL, *dest = NULL;
+    char *ptr = NULL;
     int reload_playlist = 0;
     struct stat st;
 
@@ -171,10 +171,7 @@ char *playlist_basic_get_next_filename(void *data)
 
     ptr = pl->pl [pl->pos++];
 
-    if ((dest = malloc (strlen (ptr)+1)) == NULL)
-        return NULL;
-    strcpy (dest, ptr);
-    return dest;
+    return strdup(ptr);
 }
 
 void playlist_basic_free_filename(void *data, char *fn)
