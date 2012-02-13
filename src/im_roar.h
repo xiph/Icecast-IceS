@@ -19,13 +19,10 @@
 
 typedef struct
 {
-    int rate;
-    int channels;
+    struct roar_audio_info info;
 
-    struct roar_connection con;
-    struct roar_stream     stream;
+    roar_vs_t * vss;
 
-    int fd;
     char **metadata;
     int newtrack;
     mutex_t metadatalock;

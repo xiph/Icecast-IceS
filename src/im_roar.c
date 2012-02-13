@@ -1,8 +1,8 @@
 /* im_oss.c
  * - Raw PCM/Ogg Vorbis input from RoarAudio
  *
- * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
- * Copyright (c) 2009 Philipp Schafft <lion@lion.leolix.org>
+ * Copyright (c) 2001      Michael Smith <msmith@labyrinth.net.au>
+ * Copyright (c) 2009-2012 Philipp Schafft <lion@lion.leolix.org>
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute
@@ -31,6 +31,12 @@
 
 #include "im_roar.h"
 
+#ifdef ROAR_FT_SONAME_LIBROAR2
+#define _set_flags roar_stream_set_flags
+#else
+#define _set_flags roar_stream_set_flags2
+#endif
+
 #define MODULE "input-roar/"
 #include "logging.h"
 
@@ -51,14 +57,12 @@ static void close_module(input_module_t *mod)
         {
             im_roar_state *s = mod->internal;
 
-            if(s->fd >= 0)
-                close(s->fd);
+            if(s->vss)
+                roar_vs_close(s->vss, ROAR_VS_TRUE, NULL);
 
 
             thread_mutex_destroy(&s->metadatalock);
             free(s);
-
-            roar_disconnect(&s->con);
         }
         free(mod);
     }
@@ -125,16 +129,17 @@ static void metadata_update(void *self, vorbis_comment *vc)
 static int roar_read(void *self, ref_buffer *rb)
 {
     int result;
+    int err;
     im_roar_state *s = self;
 
-    rb->buf = malloc(BUFSIZE*2*s->channels);
+    rb->buf = malloc(BUFSIZE*2*s->info.channels);
     if(!rb->buf)
         return -1;
 
-    result = read(s->fd, rb->buf, BUFSIZE * 2 * s->channels);
+    result = roar_vs_read(s->vss, rb->buf, BUFSIZE * 2 * s->info.channels, &err);
 
     rb->len = result;
-    rb->aux_data = s->rate * s->channels * 2;
+    rb->aux_data = s->info.rate * s->info.channels * 2;
 
     if(s->newtrack)
     {
@@ -142,7 +147,7 @@ static int roar_read(void *self, ref_buffer *rb)
         s->newtrack  = 0;
     }
 
-    if(result == -1 && (errno == EINTR || errno == ERESTART))
+    if(result == -1 && err == ROAR_ERROR_INTERRUPTED)
     {
         return 0; /* Non-fatal error */
     }
@@ -151,7 +156,7 @@ static int roar_read(void *self, ref_buffer *rb)
         if(result == 0)
             LOG_INFO0("Reached EOF, no more data available");
         else
-            LOG_ERROR1("Error reading from sound server: %s", strerror(errno));
+            LOG_ERROR1("Error reading from sound server: %s", roar_vs_strerr(err));
         free(rb->buf);
         return -1;
     }
@@ -164,11 +169,10 @@ input_module_t *roar_open_module(module_param_t *params)
     input_module_t *mod = calloc(1, sizeof(input_module_t));
     im_roar_state *s;
     module_param_t *current;
-    char * server = NULL;
-    int    codec  = ROAR_CODEC_DEFAULT;
-    int    bits   = 16;
+    const char * server = NULL;
     int    dir    = ROAR_DIR_MONITOR;
-    int    use_metadata = 1; /* Default to on */
+    enum { MD_NONE = 0, MD_FILE = 1, MD_STREAM = 2 } use_metadata = MD_STREAM;
+    int err;
 
     mod->getdata = roar_read;
     mod->handle_event = event_handler;
@@ -177,9 +181,15 @@ input_module_t *roar_open_module(module_param_t *params)
     mod->internal = calloc(1, sizeof(im_roar_state));
     s = mod->internal;
 
-    s->fd = -1; /* Set it to something invalid, for now */
-    s->rate = 44100; /* Defaults */
-    s->channels = 2; 
+    if(roar_profile2info(&s->info, "default") == -1)
+    {
+        LOG_ERROR1("Failed to get default audio profile: %s",
+                roar_error2str(roar_error));
+        return NULL;
+    }
+    s->info.bits = 16;
+
+    s->vss   = NULL;
 
     thread_mutex_create(&s->metadatalock);
 
@@ -188,18 +198,35 @@ input_module_t *roar_open_module(module_param_t *params)
     while(current)
     {
         if(!strcmp(current->name, "rate"))
-            s->rate = atoi(current->value);
+            s->info.rate = roar_str2rate(current->value);
         else if(!strcmp(current->name, "channels"))
-            s->channels = atoi(current->value);
+            s->info.channels = roar_str2channels(current->value);
         else if(!strcmp(current->name, "codec"))
-            codec = roar_str2codec(current->value);
-        else if(!strcmp(current->name, "device"))
+            s->info.codec = roar_str2codec(current->value);
+        else if(!strcmp(current->name, "dir")) {
+            if ( !strcasecmp(current->value, "monitor") ) {
+                dir = ROAR_DIR_MONITOR;
+            } else if ( !strcasecmp(current->value, "record") ) {
+                dir = ROAR_DIR_RECORD;
+            } else {
+                LOG_WARN2("Unknown value %s for parameter %s for roar module", current->value, current->name);
+            }
+        } else if(!strcmp(current->name, "device") || !strcmp(current->name, "server"))
             server = current->value;
-        else if(!strcmp(current->name, "metadata"))
-            use_metadata = atoi(current->value);
-        else if(!strcmp(current->name, "metadatafilename"))
+        else if(!strcmp(current->name, "metadata")) {
+            if ( !strcasecmp(current->value, "none") ) {
+                use_metadata = MD_NONE;
+            } else if ( !strcasecmp(current->value, "file") ) {
+                use_metadata = MD_FILE;
+            } else if ( !strcasecmp(current->value, "stream") ) {
+                use_metadata = MD_STREAM;
+            } else {
+                use_metadata = atoi(current->value);
+            }
+        } else if(!strcmp(current->name, "metadatafilename")) {
             ices_config->metadata_filename = current->value;
-        else
+            use_metadata = MD_FILE;
+        } else
             LOG_WARN1("Unknown parameter %s for roar module", current->name);
 
         current = current->next;
@@ -207,7 +234,7 @@ input_module_t *roar_open_module(module_param_t *params)
 
     mod->type = ICES_INPUT_PCM;
 
-    switch (codec) {
+    switch (s->info.codec) {
         case ROAR_CODEC_PCM_LE:
           mod->subtype = INPUT_PCM_LE_16;
          break;
@@ -224,36 +251,50 @@ input_module_t *roar_open_module(module_param_t *params)
          LOG_ERROR0("Unknown Codec");
          return NULL;
         default:
-         LOG_ERROR1("Unsupported Codec: %s", roar_codec2str(codec));
+         LOG_ERROR1("Unsupported Codec: %s", roar_codec2str(s->info.codec));
          return NULL;
     }
 
 
-    /* First up, lets open the audio device */
-    if ( roar_simple_connect(&s->con, server, "ices2") == -1 ) {
+    /* Open the VS connection */
+    if ( (s->vss = roar_vs_new(server, "ices2", &err)) == NULL ) {
         LOG_ERROR2("Failed to open sound server %s: %s",
-                server, strerror(errno));
+                server, roar_vs_strerr(err));
         goto fail;
     }
 
     /* Now, set the required parameters on that device */
-    if ( (s->fd = roar_simple_new_stream_obj(&s->con, &s->stream, s->rate, s->channels, bits, codec, dir)) == -1 ) {
+    if ( roar_vs_stream(s->vss, &s->info, dir, &err) == -1 ) { 
         LOG_ERROR2("Failed to create a new stream on sound server %s: %s",
-                server, strerror(errno));
+                server, roar_vs_strerr(err));
         goto fail;
+    }
+
+    if ( _set_flags(roar_vs_connection_obj(s->vss, NULL), roar_vs_stream_obj(s->vss, NULL),
+                                ROAR_FLAG_META, ROAR_RESET_FLAG) != 0 ) {
+        LOG_WARN0("Can not reset metadata flag from stream");
     }
 
     /* We're done, and we didn't fail! */
     LOG_INFO3("Opened sound server at %s at %d channel(s), %d Hz", 
-            server, s->channels, s->rate);
+            server, s->info.channels, s->info.rate);
 
-    if(use_metadata)
-    {
+    switch (use_metadata) {
+     case MD_NONE:
+      break;
+     case MD_FILE:
         LOG_INFO0("Starting metadata update thread");
         if(ices_config->metadata_filename)
             thread_create("im_roar-metadata", metadata_thread_signal, mod, 1);
         else
             thread_create("im_roar-metadata", metadata_thread_stdin, mod, 1);
+      break;
+     case MD_STREAM:
+        if ( _set_flags(roar_vs_connection_obj(s->vss, NULL), roar_vs_stream_obj(s->vss, NULL),
+                                    ROAR_FLAG_META, ROAR_SET_FLAG) != 0 ) {
+            LOG_WARN0("Can not set metadata flag from stream");
+        }
+      break;
     }
 
     return mod;
