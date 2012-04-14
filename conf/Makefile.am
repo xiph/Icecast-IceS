@@ -2,5 +2,5 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-dist_pkgdata_DATA = ices-oss.xml ices-alsa.xml ices-playlist.xml
+dist_pkgdata_DATA = ices-oss.xml ices-alsa.xml ices-playlist.xml ices-roar.xml
 
