@@ -60,8 +60,13 @@
             -->
             <param name="device">somehost</param>
 
-            <!-- Read metadata (from stdin by default, or -->
-            <!-- filename defined below (if the latter, only on SIGUSR1) -->
+            <!-- Read metadata (from stdin by default,
+                 filename defined below (if the latter, only on SIGUSR1), or
+                 stream. Valid values are:
+                 "none"   - Use no metadata.
+                 "file"   - Read metadata from file (or stdin if no filename is configured.
+                 "stream" - Read metadata from stream (Audio server).
+            -->
             <param name="metadata">file</param>
             <param name="metadatafilename">test</param>
         </input>
