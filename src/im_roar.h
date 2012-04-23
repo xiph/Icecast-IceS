@@ -1,8 +1,8 @@
 /* im_oss.h
  * - Raw PCM/Ogg Vorbis input from RoarAudio
  *
- * Copyright (c) 2001 Michael Smith <msmith@labyrinth.net.au>
- * Copyright (c) 2009 Philipp Schafft <lion@lion.leolix.org>
+ * Copyright (c) 2001      Michael Smith <msmith@labyrinth.net.au>
+ * Copyright (c) 2009-2012 Philipp Schafft <lion@lion.leolix.org>
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute
