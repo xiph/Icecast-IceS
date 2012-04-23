@@ -17,7 +17,17 @@
 #include <roaraudio.h>
 #include "inputmodule.h"
 
+#ifdef HAVE_CONFIG_H
+ #include <config.h>
+#endif
+
 #define IM_ROAR_PROGNAME   "ices2"
+#define IM_ROAR_APPNAME    IM_ROAR_PROGNAME " <Xiph.Org Foundation>"
+#ifdef PACKAGE_VERSION
+ #define IM_ROAR_ABIVERSION "input-roar/" PACKAGE_VERSION
+#else
+ #define IM_ROAR_ABIVERSION "input-roar/unknown-version"
+#endif
 
 typedef struct
 {
@@ -28,6 +38,9 @@ typedef struct
     char **metadata;
     int newtrack;
     mutex_t metadatalock;
+
+    // plugins:
+    struct roar_plugincontainer * plugins;
 } im_roar_state; 
 
 input_module_t *roar_open_module(module_param_t *params);

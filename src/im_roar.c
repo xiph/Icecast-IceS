@@ -53,6 +53,12 @@ static void close_module(input_module_t *mod)
             if(s->vss)
                 roar_vs_close(s->vss, ROAR_VS_TRUE, NULL);
 
+            if (s->plugins)
+            {
+                roar_plugincontainer_appsched_trigger(s->plugins, ROAR_DL_APPSCHED_FREE);
+                roar_plugincontainer_unref(s->plugins);
+            }
+
 
             thread_mutex_destroy(&s->metadatalock);
             free(s);
@@ -125,6 +131,8 @@ static int roar_read(void *self, ref_buffer *rb)
     int err;
     im_roar_state *s = self;
 
+    roar_plugincontainer_appsched_trigger(s->plugins, ROAR_DL_APPSCHED_UPDATE);
+
     rb->buf = malloc(BUFSIZE * roar_info2framesize(&s->info)/8);
     if(!rb->buf)
         return -1;
@@ -158,6 +166,39 @@ static int roar_read(void *self, ref_buffer *rb)
     return rb->len;
 }
 
+static void roar_plugin_load(input_module_t *mod, const char *nameargs)
+{
+    im_roar_state *s;
+    struct roar_dl_librarypara *para;
+    char *name, *args;
+
+    s = mod->internal;
+
+    name = strdup(nameargs);
+    args = strstr(name, " ");
+    if (args)
+    {
+        *args = 0;
+        args++;
+    }
+
+    para = roar_dl_para_new(args, mod, IM_ROAR_APPNAME, IM_ROAR_ABIVERSION);
+    if (!para)
+    {
+        LOG_WARN2("Can not create parameters for plugin %s: %s", name, roar_error2str(roar_error));
+        free(name);
+        return;
+    }
+
+    if (roar_plugincontainer_load(s->plugins, name, para) == -1)
+    {
+        LOG_WARN2("Can not load plugin %s: %s", name, roar_error2str(roar_error));
+    }
+
+    roar_dl_para_unref(para);
+    free(name);
+}
+
 input_module_t *roar_open_module(module_param_t *params)
 {
     input_module_t *mod = calloc(1, sizeof(input_module_t));
@@ -183,7 +224,15 @@ input_module_t *roar_open_module(module_param_t *params)
     }
     s->info.bits = 16;
 
-    s->vss   = NULL;
+    s->vss       = NULL;
+
+    s->plugins   = roar_plugincontainer_new_simple(IM_ROAR_APPNAME, IM_ROAR_ABIVERSION);
+    if (!s->plugins)
+    {
+        LOG_ERROR1("Failed to create plugin container: %s",
+                roar_error2str(roar_error));
+        return NULL;
+    }
 
     thread_mutex_create(&s->metadatalock);
 
@@ -220,6 +269,8 @@ input_module_t *roar_open_module(module_param_t *params)
         } else if(!strcmp(current->name, "metadatafilename")) {
             ices_config->metadata_filename = current->value;
             use_metadata = MD_FILE;
+        } else if(!strcmp(current->name, "plugin")) {
+            roar_plugin_load(mod, current->value);
         } else
             LOG_WARN1("Unknown parameter %s for roar module", current->name);
 
@@ -249,6 +300,7 @@ input_module_t *roar_open_module(module_param_t *params)
          return NULL;
     }
 
+    roar_plugincontainer_appsched_trigger(s->plugins, ROAR_DL_APPSCHED_INIT);
 
     /* Open the VS connection */
     if ( (s->vss = roar_vs_new(server, IM_ROAR_PROGNAME, &err)) == NULL ) {
