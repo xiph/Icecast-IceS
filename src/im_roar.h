@@ -1,4 +1,4 @@
-/* im_oss.h
+/* im_roar.h
  * - Raw PCM/Ogg Vorbis input from RoarAudio
  *
  * Copyright (c) 2001      Michael Smith <msmith@labyrinth.net.au>
@@ -16,6 +16,8 @@
 #include <thread/thread.h>
 #include <roaraudio.h>
 #include "inputmodule.h"
+
+#define IM_ROAR_PROGNAME   "ices2"
 
 typedef struct
 {

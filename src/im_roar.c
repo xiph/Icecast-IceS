@@ -1,4 +1,4 @@
-/* im_oss.c
+/* im_roar.c
  * - Raw PCM/Ogg Vorbis input from RoarAudio
  *
  * Copyright (c) 2001      Michael Smith <msmith@labyrinth.net.au>
@@ -41,13 +41,6 @@
 #include "logging.h"
 
 #define BUFSIZE 2048
-
-/* Some platforms (freebsd) don't define this, so just define it to something
- * that should be treated the same
- */
-#ifndef ERESTART
-#define ERESTART EINTR
-#endif
 
 static void close_module(input_module_t *mod)
 {
@@ -128,18 +121,18 @@ static void metadata_update(void *self, vorbis_comment *vc)
  */
 static int roar_read(void *self, ref_buffer *rb)
 {
-    int result;
+    ssize_t result;
     int err;
     im_roar_state *s = self;
 
-    rb->buf = malloc(BUFSIZE*2*s->info.channels);
+    rb->buf = malloc(BUFSIZE * roar_info2framesize(&s->info)/8);
     if(!rb->buf)
         return -1;
 
-    result = roar_vs_read(s->vss, rb->buf, BUFSIZE * 2 * s->info.channels, &err);
+    result = roar_vs_read(s->vss, rb->buf, BUFSIZE * roar_info2framesize(&s->info)/8, &err);
 
     rb->len = result;
-    rb->aux_data = s->info.rate * s->info.channels * 2;
+    rb->aux_data = roar_info2bitspersec(&s->info)/8;
 
     if(s->newtrack)
     {
@@ -158,6 +151,7 @@ static int roar_read(void *self, ref_buffer *rb)
         else
             LOG_ERROR1("Error reading from sound server: %s", roar_vs_strerr(err));
         free(rb->buf);
+        rb->buf = NULL;
         return -1;
     }
 
@@ -257,7 +251,7 @@ input_module_t *roar_open_module(module_param_t *params)
 
 
     /* Open the VS connection */
-    if ( (s->vss = roar_vs_new(server, "ices2", &err)) == NULL ) {
+    if ( (s->vss = roar_vs_new(server, IM_ROAR_PROGNAME, &err)) == NULL ) {
         LOG_ERROR2("Failed to open sound server %s: %s",
                 server, roar_vs_strerr(err));
         goto fail;
