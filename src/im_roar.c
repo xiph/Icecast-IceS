@@ -246,7 +246,12 @@ input_module_t *roar_open_module(module_param_t *params)
             s->info.channels = roar_str2channels(current->value);
         else if(!strcmp(current->name, "codec"))
             s->info.codec = roar_str2codec(current->value);
-        else if(!strcmp(current->name, "dir")) {
+        else if(!strcmp(current->name, "aiprofile")) {
+            if (roar_profile2info(&s->info, current->value) == -1) {
+                LOG_WARN2("Can not get audio info profile %s: %s", current->value, roar_error2str(roar_error));
+            }
+            s->info.bits = 16;
+        } else if(!strcmp(current->name, "dir")) {
             if ( !strcasecmp(current->value, "monitor") ) {
                 dir = ROAR_DIR_MONITOR;
             } else if ( !strcasecmp(current->value, "record") ) {
