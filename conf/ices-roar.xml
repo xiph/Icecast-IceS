@@ -44,7 +44,12 @@
                  Default should be raw PCM ("default").
                  You may also use "ogg_vorbis".
             -->
-            <param name="codec">default</param>
+            <!-- <param name="codec">default</param> -->
+
+            <!-- Alternatively to the above you can use one of libroar's
+                 audio info profiles.
+            -->
+            <!-- <param name="aiprofile">default</param> -->
 
             <!-- The stream direction:
                  Use "monitor" for sending a copy of your output to the server or
@@ -56,9 +61,9 @@
             <!-- This is the address of the server to connect to.
                  This can be a /path/to/unixsocket, a host or node name.
                  You sould not set this value for local roard unless
-                 needed. Setting this to 'localhost' is normaly a bad idea.
+                 needed. Setting this to "localhost" is normaly a bad idea.
             -->
-            <param name="device">somehost</param>
+            <!-- <param name="device">someserver</param> -->
 
             <!-- Read metadata (from stdin by default,
                  filename defined below (if the latter, only on SIGUSR1), or
@@ -67,8 +72,13 @@
                  "file"   - Read metadata from file (or stdin if no filename is configured.
                  "stream" - Read metadata from stream (Audio server).
             -->
-            <param name="metadata">file</param>
-            <param name="metadatafilename">test</param>
+            <!-- <param name="metadata">file</param> -->
+            <!-- <param name="metadatafilename">test</param> -->
+
+            <!-- libroar plugins to load.
+            -->
+            <!-- <param name="plugin">helloworld</param> -->
+            <!-- <param name="plugin">helloworld text="Hello ices2 users!"</param> -->
         </input>
 
         <!--    Stream instance.
