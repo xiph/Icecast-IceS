@@ -50,7 +50,7 @@
  */
 void *ices_instance_stream(void *arg)
 {
-    int ret, shouterr;
+    int ret, shouterr, initial_attempts;
     ref_buffer *buffer;
     stream_description *sdsc = arg;
     instance_t *stream = sdsc->stream;
@@ -214,6 +214,8 @@ void *ices_instance_stream(void *arg)
             LOG_INFO1("Saving stream to file %s", stream->savefilename);
     }
 
+    initial_attempts = 0;
+retry:
     if((shouterr = shout_open(sdsc->shout)) == SHOUTERR_SUCCESS)
     {
         LOG_INFO3("Connected to server: %s:%d%s", 
@@ -343,6 +345,17 @@ void *ices_instance_stream(void *arg)
     }
     else
     {
+	if (stream->retry_initial_connection &&
+	    (initial_attempts++ < stream->reconnect_attempts ||
+	     stream->reconnect_attempts == -1) && 
+	    !ices_config->shutdown)
+	{
+	    shout_close(sdsc->shout);
+	    LOG_WARN4("Retrying connection to %s:%d (%s: %s)", 
+               shout_get_host(sdsc->shout),shout_get_port(sdsc->shout), shout_get_error(sdsc->shout), strerror(errno));
+	    thread_sleep (stream->reconnect_delay*1000000);
+	    goto retry;
+	}
         LOG_ERROR4("Failed initial connect to %s:%d (%s: %s)", 
                 shout_get_host(sdsc->shout),shout_get_port(sdsc->shout), shout_get_error(sdsc->shout), strerror(errno));
     }

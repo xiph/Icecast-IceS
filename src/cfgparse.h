@@ -4,6 +4,7 @@
  * $Id: cfgparse.h,v 1.7 2004/03/11 17:16:08 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@xiph.org>
+ * Copyright (c) 2006 Eric Faurot
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute
@@ -25,7 +26,7 @@ typedef struct _module_param_tag
     struct _module_param_tag *next;
 } module_param_t;
 
-/* FIXME: orward declaraction because my headers are a mess. */
+/* FIXME: forward declaraction because my headers are a mess. */
 struct buffer_queue;
 
 typedef struct _instance_tag
@@ -37,6 +38,7 @@ typedef struct _instance_tag
     char *mount;
     int reconnect_delay;
     int reconnect_attempts;
+    int retry_initial_connection;
     int encode;
     int downmix;
     int resampleinrate;

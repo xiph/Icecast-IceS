@@ -4,6 +4,7 @@
  * $Id: cfgparse.c,v 1.10 2004/03/11 17:16:08 karl Exp $
  *
  * Copyright (c) 2001 Michael Smith <msmith@xiph.org>
+ * Copyright (c) 2006 Eric Faurot
  *
  * This program is distributed under the terms of the GNU General
  * Public License, version 2. You may use, modify, and redistribute
@@ -54,6 +55,7 @@
 #define DEFAULT_RESAMPLE 0
 #define DEFAULT_RECONN_DELAY 2
 #define DEFAULT_RECONN_ATTEMPTS 10
+#define DEFAULT_RETRY_INIT 0
 #define DEFAULT_MAXQUEUELENGTH 100 /* Make it _BIG_ by default */
 #define DEFAULT_SAVEFILENAME NULL /* NULL == don't save */
 
@@ -138,6 +140,7 @@ static void _set_instance_defaults(instance_t *instance)
     instance->resampleoutrate = DEFAULT_RESAMPLE;
     instance->reconnect_delay = DEFAULT_RECONN_DELAY;
     instance->reconnect_attempts = DEFAULT_RECONN_ATTEMPTS;
+    instance->retry_initial_connection = DEFAULT_RETRY_INIT;
     instance->max_queue_length = DEFAULT_MAXQUEUELENGTH;
     instance->savefilename = DEFAULT_SAVEFILENAME;
 
@@ -255,6 +258,8 @@ static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
             SET_INT(instance->reconnect_delay);
         else if(strcmp(node->name, "reconnectattempts") == 0)
             SET_INT(instance->reconnect_attempts);
+        else if(strcmp(node->name, "retry-initial") == 0)
+            SET_INT(instance->retry_initial_connection);
         else if(strcmp(node->name, "maxqueuelength") == 0)
             SET_INT(instance->max_queue_length);
         else if(strcmp(node->name, "downmix") == 0)
