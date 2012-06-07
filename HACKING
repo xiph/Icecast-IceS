@@ -1,7 +1,7 @@
 Note that these instructions are *not* necessary for distribution
 tarballs; they have separate configure/build instructions.  
 
-Building this package from CVS is mainly intended for developers.
+Building this package from SVN is mainly intended for developers.
 General users should obtain official distribution packages; both
 source and binary distributions are available at
 http://www.icecast.org/
@@ -13,7 +13,7 @@ These are *brief* instructions on how to build this package from SVN.
 There are generally four steps necessary when building from SVN (i.e.,
 a developer's copy):
 
-1. svn checkout of the sources, or cvs update.  RTFM from your
+1. svn checkout of the sources, or svn update.  RTFM from your
    favorite flavor of SVN documentation; information on the xiph.org
    SVN repository can be found at http://www.xiph.org/svn.html.
 
@@ -27,7 +27,7 @@ a developer's copy):
 4. Run "make" to build the source.  
 
 In general, steps 2 and 3 need to be re-run every time any of the
-following files are modified (either manually or by a cvs update):
+following files are modified (either manually or by a svn update):
 
     configure.in
     m4/*.m4
