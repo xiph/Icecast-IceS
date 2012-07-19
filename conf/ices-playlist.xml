@@ -87,6 +87,7 @@
                 Currrently, the parameters given here for encoding MUST
                 match the input data for channels and sample rate. That 
                 restriction will be relaxed in the future.
+                Remove this section if you don't want your files getting reencoded.
             -->
             <encode>  
                 <nominal-bitrate>64000</nominal-bitrate> <!-- bps. e.g. 64000 for 64 kbps -->

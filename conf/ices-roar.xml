@@ -111,7 +111,9 @@
 
                 channels and samplerate currently MUST match the channels
                 and samplerate given in the parameters to the oss input
-                module above or the remsaple/downmix section below.  -->
+                module above or the remsaple/downmix section below.
+                Remove this section if you don't want your stream getting reencoded.
+            -->
 
             <encode>  
                 <quality>0</quality>
