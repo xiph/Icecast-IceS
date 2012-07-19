@@ -141,20 +141,21 @@
    <p>
     This module should always be available, and as you can see the parameters
     are almost the same except for the device. The PCM audio comes from the
-    standard input so it can be generated from some external app feeding into
-    a pipe.
+    standard input so it can be generated from some external application feeding
+    into a pipe.
    </p>
    <p>
     As it's raw PCM being fed in, it's impossible to determine the samplerate
     and channels so make sure the stated parameters match the incoming PCM or
     the audio will be encoded wrongly.
    </p>
+
    <h2>Playlist</h2>
    <p>
     The playlist module is used to get audio from some pre-encoded Ogg
     Vorbis files.  IceS currently checks to see if the same file gets
     played in succession and skips it, this means that having a playlist
-    repeat with only one ogg file listed won't work.
+    repeat with only one Ogg file listed won't work.
     The method of file selection is determined by the playlist
     type.  The current types are basic and script.
    </p>
@@ -202,6 +203,103 @@
     an executable to a shell script as long as it starts, writes the
     filename to it's standard output and then exits.
    </div>
+
+   <h2>RoarAudio</h2>
+   <p>
+    The RoarAudio module is used to get audio from a RoarAudio Sound Server.
+    This module supports getting both already encoded and raw audio from the
+    sound server. It also allows meta data to be read from the sound server
+    or an file the same way the Open Sound module does.
+   </p>
+   <pre>
+        &lt;module&gt;roar&lt;/module&gt;
+        &lt;param name="rate"&gt;44100&lt;/param&gt;
+        &lt;param name="channels"&gt;stereo&lt;/param&gt;
+        &lt;param name="codec"&gt;ogg_vorbis&lt;/param&gt;
+        &lt;param name="aiprofile"&gt;default&lt;/param&gt;
+        &lt;param name="dir"&gt;monitor&lt;/param&gt;
+        &lt;param name="device"&gt;/tmp/roar&lt;/param&gt;
+        &lt;param name="server"&gt;home::&lt;/param&gt;
+        &lt;param name="metadata"&gt;file&lt;/param&gt;
+        &lt;param name="metadatafilename"&gt;/home/ices/metadata&lt;/param&gt;
+        &lt;param name="plugin"&gt;helloworld text="Hello ices2 users!"&lt;/param&gt;
+   </pre>
+
+   <p>
+    The parameters are similar to the of the other modules.
+    For the audio parameters (rate, channels, codec) the values from libroar's
+    audio info profile "default" are used (normally 44100, 2, pcm_s).
+    The following can be used to configure the module:
+   </p>
+
+   <h4>rate</h4>
+   <div class=indentedbox>
+    The value is in hertz, 44100 is the samplerate used on CD's, but some drivers
+    may prefer 48000 (DAT) or you may want to use something lower.
+    This can also be a symbolic name as supported by libroar.
+    Examples include "cd" and "dat".
+   </div>
+   <h4>channels</h4>
+   <div class=indentedbox>
+    The number of channels to record. This is typically 2 for stereo or 1 for mono.
+    This can also be a symbolic name as supported by libroar.
+    Examples include "stereo" and "mono".
+   </div>
+   <h4>codec</h4>
+   <div class=indentedbox>
+    The codec to read the audio data in from the sound server.
+    Currently the values "default", "pcm_s", "pcm_s_le", "pcm_s_be",
+    "ogg_vorbis" and "ogg_general" are supported.
+    "default" is an alias for "pcm_s" which itself is an alias to "pcm_s_le" or "pcm_s_be" depending
+    on the native byte order of the system. "ogg_general" should not be used.
+   </div>
+   <h4>aiprofile</h4>
+   <div class=indentedbox>
+    Use the given audio info profile from libroar.
+    By default the profile "default" is used.
+    If mixed with rate, channels or codec options the last one set wins.
+   </div>
+
+   <h4>dir</h4>
+   <div class=indentedbox>
+    This is the stream direction. Currently "monitor" and "record" are supported.
+    If set to "monitor" ices2 will stream a copy of the audio played back by
+    sound server to icecast. If set to "record" it will read from soundcard input (e.g. mic).
+    Defaults to "monitor".
+   </div>
+
+   <h4>device, server</h4>
+   <div class=indentedbox>
+    This sets the location of the sound server. Both parameters are equal.
+    The location can be in any form libroar understands.
+    Common values are server addresses in form "/path/to/sock" for UNIX sockets,
+    "hostname" for IPv4 and IPv6 hosts and "node::" for DECnet nodes.
+    A full description of this can be found in the RoarAudio documentation.
+    Defaults to the list of default locations (auto detection) libroar has.
+   </div>
+
+   <h4>metadata</h4>
+   <div class=indentedbox>
+    This is the meta data source. Currently supported values are "none", "file" and "stream".
+    The values "none" and "file" are the same as for the Open Sound module the values "0" and "1".
+    The value "stream" requests meta data from the sound server.
+    Defaults to "stream".
+   </div>
+
+   <h4>metadatafilename</h4>
+   <div class=indentedbox>
+    This setting is the same as "metadatafilename" for the Open Sound module.
+    It is only active when "metadata" is set to "file".
+   </div>
+
+   <h4>plugin</h4>
+   <div class=indentedbox>
+    This setting loads a plugin. The plugin name my be followed by parameters
+    to be passed to the plugin. Between the plugin name and the parameters needs to be a space.
+    Normal libroar plugin parameter parsing rules apply
+    (keys and values separated by "=", key-value-pairs separated by ",").
+   </div>
+
   </div>
  </body>
 </html>
