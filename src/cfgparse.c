@@ -66,6 +66,7 @@
     do {\
         if (x) xmlFree(x);\
         (x) = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
+        if (!(x)) (x) = xmlStrdup("");\
     } while (0) 
 
 #define SET_INT(x) \
