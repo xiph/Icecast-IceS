@@ -16,13 +16,14 @@
    live audio streaming, takes audio from the soundcard which can be captured from say the
    Mic, line-In, CD or a combination of these. 
    <ul>
-       <li>ices-oss.xml
-       <li>ices-alsa.xml
+       <li>ices-oss.xml</li>
+       <li>ices-alsa.xml</li>
+       <li>ices-roar.xml</li>
    </ul>
    <p>Playlist audio streaming, takes pre-encoded Ogg Vorbis files and either sends them
    as-is or re-encodes them to different settings</p>
    <ul>
-       <li>ices-playlist.xml
+       <li>ices-playlist.xml</li>
    </ul>
    <h2>General layout</h2>
    <pre>
@@ -147,7 +148,7 @@
     <h4>hostname</h4>
     <div class=indentedbox>
      State the hostname of the icecast to contact, this can be a name or IP
-     address and can be ipv4 or ipv6 on systems that support IPv6. The default
+     address and can be IPv4 or IPv6 on systems that support IPv6. The default
      is localhost.
    </div>
    <h4>port</h4>
@@ -199,7 +200,7 @@
      When encoding or re-encoding, there is a point where you take PCM audio
      and encode to Ogg Vorbis. In some situations a particular encoded stream may
      require a lower samplerate to achieve a lower bitrate. The resample will
-     modifiy the audio data before it enters the encoder, but does not affect
+     modify the audio data before it enters the encoder, but does not affect
      other instances.
     </p>
     <p>
@@ -290,11 +291,11 @@
    <p>flush-samples</p>
    <div class=indentedbox>
      This is the trigger level at which Ogg pages are created for sending to the server.
-     Depending on the bitrate and compression achieved a single ogg page can contain many
+     Depending on the bitrate and compression achieved a single Ogg page can contain many
      seconds of audio which may not be wanted as that can trigger timeouts.
      <p>Setting this to the same value as the encode samplerate will mean that a page per
      second is sent, if a value that is half of the encoded samplerate is specified then
-     2 ogg pages per second are sent.</p>
+     2 Ogg pages per second are sent.</p>
    </div>
   </div>
  </body>
