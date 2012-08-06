@@ -187,7 +187,6 @@ AC_OUTPUT(
   Makefile
   conf/Makefile 
   doc/Makefile 
-  debian/Makefile
   src/Makefile 
    src/log/Makefile 
    src/timing/Makefile
