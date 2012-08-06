@@ -181,7 +181,7 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
         }
 
         if(sdsc->downmix) {
-            downmix_buffer(sdsc->downmix, buffer->buf, buffer->len, be);
+            downmix_buffer(sdsc->downmix, (signed char *)buffer->buf, buffer->len, be);
             if(sdsc->resamp) {
                 resample_buffer_float(sdsc->resamp, &sdsc->downmix->buffer, 
                         buffer->len/4);

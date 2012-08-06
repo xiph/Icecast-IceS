@@ -16,6 +16,7 @@
 
 #include <signal.h>
 
+void signal_usr1_handler(int signum);
 void signal_hup_handler(int signum);
 void signal_int_handler(int signum);
 

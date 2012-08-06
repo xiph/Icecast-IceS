@@ -6,7 +6,7 @@ SUBDIRS = log timing thread avl
 
 bin_PROGRAMS = ices
 AM_CPPFLAGS = @XIPH_CPPFLAGS@
-AM_CFLAGS = @XIPH_CFLAGS@ -Wall
+AM_CFLAGS = @XIPH_CFLAGS@ -Wall -Wno-pointer-sign
 
 EXTRA_ices_SOURCES = im_oss.c im_sun.c im_alsa.c im_roar.c
 

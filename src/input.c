@@ -34,6 +34,7 @@
 #include "stream.h"
 #include "input.h"
 #include "event.h"
+#include "signals.h"
 #include "inputmodule.h"
 #include "im_playlist.h"
 #include "im_stdinpcm.h"

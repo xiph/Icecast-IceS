@@ -157,9 +157,8 @@ input_module_t *alsa_open_module(module_param_t *params)
     module_param_t *current;
     char *device = "plughw:0,0"; /* default device */
     snd_pcm_format_t format = SND_PCM_FORMAT_S16_LE;
-    int channels, rate;
     int use_metadata = 1; /* Default to on */
-    unsigned int buffered_time, exact_rate;
+    unsigned int exact_rate;
     int dir;
 
     snd_pcm_stream_t stream = SND_PCM_STREAM_CAPTURE;
