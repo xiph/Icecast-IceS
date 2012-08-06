@@ -1,3 +1,0 @@
-version=2
-
-http://downloads.xiph.org/releases/ices/ices-(.*)\.tar\.gz	debian	uupdate
