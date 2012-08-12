@@ -100,6 +100,13 @@ static int load_playlist(basic_playlist *data)
         data->pl[data->len++] = strdup(buf);
     }
 
+    if (!data->len)
+    {
+        LOG_ERROR1("Playlist file %s does not contain any track",
+                data->file);
+        return -1;
+    }
+
     if(data->random)
         shuffle(data->pl, data->len);
 
@@ -192,10 +199,7 @@ int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
 
     while (params != NULL) {
         if (!strcmp(params->name, "file")) 
-        {
-            if (data->file) free(data->file);
             data->file = params->value;
-        } 
         else if (!strcmp(params->name, "random")) 
             data->random = atoi(params->value);
         else if(!strcmp(params->name, "once"))
