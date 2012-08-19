@@ -160,7 +160,7 @@
     type.  The current types are basic and script.
    </p>
 
-   <h3>Basic</h3>
+   <h3>Basic / M3U / VCLT</h3>
    <pre>
     &lt;param name="type"&gt;basic&lt;/param&gt;
     &lt;param name="file"&gt;/path/to/playlist&lt;/param&gt;
@@ -168,10 +168,18 @@
     &lt;param name="once"&gt;0&lt;/param&gt;
     &lt;param name="restart-after-reread"&gt;1&lt;/param&gt;
    </pre>
+   <h4>type</h4>
+   <div class=indentedbox>
+    This is the file format of the playlist.
+    Currently "basic", "m3u" and "vclt" are supported.
+   </div>
    <h4>file</h4>
    <div class=indentedbox>
     State a path to a file which will contain a list of Ogg Vorbis filenames
-    to play. One per line with lines beginning with '#' being treated as
+    to play.
+    The format of this file depends on the setting of "type".
+    For type "basic" the format is
+    one filename per line with lines beginning with '#' being treated as
     comments.  If a line has a single '-' then standard input is read, which
     provides a way of getting some external Ogg Vorbis stream into ices.
    </div>

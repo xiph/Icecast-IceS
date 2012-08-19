@@ -54,6 +54,8 @@ static int load_playlist(basic_playlist *data)
     FILE *file;
     char buf[1024];
     int buflen;
+    char *ret;
+    int is_next_entry = 1;
 
     file = fopen(data->file, "rb");
 
@@ -76,20 +78,37 @@ static int load_playlist(basic_playlist *data)
     buflen = 0;
     while (1) 
     {
-        if(fgets(buf,1024, file) == NULL) break;
-        if(buf[0]==0) break;
+        if((ret=fgets(buf, sizeof(buf), file)) == NULL) break;
+        if(ret[0]==0) break;
 
-        if(buf[0]=='\n' || (buf[0]=='\r' && buf[1]=='\n'))
+        if(ret[0]=='\n' || (ret[0]=='\r' && ret[1]=='\n'))
             continue;
 
-        if(buf[0] == '#') /* Commented out entry */
+        if(ret[0] == '#') /* Commented out entry */
             continue;
 
-        buf[strlen(buf)-1] = 0;
+        ret[strlen(ret)-1] = 0;
 
         /* De-fuck windows files. */
-        if(strlen(buf) > 0 && buf[strlen(buf)-1] == '\r')
-            buf[strlen(buf)-1] = 0;
+        if(strlen(ret) > 0 && ret[strlen(ret)-1] == '\r')
+            ret[strlen(ret)-1] = 0;
+
+        if (data->type == PLAYLIST_VCLT)
+        {
+            if (!strcmp(ret, "=="))
+            {
+                is_next_entry = 1;
+                continue;
+            }
+
+            if (!is_next_entry)
+                continue;
+
+            if (!!strncasecmp(ret, "FILENAME=", 9))
+                continue;
+            ret += 9;
+            is_next_entry = 0;
+        }
 
         if(buflen < data->len+1)
         {
@@ -97,7 +116,7 @@ static int load_playlist(basic_playlist *data)
             data->pl = realloc(data->pl, buflen*sizeof(char *));
         }
 
-        data->pl[data->len++] = strdup(buf);
+        data->pl[data->len++] = strdup(ret);
     }
 
     if (!data->len)
@@ -186,6 +205,16 @@ void playlist_basic_free_filename(void *data, char *fn)
    free (fn);
 }
 
+static basic_playlist_type _str2type(const char * type) {
+    if ( !strcmp(type, "basic") )
+        return PLAYLIST_BASIC;
+    if ( !strcmp(type, "m3u") )
+        return PLAYLIST_M3U;
+    if ( !strcmp(type, "vclt") )
+        return PLAYLIST_VCLT;
+    return PLAYLIST_INVALID;
+}
+
 int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
 {
     basic_playlist *data;
@@ -209,7 +238,7 @@ int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
         else if(!strcmp(params->name, "restart-after-reread"))
             data->restartafterreread = atoi(params->value);
         else if(!strcmp(params->name, "type"))
-            ; /* We recognise this, but don't want to do anything with it */
+            data->type = _str2type(params->value);
         else 
         {
             LOG_WARN1("Unknown parameter to playlist input module: %s", 
@@ -221,6 +250,13 @@ int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
     if (!data->file) 
     {
         LOG_ERROR0("No filename specified for playlist module");
+        free(data);
+        return -1;
+    }
+
+    if (data->type == PLAYLIST_INVALID)
+    {
+        LOG_ERROR0("Playlist type invalid for playlist module");
         free(data);
         return -1;
     }

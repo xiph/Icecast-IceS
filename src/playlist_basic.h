@@ -14,6 +14,14 @@
 #ifndef __PLAYLIST_BASIC_H__
 #define __PLAYLIST_BASIC_H__
 
+typedef enum
+{
+    PLAYLIST_INVALID,
+    PLAYLIST_BASIC,
+    PLAYLIST_M3U,
+    PLAYLIST_VCLT,
+} basic_playlist_type;
+
 typedef struct
 {
     char **pl;
@@ -24,6 +32,7 @@ typedef struct
     int random;
     int once;
     int restartafterreread;
+    basic_playlist_type type; /* Playlist type */
 
 } basic_playlist;
 

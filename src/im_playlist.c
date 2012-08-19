@@ -46,6 +46,8 @@ typedef struct _module
 
 static module modules[] = {
     { "basic", playlist_basic_initialise},
+    { "m3u", playlist_basic_initialise},
+    { "vclt", playlist_basic_initialise},
     { "script", playlist_script_initialise},
     {NULL,NULL}
 };
