@@ -39,7 +39,7 @@ static long _get_serial()
     thread_mutex_lock (&_serial_lock);
     serial = prev_serial;
     while (serial == prev_serial)
-        serial = rand();
+        serial = random();
     prev_serial = serial;
     thread_mutex_unlock (&_serial_lock);
 

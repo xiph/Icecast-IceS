@@ -31,22 +31,40 @@
 #define MODULE "playlist-basic/"
 #include "logging.h"
 
-static void shuffle(char **buf, int len)
+static void shuffle(char **buf, size_t len)
 {
-    /* From ices1 src/playlist_basic/rand.c */
-    int n,d;
+    size_t i, range;
+    long int d;
     char *temp;
 
-    n = len;
-    while(n > 1)
+    for (i = 0; i < len; i++)
     {
-        d = (int) ((double)len * rand()/(RAND_MAX+1.0));
+        range = len - i;
+        /*
+         * Only accept a random number if it is smaller than the largest
+         * multiple of our range - reduces PRNG bias
+         */
+        do {
+            d = random();
+        } while (d > (RAND_MAX - (RAND_MAX % range)));
+
+        /*
+         * The range starts at the item we want to shuffle, excluding
+         * already shuffled items
+         */
+        d = i + ((size_t)d % range);
+
         temp = buf[d];
-        buf[d] = buf[n-1];
-        buf[n-1] = temp;
-        --n;
+        buf[d] = buf[i];
+        buf[i] = temp;
     }
     LOG_DEBUG0("Playlist has been shuffled");
+
+    LOG_DEBUG1("Playlist contains %d songs:", len);
+    for (i = 0; i < len; i++)
+    {
+        LOG_DEBUG2("%u: %s", i+1, buf[i]);
+    }
 }
 
 static int load_playlist(basic_playlist *data)

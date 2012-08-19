@@ -412,7 +412,7 @@ void config_initialize(void)
     ices_config = (config_t *)calloc(1, sizeof(config_t));
     xmlInitParser();
     _set_defaults(ices_config);
-    srand(time(NULL));
+    srandom(time(NULL));
 }
 
 void config_shutdown(void)
