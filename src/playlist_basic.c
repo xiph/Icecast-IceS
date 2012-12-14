@@ -240,6 +240,7 @@ int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
     pl->get_filename = playlist_basic_get_next_filename;
     pl->clear = playlist_basic_clear;
     pl->free_filename = playlist_basic_free_filename;
+    pl->file_ended = NULL;
 
     pl->data = calloc(1, sizeof(basic_playlist));
     data = (basic_playlist *)pl->data;

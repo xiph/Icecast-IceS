@@ -30,6 +30,7 @@ typedef struct _playlist_state_tag
     char *(*get_filename)(void *data); /* returns the next desired filename */
     void (*free_filename)(void *data, char *fn); /* Called when im_playlist is
                                                     done with this filename */
+    void (*file_ended)(void *data, char *fn); /* Called when the current file is done */
     void (*clear)(void *data); /* module clears self here */
 
     void *data; /* Internal data for this particular playlist module */

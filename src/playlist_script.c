@@ -30,6 +30,7 @@
 
 typedef struct {
     char *program;
+    char *on_ended;
 } script_playlist;
 
 void playlist_script_clear(void *data) {
@@ -87,6 +88,25 @@ void playlist_script_free_filename(void *data, char *fn)
     free(fn);
 }
 
+void playlist_script_file_ended(void *data, char *fn)
+{
+    script_playlist *pl = data;
+    FILE *pipe;
+
+    if (!pl->on_ended)
+        return;
+
+    pipe = popen(pl->on_ended, "w");
+
+    if(!pipe) {
+        LOG_ERROR1("Couldn't open pipe to program \"%s\"", pl->on_ended);
+        return;
+    }
+
+    fprintf(pipe, "%s\n", fn);
+    pclose(pipe);
+}
+
 int playlist_script_initialise(module_param_t *params, playlist_state_t *pl)
 {
     script_playlist *data;
@@ -94,6 +114,7 @@ int playlist_script_initialise(module_param_t *params, playlist_state_t *pl)
     pl->get_filename = playlist_script_get_filename;
     pl->clear = playlist_script_clear;
     pl->free_filename = playlist_script_free_filename;
+    pl->file_ended = playlist_script_file_ended;
 
     pl->data = calloc(1, sizeof(script_playlist));
     if(!pl->data)
@@ -105,6 +126,10 @@ int playlist_script_initialise(module_param_t *params, playlist_state_t *pl)
         if(!strcmp(params->name, "program")) {
             if(data->program) free(data->program);
             data->program = params->value;
+        }
+        else if(!strcmp(params->name, "on-ended")) {
+            if(data->on_ended) free(data->on_ended);
+            data->on_ended = params->value;
         }
         else if(!strcmp(params->name, "allow-repeats"))
             pl->allow_repeat = atoi(params->value);

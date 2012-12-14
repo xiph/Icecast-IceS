@@ -116,6 +116,10 @@ static int playlist_read(void *self, ref_buffer *rb)
             fclose(pl->current_file);
             pl->current_file = NULL;
         }
+	if (pl->file_ended)
+	{
+	    pl->file_ended(pl->data, pl->filename);
+	}
 
         newfn = pl->get_filename(pl->data);
         if (!newfn)
