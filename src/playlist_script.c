@@ -93,7 +93,7 @@ void playlist_script_file_ended(void *data, char *fn)
     script_playlist *pl = data;
     FILE *pipe;
 
-    if (!pl->on_ended)
+    if (!pl->on_ended || !fn)
         return;
 
     pipe = popen(pl->on_ended, "w");
