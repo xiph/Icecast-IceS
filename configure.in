@@ -129,11 +129,21 @@ AC_ARG_ENABLE(roaraudio,
  	enable_roaraudio=yes)
 
 if test "x$enable_roaraudio" = xyes ; then
-    PKG_CHECK_MODULES(RoarAudio, [libroar >= 0.4.0], have_roaraudio=yes, have_roaraudio=no)
+#    PKG_CHECK_MODULES(RoarAudio, [libroar >= 0.4.0], have_roaraudio=yes, have_roaraudio=no)
+    echo -n "checking for libroar... "
+    if roar-config --compare-versions current ge 0.4.0
+    then
+        have_roaraudio=yes
+    else
+        have_roaraudio=no
+    fi
 
     if test "$have_roaraudio" = yes; then
-	ROARAUDIO_LIBS="-lroar"
+	ROARAUDIO_LIBS="`roar-config --libs`"
         AC_DEFINE(HAVE_ROARAUDIO, ,[Define to enable RoarAudio input module])
+        echo "ok"
+    else
+        echo "failed"
     fi
 else
     have_roaraudio=no
