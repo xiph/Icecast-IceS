@@ -35,7 +35,7 @@ ices_LDADD = log/libicelog.la \
              thread/libicethread.la \
              avl/libiceavl.la \
              @ROARAUDIO_LIBS@ \
-             @ALSA_LIBS@ @XIPH_LIBS@
+             @ALSA_LIBS@ @XIPH_LIBS@ @OGG_LIBS@
 
 debug:
 	$(MAKE) all CFLAGS="@DEBUG@"
