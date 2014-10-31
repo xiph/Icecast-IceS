@@ -27,8 +27,8 @@
 
         <!--    Input module.
 
-            This example uses the 'oss' module. It takes input from the
-            OSS audio device (e.g. line-in), and processes it for live
+            This example uses the 'alsa' module. It takes input from the
+            ALSA audio device (e.g. line-in), and processes it for live
             encoding.  -->
         <input>
             <module>alsa</module>
@@ -70,7 +70,7 @@
             <!--    Live encoding/reencoding:
 
                 channels and samplerate currently MUST match the channels
-                and samplerate given in the parameters to the oss input
+                and samplerate given in the parameters to the alsa input
                 module above or the remsaple/downmix section below.  -->
 
             <encode>  
