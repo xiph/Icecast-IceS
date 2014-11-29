@@ -24,6 +24,11 @@
 
 #include <thread/thread.h>
 
+#ifdef _WIN32
+/* for FreeConsole() */
+#include <windows.h>
+#endif
+
 #include "cfgparse.h"
 #include "stream.h"
 #include "signals.h"
@@ -56,8 +61,10 @@ int main(int argc, char **argv)
         fprintf(stderr, "Failed to read config file \"%s\"\n", argv[1]);
         goto fail;
     }
+	
     if (ices_config->background)
     {
+#ifndef _WIN32		
         int ret = 0;
         /* Start up new session, to lose old session and process group */
         switch (fork())
@@ -80,13 +87,18 @@ int main(int argc, char **argv)
         default:
             exit (ret);
         }
+#else
+        FreeConsole();
+#endif    		
     }
-    
+
     log_initialize();
     thread_initialize();
     shout_init();
     encode_init();
+#ifndef _WIN32	
     signals_setup();
+#endif
 
     snprintf(logpath, FILENAME_MAX, "%s/%s", ices_config->logpath, 
             ices_config->logfile);

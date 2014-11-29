@@ -37,10 +37,12 @@ void signal_usr1_handler(int signum)
     LOG_INFO0("Metadata update requested");
     metadata_update_signalled = 1;
     thread_cond_broadcast(&ices_config->event_pending_cond);
-
+#ifndef _WIN32
     signal(SIGUSR1, signal_usr1_handler);
+#endif
 }
 
+#ifndef _WIN32
 void signal_hup_handler(int signum)
 {
     LOG_INFO0("Flushing logs");
@@ -51,6 +53,7 @@ void signal_hup_handler(int signum)
 
     signal(SIGHUP, signal_hup_handler);
 }
+#endif
 
 void signal_int_handler(int signum)
 {
@@ -67,12 +70,14 @@ void signal_int_handler(int signum)
 }
 
 
+#ifndef _WIN32
 void signals_setup(void)
 {
-    signal(SIGHUP, signal_hup_handler);
     signal(SIGINT, signal_int_handler);
+    signal(SIGHUP, signal_hup_handler);
     signal(SIGUSR1, signal_usr1_handler);
     signal(SIGPIPE, SIG_IGN);
 }
+#endif
 
 

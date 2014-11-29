@@ -32,6 +32,10 @@
 #define MODULE "metadata/"
 #include "logging.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 volatile int metadata_update_signalled = 0;
 
 void *metadata_thread_stdin(void *arg)

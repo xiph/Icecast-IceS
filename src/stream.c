@@ -69,7 +69,9 @@ void *ices_instance_stream(void *arg)
     shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
     shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_HTTP);
 
+#ifndef _WIN32
     signal(SIGPIPE, signal_hup_handler);
+#endif
 
     if (!(shout_set_host(sdsc->shout, stream->hostname)) == SHOUTERR_SUCCESS) {
         LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
