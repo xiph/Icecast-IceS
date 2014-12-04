@@ -27,7 +27,7 @@
 #include "cfgparse.h"
 #include "inputmodule.h"
 #include "event.h"
-#include "thread/thread.h"
+#include "common/thread/thread.h"
 
 #define MODULE "metadata/"
 #include "logging.h"

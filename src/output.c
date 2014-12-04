@@ -16,7 +16,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-#include <thread/thread.h>
+#include <common/thread/thread.h>
 #include "cfgparse.h"
 #include "input.h"
 #include "stream.h"

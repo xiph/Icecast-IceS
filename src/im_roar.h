@@ -13,7 +13,7 @@
 #ifndef __IM_ROAR_H__
 #define __IM_ROAR_H__
 
-#include <thread/thread.h>
+#include <common/thread/thread.h>
 #include <roaraudio.h>
 #include "inputmodule.h"
 

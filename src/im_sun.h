@@ -18,7 +18,7 @@
 
 #include <sys/audioio.h>
 #include "inputmodule.h"
-#include "thread/thread.h"
+#include "common/thread/thread.h"
 #include <ogg/ogg.h>
 
 typedef struct

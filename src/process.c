@@ -20,7 +20,7 @@
 
 #include "process.h"
 #include "config.h"
-#include "thread/thread.h"
+#include "common/thread/thread.h"
 
 #define MODULE "process/"
 #include "logging.h"

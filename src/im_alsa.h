@@ -17,7 +17,7 @@
 #define __IM_ALSA_H__
 
 #include <alsa/asoundlib.h>
-#include <thread/thread.h>
+#include <common/thread/thread.h>
 #include <ogg/ogg.h>
 #include "inputmodule.h"
 

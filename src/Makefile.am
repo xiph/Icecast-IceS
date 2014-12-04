@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = foreign 1.6
 
-SUBDIRS = log timing thread avl
+SUBDIRS = common/log common/timing common/thread common/avl
 
 bin_PROGRAMS = ices
 AM_CPPFLAGS = @XIPH_CPPFLAGS@
@@ -30,10 +30,10 @@ dist_noinst_HEADERS = cfgparse.h input.h inputmodule.h im_playlist.h signals.h s
 
 ices_SOURCES = input.c cfgparse.c stream.c ices.c signals.c im_playlist.c reencode.c encode.c playlist_basic.c im_stdinpcm.c stream_shared.c metadata.c playlist_script.c audio.c resample.c $(oss) $(sun) $(alsa) $(roar)
 
-ices_LDADD = log/libicelog.la \
-             timing/libicetiming.la \
-             thread/libicethread.la \
-             avl/libiceavl.la \
+ices_LDADD = common/log/libicelog.la \
+             common/timing/libicetiming.la \
+             common/thread/libicethread.la \
+             common/avl/libiceavl.la \
              @ROARAUDIO_LIBS@ \
              @ALSA_LIBS@ @XIPH_LIBS@ @OGG_LIBS@
 

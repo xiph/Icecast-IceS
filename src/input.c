@@ -28,8 +28,8 @@
 #include <vorbis/codec.h>
 #include <string.h>
 
-#include <timing/timing.h>
-#include <thread/thread.h>
+#include <common/timing/timing.h>
+#include <common/thread/thread.h>
 #include "cfgparse.h"
 #include "stream.h"
 #include "input.h"

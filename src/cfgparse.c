@@ -25,7 +25,7 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 
-#include <thread/thread.h>
+#include <common/thread/thread.h>
 
 #include "cfgparse.h"
 #include "stream.h"

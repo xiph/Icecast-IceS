@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <thread/thread.h>
+#include <common/thread/thread.h>
 #include "cfgparse.h"
 #include "input.h"
 #include "inputmodule.h"

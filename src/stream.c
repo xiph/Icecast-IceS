@@ -28,7 +28,7 @@
 #include "input.h"
 #include "im_playlist.h"
 #include "signals.h"
-#include "thread/thread.h"
+#include "common/thread/thread.h"
 #include "reencode.h"
 #include "encode.h"
 #include "audio.h"

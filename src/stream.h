@@ -17,7 +17,7 @@
 
 #include <shout/shout.h>
 
-#include "thread/thread.h"
+#include "common/thread/thread.h"
 #include "cfgparse.h"
 
 typedef struct {

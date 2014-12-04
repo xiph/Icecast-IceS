@@ -14,7 +14,7 @@
 #ifndef __IM_OSS_H__
 #define __IM_OSS_H__
 
-#include <thread/thread.h>
+#include <common/thread/thread.h>
 #include <ogg/ogg.h>
 #include "inputmodule.h"
 

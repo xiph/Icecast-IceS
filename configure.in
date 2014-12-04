@@ -198,10 +198,10 @@ AC_OUTPUT(
   conf/Makefile 
   doc/Makefile 
   src/Makefile 
-   src/log/Makefile 
-   src/timing/Makefile
-   src/thread/Makefile
-   src/avl/Makefile
+   src/common/log/Makefile 
+   src/common/timing/Makefile
+   src/common/thread/Makefile
+   src/common/avl/Makefile
 )
 
 echo "

@@ -14,7 +14,7 @@
 #ifndef __LOGGING_H
 #define __LOGGING_H
 
-#include "log/log.h"
+#include "common/log/log.h"
 
 #ifndef __GNUC__
 #define __FUNCTION__ ""

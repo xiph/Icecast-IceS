@@ -22,7 +22,7 @@
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
 
-#include <thread/thread.h>
+#include <common/thread/thread.h>
 
 #ifdef _WIN32
 /* for FreeConsole() */
