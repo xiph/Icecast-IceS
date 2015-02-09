@@ -33,6 +33,13 @@ typedef struct _instance_tag
 {
     char *hostname;
     int port;
+#if SHOUT_TLS
+    int tls;
+    char *ca_directory;
+    char *ca_certificate;
+    char *allowed_ciphers;
+    char *client_certificate;
+#endif
     char *password;
     char *user;
     char *mount;

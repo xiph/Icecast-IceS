@@ -138,6 +138,11 @@
         port
         password
         mount
+        tls-mode
+        ca-directory
+        ca-certificate
+        allowed-ciphers
+        client-certificate
         yp
         resample
         downmix
@@ -166,6 +171,41 @@
     Mountpoints are used to identify a particular stream on a icecast server,
     they must begin with / and for the sake of certain listening clients should
     end with the .ogg extension.
+   </div>
+   <h4>tls-mode</h4>
+   <div class=indentedbox>
+    Controls if the server should use a encrypted and authenticated connection
+    to the Icecast server. Supported modes are "auto" (default mode) in which
+    TLS is used if supported by the server, "auto_no_plain" in which TLS is forced
+    but modes supported by the server is still autodetected, "RFC2818" which uses
+    TLS sockets and "RFC2817" to use the HTTP "Upgrade:" mechanism.
+    <b>This requires TLS support compiled into libshout.</b>
+   </div>
+   <h4>ca-directory</h4>
+   <div class=indentedbox>
+    This sets the directory holding certificates of certification authorities used
+    to verify the server. Default is to use operating system's defaults.
+    <b>This requires TLS support compiled into libshout.</b>
+   </div>
+   <h4>ca-certificate</h4>
+   <div class=indentedbox>
+    In contrast to the ca-directory option this allows to set a single certificate used
+    to verify the server. Default is to use operating system's defaults.
+    <b>This requires TLS support compiled into libshout.</b>
+   </div>
+   <h4>allowed-ciphers</h4>
+   <div class=indentedbox>
+    For encrypted and authenticated connections this controls what ciphers may be used.
+    Do not set this option if you do not really know what you are doing. This can easily
+    break setup and security.
+    <b>This requires TLS support compiled into libshout.</b>
+   </div>
+   <h4>client-certificate</h4>
+   <div class=indentedbox>
+    On a TLS connection the client can authenticate to the server using a certificate.
+    This option allows to set such an certificate. This is a file in PEM format
+    containing both the certificate as well as the private key.
+    <b>This requires TLS support compiled into libshout.</b>
    </div>
    <h4>yp</h4>
    <div class=indentedbox>

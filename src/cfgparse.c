@@ -42,6 +42,13 @@
 #define DEFAULT_PLAYLIST_MODULE "playlist"
 #define DEFAULT_HOSTNAME "localhost"
 #define DEFAULT_PORT 8000
+#if SHOUT_TLS
+#define DEFAULT_TLS SHOUT_TLS_AUTO
+#define DEFAULT_CA_DIRECTORY NULL /* NULL = use system default */
+#define DEFAULT_CA_CERTIFICATE NULL /* NULL = use system default */
+#define DEFAULT_ALLOWED_CIPHERS NULL /* must be NULL according to libshout specs */
+#define DEFAULT_CLIENT_CERTIFICATE NULL /* NULL = no client cert */
+#endif
 #define DEFAULT_PASSWORD "password"
 #define DEFAULT_USERNAME NULL
 #define DEFAULT_MOUNT "/stream.ogg"
@@ -89,6 +96,21 @@
                 (x) = (char *)xmlGetProp(node, p);\
     } while (0)
 
+#if SHOUT_TLS
+#define SET_TLSMODE(x) \
+    do {\
+        char *tmp = (char *)xmlNodeListGetString(doc, node->xmlChildrenNode, 1);\
+        if (tmp) {\
+            if (strcasecmp(tmp,"DISABLED")==0)(x) = SHOUT_TLS_DISABLED;\
+            else if (strcasecmp(tmp,"AUTO")==0)(x) = SHOUT_TLS_AUTO;\
+            else if (strcasecmp(tmp,"AUTO_NO_PLAIN")==0)(x) = SHOUT_TLS_AUTO_NO_PLAIN;\
+            else if (strcasecmp(tmp,"RFC2818")==0)(x) = SHOUT_TLS_RFC2818;\
+            else if (strcasecmp(tmp,"RFC2817")==0)(x) = SHOUT_TLS_RFC2817;\
+            xmlFree(tmp);\
+        }\
+    } while (0) 
+#endif
+
 
 /* this is the global config variable */
 config_t *ices_config;
@@ -116,6 +138,12 @@ void config_free_instance(instance_t *instance)
     if (instance->password) xmlFree(instance->password);
     if (instance->user) xmlFree(instance->user);
     if (instance->mount) xmlFree(instance->mount);
+#if SHOUT_TLS
+    if (instance->ca_directory) xmlFree(instance->ca_directory);
+    if (instance->ca_certificate) xmlFree(instance->ca_certificate);
+    if (instance->allowed_ciphers) xmlFree(instance->allowed_ciphers);
+    if (instance->client_certificate) xmlFree(instance->client_certificate);
+#endif
     if (instance->queue) 
     {
         thread_mutex_destroy(&instance->queue->lock);
@@ -127,6 +155,13 @@ static void _set_instance_defaults(instance_t *instance)
 {
     instance->hostname = xmlStrdup(DEFAULT_HOSTNAME);
     instance->port = DEFAULT_PORT;
+#if SHOUT_TLS
+    instance->tls = DEFAULT_TLS;
+    instance->ca_directory = DEFAULT_CA_DIRECTORY;
+    instance->ca_certificate = DEFAULT_CA_CERTIFICATE;
+    instance->allowed_ciphers = DEFAULT_ALLOWED_CIPHERS;
+    instance->client_certificate = DEFAULT_CLIENT_CERTIFICATE;
+#endif
     instance->password = xmlStrdup(DEFAULT_PASSWORD);
     instance->user = DEFAULT_USERNAME;
     instance->mount = xmlStrdup(DEFAULT_MOUNT);
@@ -245,6 +280,18 @@ static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
             SET_STRING(instance->hostname);
         else if (strcmp(node->name, "port") == 0)
             SET_INT(instance->port);
+#if SHOUT_TLS
+        else if (strcmp(node->name, "tls-mode") == 0)
+            SET_TLSMODE(instance->tls);
+        else if (strcmp(node->name, "ca-directory") == 0)
+            SET_STRING(instance->ca_directory);
+        else if (strcmp(node->name, "ca-certificate") == 0)
+            SET_STRING(instance->ca_certificate);
+        else if (strcmp(node->name, "allowed-ciphers") == 0)
+            SET_STRING(instance->allowed_ciphers);
+        else if (strcmp(node->name, "client-certificate") == 0)
+            SET_STRING(instance->client_certificate);
+#endif
         else if (strcmp(node->name, "password") == 0)
             SET_STRING(instance->password);
         else if (strcmp(node->name, "username") == 0)

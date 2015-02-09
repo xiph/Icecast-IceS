@@ -80,6 +80,44 @@ void *ices_instance_stream(void *arg)
     }
 
     shout_set_port(sdsc->shout, stream->port);
+
+#if SHOUT_TLS
+    if (!(shout_set_tls(sdsc->shout, stream->tls)) == SHOUTERR_SUCCESS) {
+        LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+        stream->died = 1;
+        return NULL;
+    }
+
+    if (stream->ca_directory)
+        if (!(shout_set_ca_directory(sdsc->shout, stream->ca_directory)) == SHOUTERR_SUCCESS) {
+            LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+            stream->died = 1;
+            return NULL;
+        }
+
+    if (stream->ca_certificate)
+        if (!(shout_set_ca_certificate(sdsc->shout, stream->ca_certificate)) == SHOUTERR_SUCCESS) {
+            LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+            stream->died = 1;
+            return NULL;
+        }
+
+    if (stream->allowed_ciphers)
+        if (!(shout_set_allowed_ciphers(sdsc->shout, stream->allowed_ciphers)) == SHOUTERR_SUCCESS) {
+            LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+            stream->died = 1;
+            return NULL;
+        }
+
+    if (stream->client_certificate)
+        if (!(shout_set_client_certificate(sdsc->shout, stream->client_certificate)) == SHOUTERR_SUCCESS) {
+            LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
+            stream->died = 1;
+            return NULL;
+        }
+#endif
+
+
     if (!(shout_set_password(sdsc->shout, stream->password)) == SHOUTERR_SUCCESS) {
         LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
         stream->died = 1;
