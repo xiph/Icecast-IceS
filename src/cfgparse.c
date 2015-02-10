@@ -140,7 +140,7 @@ void config_free_instance(instance_t *instance)
     if (instance->mount) xmlFree(instance->mount);
 #if SHOUT_TLS
     if (instance->ca_directory) xmlFree(instance->ca_directory);
-    if (instance->ca_certificate) xmlFree(instance->ca_certificate);
+    if (instance->ca_file) xmlFree(instance->ca_file);
     if (instance->allowed_ciphers) xmlFree(instance->allowed_ciphers);
     if (instance->client_certificate) xmlFree(instance->client_certificate);
 #endif
@@ -158,7 +158,7 @@ static void _set_instance_defaults(instance_t *instance)
 #if SHOUT_TLS
     instance->tls = DEFAULT_TLS;
     instance->ca_directory = DEFAULT_CA_DIRECTORY;
-    instance->ca_certificate = DEFAULT_CA_CERTIFICATE;
+    instance->ca_file = DEFAULT_CA_CERTIFICATE;
     instance->allowed_ciphers = DEFAULT_ALLOWED_CIPHERS;
     instance->client_certificate = DEFAULT_CLIENT_CERTIFICATE;
 #endif
@@ -285,8 +285,8 @@ static void _parse_instance(config_t *config, xmlDocPtr doc, xmlNodePtr node)
             SET_TLSMODE(instance->tls);
         else if (strcmp(node->name, "ca-directory") == 0)
             SET_STRING(instance->ca_directory);
-        else if (strcmp(node->name, "ca-certificate") == 0)
-            SET_STRING(instance->ca_certificate);
+        else if (strcmp(node->name, "ca-file") == 0)
+            SET_STRING(instance->ca_file);
         else if (strcmp(node->name, "allowed-ciphers") == 0)
             SET_STRING(instance->allowed_ciphers);
         else if (strcmp(node->name, "client-certificate") == 0)

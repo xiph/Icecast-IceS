@@ -140,7 +140,7 @@
         mount
         tls-mode
         ca-directory
-        ca-certificate
+        ca-file
         allowed-ciphers
         client-certificate
         yp
@@ -187,10 +187,12 @@
     to verify the server. Default is to use operating system's defaults.
     <b>This requires TLS support compiled into libshout.</b>
    </div>
-   <h4>ca-certificate</h4>
+   <h4>ca-file</h4>
    <div class=indentedbox>
-    In contrast to the ca-directory option this allows to set a single certificate used
-    to verify the server. Default is to use operating system's defaults.
+    In contrast to the ca-directory option this allows to set a single file with
+    certificate(s) used to verify the server. You can use this option to pass IceS
+    the certificate if you are using a self-signed one on the server also.
+    Default is to use operating system's defaults.
     <b>This requires TLS support compiled into libshout.</b>
    </div>
    <h4>allowed-ciphers</h4>

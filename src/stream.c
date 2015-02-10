@@ -95,8 +95,8 @@ void *ices_instance_stream(void *arg)
             return NULL;
         }
 
-    if (stream->ca_certificate)
-        if (!(shout_set_ca_certificate(sdsc->shout, stream->ca_certificate)) == SHOUTERR_SUCCESS) {
+    if (stream->ca_file)
+        if (!(shout_set_ca_file(sdsc->shout, stream->ca_file)) == SHOUTERR_SUCCESS) {
             LOG_ERROR1("libshout error: %s\n", shout_get_error(sdsc->shout));
             stream->died = 1;
             return NULL;

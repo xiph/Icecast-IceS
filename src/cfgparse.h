@@ -36,7 +36,7 @@ typedef struct _instance_tag
 #if SHOUT_TLS
     int tls;
     char *ca_directory;
-    char *ca_certificate;
+    char *ca_file;
     char *allowed_ciphers;
     char *client_certificate;
 #endif
