@@ -115,6 +115,6 @@ echo "  autoconf"
 autoconf || exit 1
 
 cd $olddir
-echo -e "now type '$srcdir/configure' to configure the build"
-echo -e "followed by 'make'"
+echo "now type '$srcdir/configure' to configure the build"
+echo "followed by 'make'"
 #$srcdir/configure "$@" && echo
