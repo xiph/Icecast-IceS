@@ -174,7 +174,7 @@ int resampler_init(resampler_state *state, int channels, int outfreq, int infreq
                 assert(beta > 2.0);
                 break;
             default:
-                assert("arglist" == "valid");
+                assert("arglist valid" == NULL);
                 return -1;
             }
             op1 = va_arg(argp, resampler_parameter);
