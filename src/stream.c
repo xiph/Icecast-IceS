@@ -316,8 +316,7 @@ retry:
             /* Non-fatal shout error */
             else if(ret == 0)
             {
-                LOG_ERROR2("Send error: %s (%s)", 
-                        shout_get_error(sdsc->shout), strerror(errno));
+                LOG_ERROR1("Send error: %s", shout_get_error(sdsc->shout));
                 if(shout_get_errno(sdsc->shout) == SHOUTERR_SOCKET)
                 {
                     int i=0;
@@ -391,13 +390,13 @@ retry:
 	    !ices_config->shutdown)
 	{
 	    shout_close(sdsc->shout);
-	    LOG_WARN4("Retrying connection to %s:%d (%s: %s)", 
-               shout_get_host(sdsc->shout),shout_get_port(sdsc->shout), shout_get_error(sdsc->shout), strerror(errno));
+	    LOG_WARN3("Retrying connection to %s:%d (%s)",
+                shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), shout_get_error(sdsc->shout));
 	    thread_sleep (stream->reconnect_delay*1000000);
 	    goto retry;
 	}
-        LOG_ERROR4("Failed initial connect to %s:%d (%s: %s)", 
-                shout_get_host(sdsc->shout),shout_get_port(sdsc->shout), shout_get_error(sdsc->shout), strerror(errno));
+        LOG_ERROR3("Failed initial connect to %s:%d (%s)",
+            shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), shout_get_error(sdsc->shout));
     }
     
     shout_close(sdsc->shout);
