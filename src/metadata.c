@@ -64,7 +64,7 @@ void *metadata_thread_stdin(void *arg)
             FD_SET (0, &fds);
             t.tv_sec = 0;
             t.tv_usec = 150;
-            
+
             switch (select (1, &fds, NULL, NULL, &t))
             {
             case 1:
@@ -178,5 +178,3 @@ void *metadata_thread_signal(void *arg)
 
     }
 }
-
-

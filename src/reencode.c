@@ -76,7 +76,7 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
     ogg_packet op;
     int retbuflen=0, old;
     unsigned char *retbuf=NULL;
-        
+
 
     og.header_len = buf->aux_data;
     og.body_len = buf->len - buf->aux_data;
@@ -152,7 +152,7 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
                 {
                     vorbis_block_init(&s->vd, &s->vb);
                     vorbis_synthesis_init(&s->vd, &s->vi);
-                    
+
                     s->encoder = encode_initialise(s->out_channels, 
                             s->out_samplerate, s->managed, 
                             s->out_min_br, s->out_nom_br, s->out_max_br,
@@ -248,5 +248,3 @@ int reencode_page(reencode_state *s, ref_buffer *buf,
         return 0;
     }
 }
-
-

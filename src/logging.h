@@ -50,4 +50,3 @@
 
 
 #endif /* __LOGGING_H */
-

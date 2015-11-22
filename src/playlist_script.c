@@ -151,4 +151,3 @@ int playlist_script_initialise(module_param_t *params, playlist_state_t *pl)
 
     return 0;
 }
-

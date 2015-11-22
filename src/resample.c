@@ -48,7 +48,7 @@ static void filt_sinc(float *dest, int N, int step, double fc, double gain, int 
     float *endpoint = dest + N,
         *base = dest,
         *origdest = dest;
-    
+
     assert(width <= N);
 
     if ((N & 1) == 0)
@@ -168,7 +168,7 @@ int resampler_init(resampler_state *state, int channels, int outfreq, int infreq
                 taps = va_arg(argp, int);
                 assert(taps > 2 && taps < 1000);
                 break;
-                
+
             case RES_BETA:
                 beta = va_arg(argp, double);
                 assert(beta > 2.0);
@@ -257,7 +257,7 @@ static int push(resampler_state const * const state, SAMPLE *pool, int * const p
     assert(source);
 
     assert(state->poolfill != -1);
-    
+
     lencheck = resampler_push_check(state, srclen);
 
     /* fill the pool before diving in */
@@ -359,7 +359,7 @@ int resampler_push(resampler_state *state, SAMPLE **dstlist, SAMPLE const **srcl
 int resampler_push_interleaved(resampler_state *state, SAMPLE *dest, SAMPLE const *source, size_t srclen)
 {
     int result = -1, poolfill = -1, offset = -1, i;
-    
+
     assert(state);
     assert(dest);
     assert(source);
@@ -396,7 +396,7 @@ int resampler_drain(resampler_state *state, SAMPLE **dstlist)
         offset = state->offset;
         result = push(state, state->pool + i * state->taps, &poolfill, &offset, dstlist[i], 1, tail, 1, state->taps / 2 - 1);
     }
-        
+
     free(tail);
 
     state->poolfill = -1;
@@ -423,7 +423,7 @@ int resampler_drain_interleaved(resampler_state *state, SAMPLE *dest)
         offset = state->offset;
         result = push(state, state->pool + i * state->taps, &poolfill, &offset, dest + i, state->channels, tail, 1, state->taps / 2 - 1);
     }
-        
+
     free(tail);
 
     state->poolfill = -1;
@@ -442,4 +442,3 @@ void resampler_clear(resampler_state *state)
     free(state->pool);
     memset(state, 0, sizeof(*state));
 }
-

@@ -25,5 +25,3 @@ void signals_setup(void);
 #endif
 
 #endif
-
-

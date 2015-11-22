@@ -42,4 +42,3 @@ typedef struct _input_module_tag {
 } input_module_t;
 
 #endif /* __INPUTMODULE_H__ */
-

@@ -26,7 +26,7 @@ typedef struct _playlist_state_tag
     int nexttrack;
     int allow_repeat;
     ogg_sync_state oy;
-    
+
     char *(*get_filename)(void *data); /* returns the next desired filename */
     void (*free_filename)(void *data, char *fn); /* Called when im_playlist is
                                                     done with this filename */

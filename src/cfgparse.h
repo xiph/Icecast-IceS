@@ -99,9 +99,9 @@ typedef struct _config_tag
     char *stream_genre;
     char *stream_description;
     char *stream_url;
-    
+
     /* <playlist> */
-    
+
     char *playlist_module;
     module_param_t *module_params;
 
@@ -132,8 +132,3 @@ void config_dump(void);
 void config_free_instance(instance_t *instance);
 
 #endif /* __CONFIG_H__ */
-
-
-
-
-

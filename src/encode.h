@@ -43,4 +43,3 @@ void encode_close();
 
 
 #endif
-

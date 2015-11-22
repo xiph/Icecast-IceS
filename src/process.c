@@ -56,7 +56,7 @@ void acquire_buffer(ref_buffer *buf)
 #endif
 
     buf->count++;
-    
+
     thread_mutex_unlock(&ices_config->refcount_lock);
 }
 
@@ -75,7 +75,7 @@ void release_buffer(ref_buffer *buf)
 #endif
 
     buf->count--;
-    
+
     if(!buf->count)
     {
         free(buf->buf);
@@ -106,7 +106,7 @@ int process_chain(instance_t *instance, process_chain_element *chain,
                     in->type, chain->input_type);
             return -2;
         }
-        
+
         ret = chain->process(instance, chain->priv_data, in, out);
 
         if(ret <= 0) {
@@ -149,7 +149,3 @@ void create_event(process_chain_element *chain, event_type event,
     if(!broadcast)
         LOG_INFO1("Non-broadcast event %d unhandled", event);
 }
-
-
-    
-    

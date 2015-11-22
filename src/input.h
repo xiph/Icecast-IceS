@@ -44,5 +44,3 @@ int  input_calculate_pcm_sleep(unsigned bytes, unsigned bytes_per_sec);
 
 
 #endif /* __INPUT_H__ */
-
-

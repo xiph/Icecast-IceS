@@ -59,4 +59,3 @@ void reencode_clear(reencode_state *s);
 
 
 #endif /* __REENCODE_H */
-

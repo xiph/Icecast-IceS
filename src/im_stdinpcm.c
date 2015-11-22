@@ -189,4 +189,3 @@ input_module_t *stdin_open_module(module_param_t *params)
 
     return mod;
 }
-

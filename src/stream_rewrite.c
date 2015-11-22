@@ -214,7 +214,7 @@ int stream_get_page(stream_rewriter *s, ogg_page *page)
             vorbis_info_init(&s->vi);
             vorbis_comment_init(&s->vc);
         }
-        
+
         if(s->in_header) 
         {
             if(vorbis_synthesis_headerin(&s->vi, &s->vc, &packet) < 0)
@@ -248,4 +248,3 @@ int stream_get_page(stream_rewriter *s, ogg_page *page)
      * FIXME: cope with chained streams properly. */
     return 0; 
 }
-

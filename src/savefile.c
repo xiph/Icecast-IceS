@@ -37,7 +37,7 @@ void *savefile_stream(void *arg)
     FILE *file;
     int ret;
     char *filename = stream->savefilename; 
-    
+
     /* FIXME: Check for file existence, and append some unique string
      * if it already exists.
      */
@@ -82,8 +82,3 @@ void *savefile_stream(void *arg)
     stream->died = 1;
     return NULL;
 }
-    
-        
-        
-
-

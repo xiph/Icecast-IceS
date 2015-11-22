@@ -68,14 +68,14 @@ typedef struct _process_chain_element {
     char *name;
     open_func open;
     struct _module_param_t *params;
-    
+
     process_func process;
     event_func   event_handler;
     void *priv_data;
 
     media_type input_type;
     media_type output_type;
-   
+
     struct _process_chain_element *next;
 } process_chain_element;
 
@@ -105,5 +105,3 @@ void create_event(process_chain_element *chain, event_type event, void *param,
         int broadcast);
 
 #endif /* __PROCESS_H__ */
-
-

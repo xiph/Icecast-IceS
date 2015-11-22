@@ -120,14 +120,14 @@ static int _using_default_instance = 1;
 static void _free_instances(instance_t *instance)
 {
     instance_t *next;
-    
+
     next = NULL;
     do 
     {
         config_free_instance(instance);
         next = instance->next;
         free(instance);
-        
+
         instance = next;
     } while (next != NULL);
 }
@@ -394,7 +394,7 @@ static void _parse_root(config_t *config, xmlDocPtr doc, xmlNodePtr node)
     {
         if (node == NULL) break;
         if (xmlIsBlankNode(node)) continue;
-        
+
         if (strcmp(node->name, "background") == 0)
             SET_INT(config->background);
         else if (strcmp(node->name, "logpath") == 0)
@@ -431,7 +431,7 @@ static void _set_defaults(config_t *c)
     c->stream_url = NULL;
 
     c->playlist_module = xmlStrdup(DEFAULT_PLAYLIST_MODULE);
-    
+
     c->module_params = NULL;
 
     instance = (instance_t *)malloc(sizeof(instance_t));
@@ -449,7 +449,7 @@ static void _free_params(module_param_t *param)
         if (param->value) free(param->value);
         next = param->next;
         free(param);
-        
+
         param = next;
     } while (next != NULL);
 }
@@ -553,12 +553,6 @@ void config_dump(void)
 
         i = i->next;
     }
-    
+
     fprintf(stderr, "\n");
 }
-
-
-
-
-
-

@@ -23,4 +23,3 @@ enum event_type {
 };
 
 #endif /* __EVENT_H__ */
-

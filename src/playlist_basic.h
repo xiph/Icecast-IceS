@@ -43,4 +43,3 @@ int playlist_script_initialise(module_param_t *params, playlist_state_t *pl);
 
 
 #endif  /* __PLAYLIST_BASIC_H__ */
-

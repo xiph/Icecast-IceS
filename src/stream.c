@@ -60,7 +60,7 @@ void *ices_instance_stream(void *arg)
     char *stream_name = NULL, *stream_genre = NULL, *stream_description = NULL;
     char *stream_url = NULL, *user = NULL;
     char audio_info[11];
-    
+
     vorbis_comment_init(&sdsc->vc);
 
     sdsc->shout = shout_new();
@@ -331,7 +331,7 @@ retry:
                     /* Also, flush the current queue */
                     input_flush_queue(stream->queue, 1);
                     thread_mutex_unlock(&ices_config->flush_lock);
-                    
+
                     shout_close(sdsc->shout);
 
                     if (i >= stream->reconnect_attempts)
@@ -398,7 +398,7 @@ retry:
         LOG_ERROR3("Failed initial connect to %s:%d (%s)",
             shout_get_host(sdsc->shout), shout_get_port(sdsc->shout), shout_get_error(sdsc->shout));
     }
-    
+
     shout_close(sdsc->shout);
 
     if(stream->savefile != NULL) 
@@ -414,4 +414,3 @@ retry:
     stream->died = 1;
     return NULL;
 }
-

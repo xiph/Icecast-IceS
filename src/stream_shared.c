@@ -210,10 +210,9 @@ int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer)
             if ((ret = stream_send_data(sdsc, og.body, og.body_len)) == 0)
                 return 0;
         }
-                        
+
         return ret;
     }
     else    
         return stream_send_data(sdsc, buffer->buf, buffer->len);
 }
-

@@ -104,4 +104,3 @@ void resampler_clear(resampler_state *state);
  */
 
 #endif
-

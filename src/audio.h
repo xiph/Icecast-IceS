@@ -46,4 +46,3 @@ void resample_buffer_float(resample_state *s, float **buf, int buflen);
 void resample_finish(resample_state *s);
 
 #endif
-

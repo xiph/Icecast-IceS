@@ -23,5 +23,3 @@ void stream_release_buffer(ref_buffer *buf);
 int process_and_send_buffer(stream_description *sdsc, ref_buffer *buffer);
 
 #endif
-
-

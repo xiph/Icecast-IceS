@@ -254,7 +254,7 @@ input_module_t *playlist_open_module(module_param_t *params)
                 }
                 current_module++;
             }
-            
+
             if(!init)
             {
                 LOG_ERROR1("Unknown playlist type \"%s\"", current->value);
@@ -290,5 +290,3 @@ fail:
 
     return NULL;
 }
-
-

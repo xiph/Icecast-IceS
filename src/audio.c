@@ -59,7 +59,7 @@ void downmix_buffer_float(downmix_state *s, float **buf, int samples)
     for(i=0; i < samples; i++) {
         s->buffer[i] = (buf[0][i] + buf[1][i])*0.5;
     }
-    
+
 }
 
 
@@ -111,7 +111,7 @@ resample_state *resample_initialise(int channels, int infreq, int outfreq)
         failed = 0;
     }
     while (0); /* not a loop */
-        
+
     if (failed)
     {
         LOG_ERROR0("Couldn't initialise resampler due to memory allocation failure");
@@ -224,9 +224,3 @@ void resample_finish(resample_state *s)
 
     s->buffill = ret;
 }
-
-
-
-
-
-

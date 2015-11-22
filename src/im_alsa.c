@@ -289,5 +289,3 @@ fail:
     close_module(mod); /* safe, this checks for valid contents */
     return NULL;
 }
-
-

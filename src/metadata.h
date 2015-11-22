@@ -18,4 +18,3 @@ void *metadata_thread_stdin(void *arg);
 void *metadata_thread_signal(void *arg);
 
 #endif /* __METADATA_H__ */
-

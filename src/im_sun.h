@@ -34,4 +34,3 @@ typedef struct
 input_module_t *sun_open_module(module_param_t *params);
 
 #endif  /* __IM_SUN_H__ */
-

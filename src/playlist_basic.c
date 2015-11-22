@@ -283,4 +283,3 @@ int playlist_basic_initialise(module_param_t *params, playlist_state_t *pl)
 
     return 0;
 }
-

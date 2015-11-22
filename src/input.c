@@ -407,7 +407,7 @@ void input_loop(void)
             free(chunk);
             continue;
         }
-        
+
         /* If this is the first time through, set initial time. This should
          * be done before the call to inmod->getdata() below, in order to
          * properly keep time if this input module blocks.
@@ -467,16 +467,16 @@ void input_loop(void)
                     instance = instance->next;
                     continue;
                 }
-    
+
                 queued = malloc(sizeof(queue_item));
-    
+
                 queued->buf = chunk;
                 current = instance->queue;
-    
+
                 inc_count++;
-    
+
                 thread_mutex_lock(&current->lock);
-    
+
                 if(current->head == NULL)
                 {
                     current->head = current->tail = queued;
@@ -547,5 +547,3 @@ void input_loop(void)
 
     return;
 }
-
-

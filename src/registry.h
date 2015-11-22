@@ -62,4 +62,3 @@ static module registered_modules[] = {
 };
 
 #endif /* __REGISTRY_H__ */
-
