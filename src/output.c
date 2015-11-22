@@ -79,7 +79,9 @@ void *ices_instance_output(void *arg)
     ref_buffer *in, *out;
 
     /* What is this for?? */
+#ifndef _WIN32
     signal(SIGPIPE, signal_hup_handler);
+#endif
 
     while(1) {
         in = instance_wait_for_data(instance);

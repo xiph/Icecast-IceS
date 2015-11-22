@@ -57,9 +57,8 @@ void signal_hup_handler(int signum)
 
     signal(SIGHUP, signal_hup_handler);
 }
-#endif
 
-void signal_int_handler(int signum)
+static void signal_int_handler(int signum)
 {
     (void)signum;
 
@@ -75,8 +74,6 @@ void signal_int_handler(int signum)
     }
 }
 
-
-#ifndef _WIN32
 void signals_setup(void)
 {
     signal(SIGINT, signal_int_handler);
@@ -85,5 +82,3 @@ void signals_setup(void)
     signal(SIGPIPE, SIG_IGN);
 }
 #endif
-
-
