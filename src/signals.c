@@ -53,7 +53,7 @@ void signal_hup_handler(int signum)
     log_flush(ices_config->log_id);
 
     /* Now, let's tell it to move to the next track */
-    ices_config->inmod->handle_event(ices_config->inmod,EVENT_NEXTTRACK,NULL);
+    ices_config->inmod->handle_event(ices_config->inmod, EVENT_NEXTTRACK, NULL);
 
     signal(SIGHUP, signal_hup_handler);
 }
@@ -63,8 +63,7 @@ static void signal_int_handler(int signum)
     (void)signum;
 
     /* Is a mutex needed here? Probably */
-    if (!ices_config->shutdown) 
-    {
+    if (!ices_config->shutdown) {
         LOG_INFO0("Shutdown requested...");
         ices_config->shutdown = 1;
         thread_cond_broadcast(&ices_config->queue_cond);
@@ -76,8 +75,8 @@ static void signal_int_handler(int signum)
 
 void signals_setup(void)
 {
-    signal(SIGINT, signal_int_handler);
-    signal(SIGHUP, signal_hup_handler);
+    signal(SIGINT,  signal_int_handler);
+    signal(SIGHUP,  signal_hup_handler);
     signal(SIGUSR1, signal_usr1_handler);
     signal(SIGPIPE, SIG_IGN);
 }
