@@ -68,6 +68,8 @@ static void close_module(input_module_t *mod)
 
 static int event_handler(input_module_t *mod, enum event_type ev, void *param)
 {
+    (void)param;
+
     switch(ev)
     {
         case EVENT_SHUTDOWN:

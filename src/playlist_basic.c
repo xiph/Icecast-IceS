@@ -46,7 +46,7 @@ static void shuffle(char **buf, size_t len)
          */
         do {
             d = random();
-        } while (d > (RAND_MAX - (RAND_MAX % range)));
+        } while (d > (RAND_MAX - (long int)(RAND_MAX % range)));
 
         /*
          * The range starts at the item we want to shuffle, excluding
@@ -220,6 +220,7 @@ char *playlist_basic_get_next_filename(void *data)
 
 void playlist_basic_free_filename(void *data, char *fn)
 {
+   (void)data;
    free (fn);
 }
 

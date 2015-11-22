@@ -85,6 +85,7 @@ char *playlist_script_get_filename(void *data) {
 
 void playlist_script_free_filename(void *data, char *fn)
 {
+    (void)data;
     free(fn);
 }
 

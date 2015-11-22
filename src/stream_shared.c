@@ -32,14 +32,14 @@
 #define MODULE "stream-shared/"
 #include "logging.h"
 
-int stream_send_data(stream_description *s, unsigned char *buf, 
-        unsigned long len)
+ssize_t stream_send_data(stream_description *s, unsigned char *buf, 
+        size_t len)
 {
-    int ret;
+    ssize_t ret;
 
     if(s->stream->savefile)
     {
-        int ret = fwrite(buf, 1, len, s->stream->savefile);
+        size_t ret = fwrite(buf, 1, len, s->stream->savefile);
         if(ret != len) 
             LOG_ERROR1("Failed to write %d bytes to savefile", len);
     }

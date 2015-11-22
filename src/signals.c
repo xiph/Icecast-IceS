@@ -34,6 +34,8 @@ extern volatile int metadata_update_signalled;
 
 void signal_usr1_handler(int signum)
 {
+    (void)signum;
+
     LOG_INFO0("Metadata update requested");
     metadata_update_signalled = 1;
     thread_cond_broadcast(&ices_config->event_pending_cond);
@@ -45,6 +47,8 @@ void signal_usr1_handler(int signum)
 #ifndef _WIN32
 void signal_hup_handler(int signum)
 {
+    (void)signum;
+
     LOG_INFO0("Flushing logs");
     log_flush(ices_config->log_id);
 
@@ -57,6 +61,8 @@ void signal_hup_handler(int signum)
 
 void signal_int_handler(int signum)
 {
+    (void)signum;
+
     /* Is a mutex needed here? Probably */
     if (!ices_config->shutdown) 
     {
