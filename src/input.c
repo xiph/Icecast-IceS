@@ -175,6 +175,8 @@ int input_calculate_ogg_sleep(ogg_page *page)
                 {
                     LOG_ERROR0("Timing control: can't determine sample rate for input, not vorbis.");
                     control.samplerate = 0;
+                    vorbis_info_clear (&vi);
+                    ogg_stream_clear (&os);
                     return -1;
                 }
                 need_headers--;
