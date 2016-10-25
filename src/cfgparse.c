@@ -478,6 +478,25 @@ void config_shutdown(void)
         ices_config->instances = NULL;
     }
 
+    if (ices_config->logpath)
+       xmlFree(ices_config->logpath);
+    if (ices_config->logfile)
+       xmlFree(ices_config->logfile);
+    if (ices_config->pidfile)
+       xmlFree(ices_config->pidfile);
+
+    if (ices_config->playlist_module)
+       xmlFree(ices_config->playlist_module);
+
+    if (ices_config->stream_name)
+       xmlFree(ices_config->stream_name);
+    if (ices_config->stream_genre)
+       xmlFree(ices_config->stream_genre);
+    if (ices_config->stream_description)
+       xmlFree(ices_config->stream_description);
+    if (ices_config->stream_url)
+       xmlFree(ices_config->stream_url);
+
     free(ices_config);
     ices_config = NULL;
     xmlCleanupParser();
