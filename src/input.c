@@ -131,6 +131,19 @@ int input_calculate_pcm_sleep(unsigned bytes, unsigned bytes_per_sec)
     return 0;
 }
 
+static uint32_t __read_int32_le(const unsigned char in[4])
+{
+    uint32_t ret = 0;
+    ret  |= in[3];
+    ret <<= 8;
+    ret  |= in[2];
+    ret <<= 8;
+    ret  |= in[1];
+    ret <<= 8;
+    ret  |= in[0];
+    return ret;
+}
+
 int input_calculate_ogg_sleep(ogg_page *page)
 {
     static ogg_stream_state os;
@@ -200,6 +213,22 @@ int input_calculate_ogg_sleep(ogg_page *page)
                     }
                     /* Sample rate is fixed for Opus: 48kHz */
                     control.samplerate = 48000;
+                    codec = ICES_INPUT_OGG;
+                    /* No more headers after this one needed */
+                    need_headers = 1;
+                }
+                else if (op.bytes >= 80 && memcmp(op.packet, "Speex   ", 8) == 0)
+                {
+                    if (__read_int32_le(op.packet+28) != 1 || __read_int32_le(op.packet+32) != op.bytes)
+                    {
+                        LOG_ERROR0("Timing control: can't determine sample rate for input, bad or unsupported Speex header.");
+                        control.samplerate = 0;
+                        vorbis_info_clear (&vi);
+                        ogg_stream_clear (&os);
+                        return -1;
+                    }
+
+                    control.samplerate = __read_int32_le(op.packet+36);
                     codec = ICES_INPUT_OGG;
                     /* No more headers after this one needed */
                     need_headers = 1;
