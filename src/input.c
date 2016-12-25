@@ -137,6 +137,7 @@ int input_calculate_ogg_sleep(ogg_page *page)
     ogg_packet op;
     static vorbis_info vi;
     static vorbis_comment vc;
+    static input_type codec = ICES_INPUT_UNKNOWN;
     static int need_start_pos, need_headers, state_in_use = 0;
     static int serialno = 0;
     static uint64_t offset;
@@ -160,6 +161,7 @@ int input_calculate_ogg_sleep(ogg_page *page)
         vorbis_comment_init (&vc);
         need_start_pos = 1;
         need_headers = 3;
+        codec = ICES_INPUT_UNKNOWN;
         offset = (uint64_t)0;
     }
     if (need_start_pos)
@@ -171,16 +173,29 @@ int input_calculate_ogg_sleep(ogg_page *page)
         {
             if (need_headers)
             {
-                if (vorbis_synthesis_headerin (&vi, &vc, &op) < 0)
+                /* check for Vorbis. For Vorbis the Magic is {0x01|0x03|0x05}"vorbis" */
+                if (op.bytes > 7 && memcmp(op.packet+1, "vorbis", 6) == 0)
                 {
-                    LOG_ERROR0("Timing control: can't determine sample rate for input, not vorbis.");
+                    if (vorbis_synthesis_headerin (&vi, &vc, &op) < 0)
+                    {
+                        LOG_ERROR0("Timing control: can't determine sample rate for input, not vorbis.");
+                        control.samplerate = 0;
+                        vorbis_info_clear (&vi);
+                        ogg_stream_clear (&os);
+                        return -1;
+                    }
+                    control.samplerate = vi.rate;
+                    codec = ICES_INPUT_VORBIS;
+                }
+                else if (codec == ICES_INPUT_UNKNOWN)
+                {
+                    LOG_ERROR0("Timing control: can't determine sample rate for input, unsupported input format.");
                     control.samplerate = 0;
                     vorbis_info_clear (&vi);
                     ogg_stream_clear (&os);
                     return -1;
                 }
                 need_headers--;
-                control.samplerate = vi.rate;
 
                 if (need_headers == 0)
                 {
@@ -196,7 +211,10 @@ int input_calculate_ogg_sleep(ogg_page *page)
                 first_granulepos = op.granulepos;
                 found_first_granulepos = 1;
             }
-            offset += vorbis_packet_blocksize (&vi, &op) / 4;
+            if (codec == ICES_INPUT_VORBIS)
+            {
+                offset += vorbis_packet_blocksize (&vi, &op) / 4;
+            }
         }
         if (!found_first_granulepos)
             return 0;

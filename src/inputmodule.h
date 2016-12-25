@@ -20,8 +20,10 @@
 #include <vorbis/codec.h>
 
 typedef enum _input_type {
+    ICES_INPUT_UNKNOWN, /* not yet known */
     ICES_INPUT_PCM,
     ICES_INPUT_VORBIS,
+    ICES_INPUT_OGG, /* generic Ogg */
     /* Can add others here in the future, if we want */
 } input_type;
 
