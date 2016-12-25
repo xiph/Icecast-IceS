@@ -144,6 +144,18 @@ static uint32_t __read_int32_le(const unsigned char in[4])
     return ret;
 }
 
+static uint32_t __read_int20_be(const unsigned char in[3])
+{
+    uint32_t ret = 0;
+    ret  |= in[0];
+    ret <<= 8;
+    ret  |= in[1];
+    ret <<= 8;
+    ret  |= in[2];
+    ret >>= 4;
+    return ret;
+}
+
 int input_calculate_ogg_sleep(ogg_page *page)
 {
     static ogg_stream_state os;
@@ -229,6 +241,13 @@ int input_calculate_ogg_sleep(ogg_page *page)
                     }
 
                     control.samplerate = __read_int32_le(op.packet+36);
+                    codec = ICES_INPUT_OGG;
+                    /* No more headers after this one needed */
+                    need_headers = 1;
+                }
+                else if (op.bytes >= 51 && memcmp(op.packet, "\177FLAC\1\0", 7) == 0 && memcmp(op.packet+9, "fLaC\0", 5) == 0)
+                {
+                    control.samplerate = __read_int20_be(op.packet+27);
                     codec = ICES_INPUT_OGG;
                     /* No more headers after this one needed */
                     need_headers = 1;
