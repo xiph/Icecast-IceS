@@ -200,6 +200,7 @@ int input_calculate_ogg_sleep(ogg_page *page)
                     }
                     /* Sample rate is fixed for Opus: 48kHz */
                     control.samplerate = 48000;
+                    codec = ICES_INPUT_OGG;
                     /* No more headers after this one needed */
                     need_headers = 1;
                 }
