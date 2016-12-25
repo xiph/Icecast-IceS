@@ -183,6 +183,14 @@
     comments.  If a line has a single '-' then standard input is read, which
     provides a way of getting some external Ogg Vorbis stream into ices.
    </div>
+   <h4>format</h4>
+   <div class=indentedbox>
+    This sets the used codec for input files.
+    Use "ogg" for generic Ogg handling. In this mode codec specific features
+    will not available but codec is detected on the fly.
+    Currently "vorbis" and "ogg" are supported.
+    By default "vorbis" is used.
+   </div>
    <h4>random</h4>
    <div class=indentedbox>
     When set to 1, the playlist will be randomised when the playlist is

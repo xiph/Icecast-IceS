@@ -293,6 +293,8 @@ input_module_t *roar_open_module(module_param_t *params)
          break;
         case ROAR_CODEC_OGG_GENERAL:
           LOG_WARN0("Codec may not work, specify ogg_vorbis for Vorbis streaming");
+          mod->type = ICES_INPUT_OGG;
+         break;
         case ROAR_CODEC_OGG_VORBIS:
           mod->type = ICES_INPUT_VORBIS;
           // we do not set mod->subtype here, strange design ices2 has...

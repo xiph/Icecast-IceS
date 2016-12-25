@@ -231,7 +231,7 @@ input_module_t *playlist_open_module(module_param_t *params)
     module_param_t *current;
     int (*init)(module_param_t *, playlist_state_t *)=NULL;
 
-    mod->type = ICES_INPUT_VORBIS;
+    mod->type = ICES_INPUT_VORBIS; /* Default as it was the historical value */
     mod->getdata = playlist_read;
     mod->handle_event = event_handler;
     mod->metadata_update = NULL; /* Not used for playlists */
@@ -259,6 +259,22 @@ input_module_t *playlist_open_module(module_param_t *params)
             if(!init)
             {
                 LOG_ERROR1("Unknown playlist type \"%s\"", current->value);
+                goto fail;
+            }
+        }
+        else if (!strcmp(current->name, "format"))
+        {
+            if (!strcmp(current->value, "vorbis"))
+            {
+                mod->type = ICES_INPUT_VORBIS;
+            }
+            else if (!strcmp(current->value, "ogg"))
+            {
+                mod->type = ICES_INPUT_OGG;
+            }
+            else
+            {
+                LOG_ERROR1("Unknown playlist format \"%s\"", current->value);
                 goto fail;
             }
         }
