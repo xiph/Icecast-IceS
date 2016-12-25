@@ -187,6 +187,22 @@ int input_calculate_ogg_sleep(ogg_page *page)
                     control.samplerate = vi.rate;
                     codec = ICES_INPUT_VORBIS;
                 }
+                /* check for Opus. For Opus the magic is "OpusHead" */
+                else if (op.bytes == 19 && memcmp(op.packet, "OpusHead", 8) == 0)
+                {
+                    if (op.packet[8] != 1)
+                    {
+                        LOG_ERROR0("Timing control: can't determine sample rate for input, unsupported Opus version.");
+                        control.samplerate = 0;
+                        vorbis_info_clear (&vi);
+                        ogg_stream_clear (&os);
+                        return -1;
+                    }
+                    /* Sample rate is fixed for Opus: 48kHz */
+                    control.samplerate = 48000;
+                    /* No more headers after this one needed */
+                    need_headers = 1;
+                }
                 else if (codec == ICES_INPUT_UNKNOWN)
                 {
                     LOG_ERROR0("Timing control: can't determine sample rate for input, unsupported input format.");
