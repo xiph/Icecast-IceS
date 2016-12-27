@@ -32,7 +32,7 @@
 #define MODULE "stream-shared/"
 #include "logging.h"
 
-ssize_t stream_send_data(stream_description *s, unsigned char *buf, 
+static ssize_t stream_send_data(stream_description *s, unsigned char *buf, 
         size_t len)
 {
     ssize_t ret;
