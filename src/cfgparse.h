@@ -127,7 +127,6 @@ void config_initialize(void);
 void config_shutdown(void);
 
 int config_read(const char *filename);
-void config_dump(void);
 
 void config_free_instance(instance_t *instance);
 
