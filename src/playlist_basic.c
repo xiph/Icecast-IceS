@@ -150,7 +150,7 @@ static int load_playlist(basic_playlist *data)
     return 0;
 }
 
-void playlist_basic_clear(void *data)
+static void playlist_basic_clear(void *data)
 {
     basic_playlist *pl = data;
     if(pl)
@@ -166,7 +166,7 @@ void playlist_basic_clear(void *data)
     }
 }
 
-char *playlist_basic_get_next_filename(void *data)
+static char *playlist_basic_get_next_filename(void *data)
 {
     basic_playlist *pl = (basic_playlist *)data;
     char *ptr = NULL;
@@ -218,7 +218,7 @@ char *playlist_basic_get_next_filename(void *data)
     return strdup(ptr);
 }
 
-void playlist_basic_free_filename(void *data, char *fn)
+static void playlist_basic_free_filename(void *data, char *fn)
 {
    (void)data;
    free (fn);

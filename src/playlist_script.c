@@ -33,12 +33,12 @@ typedef struct {
     char *on_ended;
 } script_playlist;
 
-void playlist_script_clear(void *data) {
+static void playlist_script_clear(void *data) {
     if(data)
         free(data);
 }
 
-char *playlist_script_get_filename(void *data) {
+static char *playlist_script_get_filename(void *data) {
     script_playlist *pl = data;
     char *prog = pl->program;
     FILE *pipe;
@@ -83,13 +83,13 @@ char *playlist_script_get_filename(void *data) {
     return buf;
 }
 
-void playlist_script_free_filename(void *data, char *fn)
+static void playlist_script_free_filename(void *data, char *fn)
 {
     (void)data;
     free(fn);
 }
 
-void playlist_script_file_ended(void *data, char *fn)
+static void playlist_script_file_ended(void *data, char *fn)
 {
     script_playlist *pl = data;
     FILE *pipe;
