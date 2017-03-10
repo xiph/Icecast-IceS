@@ -5,7 +5,7 @@ dnl by Thomas B. "dm8tbr" Ruecker <thomas.ruecker@tieto.com>
 dnl
 AC_INIT([IceS], [2.0.2], [icecast@xiph.org])
 AC_PREREQ(2.54)
-AC_CONFIG_SRCDIR(src/ices.c)
+AC_CONFIG_SRCDIR([src/ices.c])
 AC_CONFIG_MACRO_DIRS([m4])
 
 AM_INIT_AUTOMAKE
