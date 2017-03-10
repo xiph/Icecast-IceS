@@ -6,6 +6,7 @@ dnl
 AC_INIT([IceS], [2.0.2], [icecast@xiph.org])
 AC_PREREQ(2.54)
 AC_CONFIG_SRCDIR(src/ices.c)
+AC_CONFIG_MACRO_DIRS([m4])
 
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
