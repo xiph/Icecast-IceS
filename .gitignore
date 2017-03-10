@@ -8,6 +8,7 @@ configure
 config.cache
 config.guess
 config.h.in
+config.h.in~
 config.log
 config.status
 config.sub
@@ -22,3 +23,4 @@ src/.deps
 src/*.o
 src/ices
 stamp-h1
+.DS_Store
