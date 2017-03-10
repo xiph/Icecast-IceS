@@ -181,6 +181,7 @@ static int playlist_read(void *self, ref_buffer *rb)
             }
             if (input_calculate_ogg_sleep (&og) < 0)
             {
+                LOG_WARN1 ("Failed to calculate ogg sleep, skipping file \"%s\"", pl->filename);
                 pl->nexttrack = 1;
                 return 0;
             }
