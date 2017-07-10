@@ -131,12 +131,38 @@ int input_calculate_pcm_sleep(unsigned bytes, unsigned bytes_per_sec)
     return 0;
 }
 
+static uint32_t __read_int32_le(const unsigned char in[4])
+{
+    uint32_t ret = 0;
+    ret  |= in[3];
+    ret <<= 8;
+    ret  |= in[2];
+    ret <<= 8;
+    ret  |= in[1];
+    ret <<= 8;
+    ret  |= in[0];
+    return ret;
+}
+
+static uint32_t __read_int20_be(const unsigned char in[3])
+{
+    uint32_t ret = 0;
+    ret  |= in[0];
+    ret <<= 8;
+    ret  |= in[1];
+    ret <<= 8;
+    ret  |= in[2];
+    ret >>= 4;
+    return ret;
+}
+
 int input_calculate_ogg_sleep(ogg_page *page)
 {
     static ogg_stream_state os;
     ogg_packet op;
     static vorbis_info vi;
     static vorbis_comment vc;
+    static input_type codec = ICES_INPUT_UNKNOWN;
     static int need_start_pos, need_headers, state_in_use = 0;
     static int serialno = 0;
     static uint64_t offset;
@@ -160,6 +186,7 @@ int input_calculate_ogg_sleep(ogg_page *page)
         vorbis_comment_init (&vc);
         need_start_pos = 1;
         need_headers = 3;
+        codec = ICES_INPUT_UNKNOWN;
         offset = (uint64_t)0;
     }
     if (need_start_pos)
@@ -171,16 +198,69 @@ int input_calculate_ogg_sleep(ogg_page *page)
         {
             if (need_headers)
             {
-                if (vorbis_synthesis_headerin (&vi, &vc, &op) < 0)
+                /* check for Vorbis. For Vorbis the Magic is {0x01|0x03|0x05}"vorbis" */
+                if (op.bytes > 7 && memcmp(op.packet+1, "vorbis", 6) == 0)
                 {
-                    LOG_ERROR0("Timing control: can't determine sample rate for input, not vorbis.");
+                    if (vorbis_synthesis_headerin (&vi, &vc, &op) < 0)
+                    {
+                        LOG_ERROR0("Timing control: can't determine sample rate for input, not vorbis.");
+                        control.samplerate = 0;
+                        vorbis_info_clear (&vi);
+                        ogg_stream_clear (&os);
+                        return -1;
+                    }
+                    control.samplerate = vi.rate;
+                    codec = ICES_INPUT_VORBIS;
+                }
+                /* check for Opus. For Opus the magic is "OpusHead" */
+                else if (op.bytes == 19 && memcmp(op.packet, "OpusHead", 8) == 0)
+                {
+                    if (op.packet[8] != 1)
+                    {
+                        LOG_ERROR0("Timing control: can't determine sample rate for input, unsupported Opus version.");
+                        control.samplerate = 0;
+                        vorbis_info_clear (&vi);
+                        ogg_stream_clear (&os);
+                        return -1;
+                    }
+                    /* Sample rate is fixed for Opus: 48kHz */
+                    control.samplerate = 48000;
+                    codec = ICES_INPUT_OGG;
+                    /* No more headers after this one needed */
+                    need_headers = 1;
+                }
+                else if (op.bytes >= 80 && memcmp(op.packet, "Speex   ", 8) == 0)
+                {
+                    if (__read_int32_le(op.packet+28) != 1 || __read_int32_le(op.packet+32) != op.bytes)
+                    {
+                        LOG_ERROR0("Timing control: can't determine sample rate for input, bad or unsupported Speex header.");
+                        control.samplerate = 0;
+                        vorbis_info_clear (&vi);
+                        ogg_stream_clear (&os);
+                        return -1;
+                    }
+
+                    control.samplerate = __read_int32_le(op.packet+36);
+                    codec = ICES_INPUT_OGG;
+                    /* No more headers after this one needed */
+                    need_headers = 1;
+                }
+                else if (op.bytes >= 51 && memcmp(op.packet, "\177FLAC\1\0", 7) == 0 && memcmp(op.packet+9, "fLaC\0", 5) == 0)
+                {
+                    control.samplerate = __read_int20_be(op.packet+27);
+                    codec = ICES_INPUT_OGG;
+                    /* No more headers after this one needed */
+                    need_headers = 1;
+                }
+                else if (codec == ICES_INPUT_UNKNOWN)
+                {
+                    LOG_ERROR0("Timing control: can't determine sample rate for input, unsupported input format.");
                     control.samplerate = 0;
                     vorbis_info_clear (&vi);
                     ogg_stream_clear (&os);
                     return -1;
                 }
                 need_headers--;
-                control.samplerate = vi.rate;
 
                 if (need_headers == 0)
                 {
@@ -196,7 +276,10 @@ int input_calculate_ogg_sleep(ogg_page *page)
                 first_granulepos = op.granulepos;
                 found_first_granulepos = 1;
             }
-            offset += vorbis_packet_blocksize (&vi, &op) / 4;
+            if (codec == ICES_INPUT_VORBIS)
+            {
+                offset += vorbis_packet_blocksize (&vi, &op) / 4;
+            }
         }
         if (!found_first_granulepos)
             return 0;

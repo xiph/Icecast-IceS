@@ -55,8 +55,8 @@ void *ices_instance_stream(void *arg)
     stream_description *sdsc = arg;
     instance_t *stream = sdsc->stream;
     input_module_t *inmod = sdsc->input;
-    int reencoding = (inmod->type == ICES_INPUT_VORBIS) && stream->encode;
-    int encoding = (inmod->type == ICES_INPUT_PCM) && stream->encode;
+    int reencoding = 0;
+    int encoding = 0;
     char *stream_name = NULL, *stream_genre = NULL, *stream_description = NULL;
     char *stream_url = NULL, *user = NULL;
     char audio_info[11];
@@ -65,9 +65,27 @@ void *ices_instance_stream(void *arg)
 
     sdsc->shout = shout_new();
 
-    /* we only support the ice protocol and vorbis streams currently */
-    shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
+    /* we only support the ice protocol */
     shout_set_protocol(sdsc->shout, SHOUT_PROTOCOL_HTTP);
+
+    switch (inmod->type) {
+        case ICES_INPUT_UNKNOWN:
+            LOG_ERROR0("Unknown stream type.\n");
+            stream->died = 1;
+            return NULL;
+            break;
+        case ICES_INPUT_VORBIS:
+            shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
+            reencoding = stream->encode;
+            break;
+        case ICES_INPUT_OGG:
+            shout_set_format(sdsc->shout, SHOUT_FORMAT_OGG);
+            break;
+        case ICES_INPUT_PCM:
+            shout_set_format(sdsc->shout, SHOUT_FORMAT_VORBIS);
+            encoding = stream->encode;
+            break;
+    }
 
 #ifndef _WIN32
     signal(SIGPIPE, signal_hup_handler);
