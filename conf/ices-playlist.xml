@@ -60,6 +60,7 @@
             <port>8000</port>
             <password>hackme</password>
             <mount>/example1.ogg</mount>
+            <yp>1</yp>   <!-- allow stream to be advertised on YP, default 0 -->
 
             <!-- Reconnect parameters:
                 When something goes wrong (e.g. the server crashes, or the
